@@ -188,6 +188,13 @@ export default async function PublicationsPage({ searchParams }: PublicationsPag
       </form>
 
       <section className="mt-8" aria-label="Listado de publicaciones">
+        <ActiveFilters
+          collectionOptions={collectionOptions}
+          contributorOptions={contributorOptions}
+          filters={filters}
+          publisherOptions={publisherOptions}
+          subjectOptions={subjectOptions}
+        />
         <div className="mb-4 flex flex-col gap-3 text-sm text-neutral-600 md:flex-row md:items-center md:justify-between">
           <p>
             {publications.pagination.total} resultado
@@ -402,6 +409,182 @@ function PaginationControls({
       </PaginationLink>
     </nav>
   );
+}
+
+function ActiveFilters({
+  collectionOptions,
+  contributorOptions,
+  filters,
+  publisherOptions,
+  subjectOptions,
+}: {
+  readonly collectionOptions: readonly { readonly id: string; readonly title: string }[];
+  readonly contributorOptions: readonly { readonly id: string; readonly name: string }[];
+  readonly filters: PublicationPageFilters;
+  readonly publisherOptions: readonly {
+    readonly id: string;
+    readonly officialName: string;
+    readonly acronym?: string;
+  }[];
+  readonly subjectOptions: readonly {
+    readonly identifier: string;
+    readonly preferredLabel: string;
+  }[];
+}) {
+  const activeFilters = buildActiveFilterChips(filters, {
+    collections: collectionOptions,
+    contributors: contributorOptions,
+    publishers: publisherOptions,
+    subjects: subjectOptions,
+  });
+
+  if (activeFilters.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="mb-5 rounded-md border border-neutral-200 bg-neutral-50 p-4">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <p className="text-sm font-semibold text-neutral-800">Filtros activos</p>
+        <Link
+          className="text-sm font-semibold text-green-800 hover:text-green-950"
+          href="/publicaciones"
+        >
+          Limpiar todo
+        </Link>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {activeFilters.map((filter) => (
+          <Link
+            className="inline-flex items-center gap-2 rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-800 hover:bg-neutral-100"
+            href={filter.href}
+            key={filter.key}
+          >
+            <span className="font-semibold">{filter.label}:</span>
+            <span>{filter.value}</span>
+            <span aria-hidden="true" className="text-neutral-500">
+              x
+            </span>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+interface ActiveFilterChip {
+  readonly href: string;
+  readonly key: string;
+  readonly label: string;
+  readonly value: string;
+}
+
+function buildActiveFilterChips(
+  filters: PublicationPageFilters,
+  options: {
+    readonly collections: readonly { readonly id: string; readonly title: string }[];
+    readonly contributors: readonly { readonly id: string; readonly name: string }[];
+    readonly publishers: readonly {
+      readonly id: string;
+      readonly officialName: string;
+      readonly acronym?: string;
+    }[];
+    readonly subjects: readonly { readonly identifier: string; readonly preferredLabel: string }[];
+  },
+): readonly ActiveFilterChip[] {
+  const chips: ActiveFilterChip[] = [];
+
+  appendActiveFilter(chips, filters, "q", "Búsqueda", filters.q);
+  appendActiveFilter(
+    chips,
+    filters,
+    "publisherId",
+    "Editorial",
+    options.publishers.find((publisher) => publisher.id === filters.publisherId)?.officialName,
+  );
+  appendActiveFilter(
+    chips,
+    filters,
+    "subject",
+    "Materia",
+    options.subjects.find((subject) => subject.identifier === filters.subject)?.preferredLabel,
+  );
+  appendActiveFilter(
+    chips,
+    filters,
+    "contributorId",
+    "Autor",
+    options.contributors.find((contributor) => contributor.id === filters.contributorId)?.name,
+  );
+  appendActiveFilter(
+    chips,
+    filters,
+    "collectionId",
+    "Colección",
+    options.collections.find((collection) => collection.id === filters.collectionId)?.title,
+  );
+  appendActiveFilter(chips, filters, "language", "Idioma", formatLanguageFilter(filters.language));
+
+  if (filters.sort !== undefined && filters.sort !== "publicationDateDesc") {
+    appendActiveFilter(chips, filters, "sort", "Orden", formatSortFilter(filters.sort));
+  }
+
+  return chips;
+}
+
+function appendActiveFilter(
+  chips: ActiveFilterChip[],
+  filters: PublicationPageFilters,
+  key: keyof PublicationPageFilters,
+  label: string,
+  value: string | undefined,
+): void {
+  if (value === undefined) {
+    return;
+  }
+
+  chips.push({
+    href: buildPublicationsHref({ ...filters, [key]: undefined }, 1),
+    key,
+    label,
+    value,
+  });
+}
+
+function formatLanguageFilter(language: string | undefined): string | undefined {
+  if (language === "es") {
+    return "Español";
+  }
+
+  if (language === "en") {
+    return "Inglés";
+  }
+
+  if (language === "fr") {
+    return "Francés";
+  }
+
+  return language;
+}
+
+function formatSortFilter(sort: string): string {
+  if (sort === "publicationDateAsc") {
+    return "Más antiguas";
+  }
+
+  if (sort === "titleAsc") {
+    return "Título A-Z";
+  }
+
+  if (sort === "titleDesc") {
+    return "Título Z-A";
+  }
+
+  if (sort === "publisherAsc") {
+    return "Editorial A-Z";
+  }
+
+  return sort;
 }
 
 function PaginationLink({

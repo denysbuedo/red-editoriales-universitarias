@@ -49,6 +49,17 @@ describe("PublicationsPage", () => {
       '<option value="018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c08" selected="">Arquitectura y gobierno universitario (UH-AGU)</option>',
     );
     expect(html).toContain('<option value="titleAsc" selected="">Título A-Z</option>');
+    expect(html).toContain("Filtros activos");
+    expect(html).toContain("Búsqueda:");
+    expect(html).toContain("<span>gobierno</span>");
+    expect(html).toContain("Materia:");
+    expect(html).toContain("<span>Ciencia de los ordenadores</span>");
+    expect(html).toContain("Orden:");
+    expect(html).toContain("<span>Título A-Z</span>");
+    expect(html).toContain(
+      'href="/publicaciones?subject=unesco%3A1203&amp;contributorId=018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c01&amp;collectionId=018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c08&amp;language=es&amp;sort=titleAsc"',
+    );
+    expect(html).toContain('href="/publicaciones">Limpiar todo</a>');
   });
 
   it("ignores empty filter fields submitted by the catalog form", async () => {
