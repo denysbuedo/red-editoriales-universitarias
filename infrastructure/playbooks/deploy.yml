@@ -1,0 +1,147 @@
+---
+- name: Deploy PNPU portal release
+  hosts: portal
+  become: true
+  vars:
+    pnpu_release_path: "{{ pnpu_base_dir }}/releases/{{ pnpu_release_version }}"
+    pnpu_artifact_name: "pnpu-portal-{{ pnpu_release_version }}.tar.gz"
+    pnpu_artifact_remote_dir: "{{ pnpu_base_dir }}/shared/artifacts"
+    pnpu_artifact_remote_path: "{{ pnpu_artifact_remote_dir }}/{{ pnpu_artifact_name }}"
+    pnpu_checksum_remote_path: "{{ pnpu_artifact_remote_path }}.sha256"
+  tasks:
+    - name: Validate deployment variables
+      ansible.builtin.assert:
+        that:
+          - pnpu_release_version is defined
+          - pnpu_release_version | length > 0
+          - pnpu_release_artifact_local_path is defined
+          - pnpu_release_artifact_local_path | length > 0
+          - pnpu_release_checksum_local_path is defined
+          - pnpu_release_checksum_local_path | length > 0
+        fail_msg: Release version, artifact path and checksum path are required.
+
+    - name: Check target release state
+      ansible.builtin.stat:
+        path: "{{ pnpu_release_path }}"
+      register: pnpu_target_release
+
+    - name: Stop when target release already exists
+      ansible.builtin.assert:
+        that:
+          - not pnpu_target_release.stat.exists
+        fail_msg: "Release {{ pnpu_release_version }} already exists and will not be overwritten."
+
+    - name: Ensure artifact and deployment directories exist
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: directory
+        owner: "{{ item.owner | default(pnpu_service_user) }}"
+        group: "{{ item.group | default(pnpu_service_group) }}"
+        mode: "{{ item.mode }}"
+      loop:
+        - path: "{{ pnpu_artifact_remote_dir }}"
+          mode: "0750"
+        - path: "{{ pnpu_base_dir }}/shared/deployments"
+          mode: "0750"
+
+    - name: Upload release artifact
+      ansible.builtin.copy:
+        src: "{{ pnpu_release_artifact_local_path }}"
+        dest: "{{ pnpu_artifact_remote_path }}"
+        owner: "{{ pnpu_service_user }}"
+        group: "{{ pnpu_service_group }}"
+        mode: "0640"
+
+    - name: Upload release checksum
+      ansible.builtin.copy:
+        src: "{{ pnpu_release_checksum_local_path }}"
+        dest: "{{ pnpu_checksum_remote_path }}"
+        owner: "{{ pnpu_service_user }}"
+        group: "{{ pnpu_service_group }}"
+        mode: "0640"
+
+    - name: Verify release artifact checksum
+      ansible.builtin.command:
+        cmd: "sha256sum -c {{ pnpu_artifact_name }}.sha256"
+        chdir: "{{ pnpu_artifact_remote_dir }}"
+      changed_when: false
+
+    - name: Ensure release directory exists
+      ansible.builtin.file:
+        path: "{{ pnpu_release_path }}"
+        state: directory
+        owner: "{{ pnpu_service_user }}"
+        group: "{{ pnpu_service_group }}"
+        mode: "0755"
+
+    - name: Unpack release artifact
+      ansible.builtin.unarchive:
+        src: "{{ pnpu_artifact_remote_path }}"
+        dest: "{{ pnpu_release_path }}"
+        remote_src: true
+        owner: "{{ pnpu_service_user }}"
+        group: "{{ pnpu_service_group }}"
+        extra_opts:
+          - --strip-components=1
+
+    - name: Install production dependencies
+      ansible.builtin.command:
+        cmd: "{{ pnpu_node_bin }} ci --omit=dev"
+        chdir: "{{ pnpu_release_path }}"
+      changed_when: true
+
+    - name: Ensure release ownership after dependency install
+      ansible.builtin.file:
+        path: "{{ pnpu_release_path }}"
+        state: directory
+        owner: "{{ pnpu_service_user }}"
+        group: "{{ pnpu_service_group }}"
+        recurse: true
+
+    - name: Update current symlink
+      ansible.builtin.file:
+        src: "{{ pnpu_release_path }}"
+        dest: "{{ pnpu_base_dir }}/current"
+        state: link
+        owner: "{{ pnpu_service_user }}"
+        group: "{{ pnpu_service_group }}"
+        force: true
+
+    - name: Restart portal service
+      ansible.builtin.systemd:
+        name: "{{ pnpu_service_name }}"
+        state: restarted
+        daemon_reload: true
+
+    - name: Verify portal readiness
+      ansible.builtin.uri:
+        url: "{{ pnpu_health_ready_url }}"
+        method: GET
+        status_code: 200
+        return_content: true
+        timeout: "{{ pnpu_health_timeout }}"
+      register: pnpu_ready_response
+
+    - name: Validate readiness payload
+      ansible.builtin.assert:
+        that:
+          - pnpu_ready_response.json.status == "ready"
+          - pnpu_ready_response.json.service == "pnpu-portal"
+          - pnpu_ready_response.json.version == pnpu_release_version
+        fail_msg: Portal readiness check failed.
+
+    - name: Register deployment metadata
+      ansible.builtin.copy:
+        dest: "{{ pnpu_base_dir }}/shared/deployments/{{ pnpu_release_version }}.json"
+        owner: "{{ pnpu_service_user }}"
+        group: "{{ pnpu_service_group }}"
+        mode: "0640"
+        content: |
+          {
+            "application": "pnpu-portal",
+            "version": "{{ pnpu_release_version }}",
+            "releasePath": "{{ pnpu_release_path }}",
+            "artifact": "{{ pnpu_artifact_remote_path }}",
+            "deployedAt": "{{ ansible_date_time.iso8601 }}",
+            "ready": true
+          }

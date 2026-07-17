@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pnpu.mes.gob.cu/schemas/json-schema/university.schema.json",
+  "title": "PNPU University",
+  "description": "Perfil de aplicacion PNPU para instituciones universitarias. Reutiliza Schema.org Organization/CollegeOrUniversity y Dublin Core Terms.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "identifier",
+    "officialName",
+    "country"
+  ],
+  "properties": {
+    "@context": {
+      "description": "Contexto JSON-LD que define los namespaces y el mapeo semantico de las propiedades.",
+      "type": [
+        "string",
+        "object",
+        "array"
+      ],
+      "default": "https://pnpu.mes.gob.cu/schemas/jsonld-context/context.jsonld"
+    },
+    "@id": {
+      "description": "URI publica persistente de la universidad.",
+      "type": "string",
+      "format": "uri"
+    },
+    "@type": {
+      "description": "Tipo RDF/Schema.org de la universidad.",
+      "type": "string",
+      "enum": [
+        "CollegeOrUniversity",
+        "schema:CollegeOrUniversity"
+      ],
+      "default": "CollegeOrUniversity"
+    },
+    "identifier": {
+      "description": "Identificador principal PNPU de la universidad expresado como UUID v7.",
+      "$ref": "#/$defs/uuidV7"
+    },
+    "officialName": {
+      "description": "Nombre oficial de la universidad.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
+    },
+    "acronym": {
+      "description": "Sigla institucional de la universidad.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 40
+    },
+    "universityCode": {
+      "description": "Codigo institucional MES de la universidad. Extension PNPU.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80
+    },
+    "province": {
+      "description": "Provincia o subdivision administrativa principal.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "country": {
+      "description": "Pais de la universidad, codificado segun ISO 3166-1 alfa-2.",
+      "$ref": "#/$defs/countryCode"
+    },
+    "website": {
+      "description": "Sitio web institucional oficial.",
+      "type": "string",
+      "format": "uri"
+    },
+    "sameAs": {
+      "description": "URIs equivalentes en autoridades externas como Wikidata, ROR, VIAF o sitios institucionales.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "format": "uri"
+      }
+    }
+  },
+  "$defs": {
+    "uuidV7": {
+      "type": "string",
+      "pattern": "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-7[0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+    },
+    "countryCode": {
+      "type": "string",
+      "pattern": "^[A-Z]{2}$"
+    }
+  },
+  "examples": [
+    {
+      "@context": "https://pnpu.mes.gob.cu/schemas/jsonld-context/context.jsonld",
+      "@type": "CollegeOrUniversity",
+      "@id": "https://pnpu.mes.gob.cu/universidades/018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c02",
+      "identifier": "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c02",
+      "officialName": "Universidad de La Habana",
+      "acronym": "UH",
+      "universityCode": "MES-UH",
+      "province": "La Habana",
+      "country": "CU",
+      "website": "https://www.uh.cu/"
+    }
+  ]
+}

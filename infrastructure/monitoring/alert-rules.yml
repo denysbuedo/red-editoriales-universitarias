@@ -1,0 +1,32 @@
+groups:
+  - name: pnpu-portal
+    rules:
+      - alert: PNPUPortalBuildInfoMissing
+        expr: absent(pnpu_portal_build_info{service="pnpu-portal"})
+        for: 5m
+        labels:
+          severity: warning
+          service: pnpu-portal
+        annotations:
+          summary: PNPU Portal build metadata is missing.
+          description: Prometheus is not receiving pnpu_portal_build_info from the portal.
+
+      - alert: PNPUPortalReadyEndpointDown
+        expr: probe_success{application="pnpu-portal"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: pnpu-portal
+        annotations:
+          summary: PNPU Portal readiness endpoint is down.
+          description: The /health/ready probe has failed for more than two minutes.
+
+      - alert: PNPUPortalProcessRestarted
+        expr: pnpu_portal_process_uptime_seconds{service="pnpu-portal"} < 60
+        for: 1m
+        labels:
+          severity: info
+          service: pnpu-portal
+        annotations:
+          summary: PNPU Portal process restarted recently.
+          description: The portal process uptime is below 60 seconds.

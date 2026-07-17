@@ -1,0 +1,28 @@
+name: Validate schemas
+
+on:
+  pull_request:
+  push:
+    paths:
+      - "schemas/**"
+      - "scripts/validate-schemas.py"
+      - ".github/workflows/validate-schemas.yml"
+
+jobs:
+  validate-schemas:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install validators
+        run: python -m pip install rdflib pyshacl jsonschema
+
+      - name: Validate schemas and examples
+        run: python scripts/validate-schemas.py

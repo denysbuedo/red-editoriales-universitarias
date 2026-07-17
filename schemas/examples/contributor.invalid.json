@@ -1,0 +1,10 @@
+{
+  "@context": "../jsonld-context/context.jsonld",
+  "@type": "Person",
+  "@id": "not-a-url",
+  "identifier": "550e8400-e29b-41d4-a716-446655440000",
+  "orcid": "0000-0002-1825-0097",
+  "email": "correo-invalido",
+  "country": "CUB",
+  "role": []
+}

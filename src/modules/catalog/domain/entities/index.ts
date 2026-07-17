@@ -1,0 +1,16 @@
+export { Collection } from "./collection";
+export type { CollectionProps } from "./collection";
+export { Contributor, CONTRIBUTOR_ROLES } from "./contributor";
+export type { ContributorProps, ContributorRole } from "./contributor";
+export { Identifier, IDENTIFIER_TYPES } from "./identifier";
+export type { IdentifierProps, IdentifierType } from "./identifier";
+export { Publisher } from "./publisher";
+export type { ContactPoint, PublisherProps } from "./publisher";
+export { PUBLICATION_TYPES, Publication } from "./publication";
+export type { PublicationProps, PublicationType } from "./publication";
+export { Resource, RESOURCE_TYPES } from "./resource";
+export type { ResourceProps, ResourceType } from "./resource";
+export { Subject } from "./subject";
+export type { SubjectProps } from "./subject";
+export { University } from "./university";
+export type { UniversityProps } from "./university";

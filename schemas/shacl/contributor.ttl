@@ -1,0 +1,92 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix pnpu: <https://pnpu.mes.gob.cu/ns#> .
+@prefix schema: <https://schema.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+pnpu:ContributorShape
+    a sh:NodeShape ;
+    sh:targetClass schema:Person, foaf:Person, schema:Organization ;
+    sh:closed false ;
+    sh:property [
+        sh:path dcterms:identifier ;
+        sh:name "identifier" ;
+        sh:description "Identificador principal PNPU del contribuyente expresado como UUID v7." ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-7[0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path foaf:name ;
+        sh:name "name" ;
+        sh:description "Nombre preferido u oficial del contribuyente." ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path foaf:givenName ;
+        sh:name "givenName" ;
+        sh:description "Nombre de pila cuando el contribuyente es una persona." ;
+        sh:datatype xsd:string ;
+    ] ;
+    sh:property [
+        sh:path foaf:familyName ;
+        sh:name "familyName" ;
+        sh:description "Apellidos cuando el contribuyente es una persona." ;
+        sh:datatype xsd:string ;
+    ] ;
+    sh:property [
+        sh:path schema:identifier ;
+        sh:name "orcid" ;
+        sh:description "Identificador externo del contribuyente, incluyendo ORCID cuando aplique." ;
+        sh:or (
+            [ sh:nodeKind sh:IRI ; sh:pattern "^https://orcid\\.org/[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]$" ]
+            [ sh:datatype xsd:string ]
+        ) ;
+    ] ;
+    sh:property [
+        sh:path schema:affiliation ;
+        sh:name "affiliation" ;
+        sh:description "Afiliacion institucional del contribuyente." ;
+    ] ;
+    sh:property [
+        sh:path schema:email ;
+        sh:name "email" ;
+        sh:description "Correo institucional o publico del contribuyente." ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$" ;
+    ] ;
+    sh:property [
+        sh:path schema:addressCountry ;
+        sh:name "country" ;
+        sh:description "Pais asociado al contribuyente en ISO 3166-1 alfa-2." ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[A-Z]{2}$" ;
+    ] ;
+    sh:property [
+        sh:path schema:roleName ;
+        sh:name "role" ;
+        sh:description "Funcion del contribuyente segun vocabulario controlado PNPU." ;
+        sh:datatype xsd:string ;
+        sh:in ( "author" "editor" "scientificEditor" "compiler" "translator" "illustrator" "reviewer" "contributor" "organization" ) ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path schema:sameAs ;
+        sh:name "sameAs" ;
+        sh:description "URI equivalente del contribuyente en autoridades externas." ;
+        sh:nodeKind sh:IRI ;
+    ] .
+
+pnpu:ContributorExample
+    a schema:Person, foaf:Person ;
+    dcterms:identifier "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c01" ;
+    foaf:name "Juana Perez Rodriguez" ;
+    foaf:givenName "Juana" ;
+    foaf:familyName "Perez Rodriguez" ;
+    schema:identifier <https://orcid.org/0000-0002-1825-0097> ;
+    schema:affiliation "Universidad de La Habana" ;
+    schema:addressCountry "CU" ;
+    schema:roleName "author" .

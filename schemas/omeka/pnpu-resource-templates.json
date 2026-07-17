@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "profile": "PNPU Omeka S resource templates",
+  "version": "0.1.0",
+  "status": "proposal",
+  "resourceTemplates": [
+    {
+      "label": "PNPU Publication",
+      "resourceType": "item",
+      "properties": [
+        { "term": "pnpu:uuid", "required": true },
+        { "term": "dcterms:title", "required": true },
+        { "term": "dcterms:alternative", "required": false },
+        { "term": "dcterms:abstract", "required": false },
+        { "term": "dcterms:issued", "required": true },
+        { "term": "dcterms:language", "required": true },
+        { "term": "dcterms:type", "required": true },
+        { "term": "dcterms:format", "required": true },
+        { "term": "dcterms:license", "required": false },
+        { "term": "dcterms:publisher", "required": true },
+        { "term": "dcterms:creator", "required": true },
+        { "term": "dcterms:contributor", "required": false },
+        { "term": "dcterms:identifier", "required": true },
+        { "term": "bibo:isbn", "required": false },
+        { "term": "bibo:doi", "required": false },
+        { "term": "dcterms:subject", "required": true },
+        { "term": "dcterms:isPartOf", "required": false },
+        { "term": "schema:keywords", "required": false }
+      ]
+    },
+    {
+      "label": "PNPU Contributor",
+      "resourceType": "item",
+      "properties": [
+        { "term": "pnpu:uuid", "required": true },
+        { "term": "foaf:name", "required": true },
+        { "term": "foaf:givenName", "required": false },
+        { "term": "foaf:familyName", "required": false },
+        { "term": "schema:roleName", "required": true },
+        { "term": "schema:sameAs", "required": false },
+        { "term": "schema:affiliation", "required": false },
+        { "term": "schema:description", "required": false },
+        { "term": "schema:nationality", "required": false }
+      ]
+    },
+    {
+      "label": "PNPU Publisher",
+      "resourceType": "item",
+      "properties": [
+        { "term": "pnpu:uuid", "required": true },
+        { "term": "schema:name", "required": true },
+        { "term": "dcterms:title", "required": false },
+        { "term": "schema:alternateName", "required": false },
+        { "term": "pnpu:publisherCode", "required": false },
+        { "term": "dcterms:description", "required": false },
+        { "term": "schema:parentOrganization", "required": true },
+        { "term": "schema:addressLocality", "required": false },
+        { "term": "schema:addressCountry", "required": true },
+        { "term": "schema:url", "required": false },
+        { "term": "schema:logo", "required": false },
+        { "term": "schema:email", "required": false },
+        { "term": "schema:telephone", "required": false },
+        { "term": "schema:contactPoint", "required": false }
+      ]
+    },
+    {
+      "label": "PNPU University",
+      "resourceType": "item",
+      "properties": [
+        { "term": "pnpu:uuid", "required": true },
+        { "term": "schema:name", "required": true },
+        { "term": "schema:alternateName", "required": false },
+        { "term": "pnpu:universityCode", "required": false },
+        { "term": "schema:addressLocality", "required": false },
+        { "term": "schema:addressCountry", "required": true },
+        { "term": "schema:url", "required": false }
+      ]
+    },
+    {
+      "label": "PNPU Collection",
+      "resourceType": "item_set",
+      "properties": [
+        { "term": "pnpu:uuid", "required": true },
+        { "term": "dcterms:title", "required": true },
+        { "term": "dcterms:publisher", "required": true },
+        { "term": "dcterms:description", "required": false },
+        { "term": "pnpu:collectionCode", "required": false },
+        { "term": "pnpu:editorialSeries", "required": false },
+        { "term": "dcterms:subject", "required": false }
+      ]
+    },
+    {
+      "label": "PNPU Subject",
+      "resourceType": "item",
+      "properties": [
+        { "term": "skos:notation", "required": true },
+        { "term": "dcterms:identifier", "required": false },
+        { "term": "skos:prefLabel", "required": true },
+        { "term": "schema:url", "required": false },
+        { "term": "skos:broader", "required": false },
+        { "term": "skos:related", "required": false }
+      ]
+    },
+    {
+      "label": "PNPU Digital Resource",
+      "resourceType": "media",
+      "properties": [
+        { "term": "pnpu:resourceType", "required": true },
+        { "term": "dcterms:format", "required": true },
+        { "term": "pnpu:fileSize", "required": false },
+        { "term": "pnpu:checksum", "required": false },
+        { "term": "dcterms:language", "required": false },
+        { "term": "dcterms:license", "required": false }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+[Unit]
+Description=PNPU Portal
+After=network.target
+
+[Service]
+Type=simple
+User={{ pnpu_service_user }}
+Group={{ pnpu_service_group }}
+WorkingDirectory={{ pnpu_base_dir }}/current
+EnvironmentFile={{ pnpu_env_file }}
+ExecStart={{ pnpu_node_bin }} run start
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths={{ pnpu_base_dir }}/shared
+
+[Install]
+WantedBy=multi-user.target

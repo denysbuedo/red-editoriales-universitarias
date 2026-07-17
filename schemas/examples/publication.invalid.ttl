@@ -1,0 +1,15 @@
+@prefix bibo: <http://purl.org/ontology/bibo/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix schema: <https://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://pnpu.mes.gob.cu/publicaciones/invalid>
+    a schema:Book ;
+    dcterms:identifier "550e8400-e29b-41d4-a716-446655440000" ;
+    dcterms:issued "2026-07-14"^^xsd:date ;
+    dcterms:language "spanish" ;
+    dcterms:license "CC BY" ;
+    dcterms:type "book" ;
+    dcterms:format "application/pdf" ;
+    bibo:isbn "9789590000000" ;
+    schema:associatedMedia <not-a-valid-url> .

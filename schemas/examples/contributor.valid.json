@@ -1,0 +1,19 @@
+{
+  "@context": "../jsonld-context/context.jsonld",
+  "@type": "Person",
+  "@id": "https://pnpu.mes.gob.cu/autores/018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c01",
+  "identifier": "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c01",
+  "name": "Juana Perez Rodriguez",
+  "givenName": "Juana",
+  "familyName": "Perez Rodriguez",
+  "orcid": "https://orcid.org/0000-0002-1825-0097",
+  "affiliation": "Universidad de La Habana",
+  "email": "juana.perez@uh.cu",
+  "country": "CU",
+  "role": [
+    "author"
+  ],
+  "sameAs": [
+    "https://orcid.org/0000-0002-1825-0097"
+  ]
+}

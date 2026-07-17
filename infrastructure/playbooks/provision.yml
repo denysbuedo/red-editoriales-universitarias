@@ -1,0 +1,8 @@
+---
+- name: Provision PNPU portal host
+  hosts: portal
+  become: true
+  roles:
+    - role: portal
+      vars:
+        pnpu_portal_manage_service: true

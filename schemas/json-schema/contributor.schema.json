@@ -1,0 +1,181 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pnpu.mes.gob.cu/schemas/json-schema/contributor.schema.json",
+  "title": "PNPU Contributor",
+  "description": "Perfil de aplicacion PNPU para personas u organizaciones que contribuyen a una publicacion. Reutiliza FOAF, Schema.org y Dublin Core Terms mediante el contexto JSON-LD PNPU.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "identifier",
+    "name",
+    "role"
+  ],
+  "properties": {
+    "@context": {
+      "description": "Contexto JSON-LD que define los namespaces y el mapeo semantico de las propiedades.",
+      "type": [
+        "string",
+        "object",
+        "array"
+      ],
+      "default": "https://pnpu.mes.gob.cu/schemas/jsonld-context/context.jsonld"
+    },
+    "@id": {
+      "description": "URI publica persistente del contribuyente.",
+      "type": "string",
+      "format": "uri"
+    },
+    "@type": {
+      "description": "Tipo RDF/Schema.org del contribuyente.",
+      "type": "string",
+      "enum": [
+        "Person",
+        "Organization",
+        "schema:Person",
+        "schema:Organization",
+        "foaf:Person",
+        "foaf:Organization"
+      ],
+      "default": "Person"
+    },
+    "identifier": {
+      "description": "Identificador principal PNPU del contribuyente expresado como UUID v7.",
+      "$ref": "#/$defs/uuidV7"
+    },
+    "name": {
+      "description": "Nombre preferido o nombre oficial del contribuyente.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
+    },
+    "givenName": {
+      "description": "Nombre de pila cuando el contribuyente es una persona.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "familyName": {
+      "description": "Apellidos cuando el contribuyente es una persona.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "orcid": {
+      "description": "Identificador ORCID normalizado del contribuyente, cuando aplica.",
+      "type": "string",
+      "pattern": "^https://orcid\\.org/[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]$"
+    },
+    "isni": {
+      "description": "Identificador ISNI del contribuyente, cuando exista.",
+      "type": "string",
+      "pattern": "^[0-9]{4} [0-9]{4} [0-9]{4} [0-9]{3}[0-9X]$"
+    },
+    "affiliation": {
+      "description": "Afiliacion institucional del contribuyente. Puede expresarse como texto, URI o referencia institucional.",
+      "oneOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        {
+          "$ref": "#/$defs/entityReference"
+        }
+      ]
+    },
+    "email": {
+      "description": "Correo institucional o publico del contribuyente.",
+      "type": "string",
+      "format": "email"
+    },
+    "biography": {
+      "description": "Nota biografica breve del contribuyente.",
+      "type": "string",
+      "maxLength": 5000
+    },
+    "country": {
+      "description": "Pais asociado al contribuyente, codificado segun ISO 3166-1 alfa-2.",
+      "$ref": "#/$defs/countryCode"
+    },
+    "role": {
+      "description": "Funcion del contribuyente en la publicacion segun vocabulario controlado PNPU compatible con roles bibliograficos.",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "author",
+          "editor",
+          "scientificEditor",
+          "compiler",
+          "translator",
+          "illustrator",
+          "reviewer",
+          "contributor",
+          "organization"
+        ]
+      }
+    },
+    "sameAs": {
+      "description": "URIs equivalentes en sistemas externos como ORCID, VIAF, Wikidata u OpenAlex.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "format": "uri"
+      }
+    }
+  },
+  "$defs": {
+    "uuidV7": {
+      "type": "string",
+      "pattern": "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-7[0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+    },
+    "countryCode": {
+      "type": "string",
+      "pattern": "^[A-Z]{2}$"
+    },
+    "entityReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "identifier",
+        "name"
+      ],
+      "properties": {
+        "identifier": {
+          "description": "UUID v7 de la entidad referenciada.",
+          "$ref": "#/$defs/uuidV7"
+        },
+        "@id": {
+          "description": "URI publica de la entidad referenciada.",
+          "type": "string",
+          "format": "uri"
+        },
+        "name": {
+          "description": "Etiqueta legible de la entidad referenciada.",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "@context": "https://pnpu.mes.gob.cu/schemas/jsonld-context/context.jsonld",
+      "@type": "Person",
+      "@id": "https://pnpu.mes.gob.cu/autores/018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c01",
+      "identifier": "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c01",
+      "name": "Juana Perez Rodriguez",
+      "givenName": "Juana",
+      "familyName": "Perez Rodriguez",
+      "orcid": "https://orcid.org/0000-0002-1825-0097",
+      "affiliation": "Universidad de La Habana",
+      "country": "CU",
+      "role": [
+        "author"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+@prefix schema: <https://schema.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+schema:name a rdf:Property ;
+  rdfs:label "name" .
+
+schema:alternateName a rdf:Property ;
+  rdfs:label "alternateName" .
+
+schema:keywords a rdf:Property ;
+  rdfs:label "keywords" .
+
+schema:url a rdf:Property ;
+  rdfs:label "url" .
+
+schema:logo a rdf:Property ;
+  rdfs:label "logo" .
+
+schema:email a rdf:Property ;
+  rdfs:label "email" .
+
+schema:telephone a rdf:Property ;
+  rdfs:label "telephone" .
+
+schema:contactPoint a rdf:Property ;
+  rdfs:label "contactPoint" .
+
+schema:parentOrganization a rdf:Property ;
+  rdfs:label "parentOrganization" .
+
+schema:addressLocality a rdf:Property ;
+  rdfs:label "addressLocality" .
+
+schema:addressCountry a rdf:Property ;
+  rdfs:label "addressCountry" .
+
+schema:roleName a rdf:Property ;
+  rdfs:label "roleName" .
+
+schema:sameAs a rdf:Property ;
+  rdfs:label "sameAs" .
+
+schema:affiliation a rdf:Property ;
+  rdfs:label "affiliation" .
+
+schema:description a rdf:Property ;
+  rdfs:label "description" .
+
+schema:nationality a rdf:Property ;
+  rdfs:label "nationality" .

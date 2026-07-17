@@ -1,0 +1,44 @@
+@prefix bibo: <http://purl.org/ontology/bibo/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix pnpu: <https://pnpu.mes.gob.cu/ns#> .
+@prefix schema: <https://schema.org/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://pnpu.mes.gob.cu/publicaciones/018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c05>
+    a schema:Book ;
+    dcterms:identifier "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c05" ;
+    dcterms:title "Arquitectura empresarial para universidades" ;
+    dcterms:creator <https://pnpu.mes.gob.cu/autores/018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c01> ;
+    dcterms:publisher <https://pnpu.mes.gob.cu/editoriales/018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c03> ;
+    dcterms:issued "2026-07-14"^^xsd:date ;
+    dcterms:language "es" ;
+    dcterms:abstract "Estudio sobre arquitectura empresarial aplicada a instituciones universitarias." ;
+    dcterms:subject <https://pnpu.mes.gob.cu/vocabularies/subjects/1203> ;
+    dcterms:license "CC BY" ;
+    dcterms:type "book" ;
+    dcterms:format "application/pdf" ;
+    bibo:isbn "9789590000003" ;
+    schema:associatedMedia <https://pnpu.mes.gob.cu/recursos/018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c05.pdf> ;
+    pnpu:accessLevel "openAccess" ;
+    pnpu:digitalAvailability "available" .
+
+<https://pnpu.mes.gob.cu/autores/018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c01>
+    a schema:Person ;
+    dcterms:identifier "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c01" ;
+    schema:roleName "author" .
+
+<https://pnpu.mes.gob.cu/editoriales/018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c03>
+    a schema:Organization ;
+    dcterms:identifier "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c03" .
+
+<https://pnpu.mes.gob.cu/vocabularies/subjects/1203>
+    a skos:Concept ;
+    skos:prefLabel "Ciencia de los ordenadores"@es .
+
+<https://pnpu.mes.gob.cu/recursos/018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c05.pdf>
+    a schema:MediaObject ;
+    schema:url <https://pnpu.mes.gob.cu/recursos/018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c05.pdf> ;
+    dcterms:format "application/pdf" ;
+    schema:contentSize 2457600 ;
+    pnpu:checksum "d41d8cd98f00b204e9800998ecf8427e" .

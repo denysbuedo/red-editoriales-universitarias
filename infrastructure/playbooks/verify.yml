@@ -1,0 +1,39 @@
+---
+- name: Verify PNPU portal health
+  hosts: portal
+  gather_facts: false
+  tasks:
+    - name: Check live endpoint
+      ansible.builtin.uri:
+        url: "{{ pnpu_health_live_url }}"
+        method: GET
+        status_code: 200
+        return_content: true
+        timeout: "{{ pnpu_health_timeout }}"
+      register: pnpu_live_response
+
+    - name: Check ready endpoint
+      ansible.builtin.uri:
+        url: "{{ pnpu_health_ready_url }}"
+        method: GET
+        status_code: 200
+        return_content: true
+        timeout: "{{ pnpu_health_timeout }}"
+      register: pnpu_ready_response
+
+    - name: Validate health payloads
+      ansible.builtin.assert:
+        that:
+          - pnpu_live_response.json.status == "ok"
+          - pnpu_ready_response.json.status == "ready"
+          - pnpu_live_response.json.service == "pnpu-portal"
+          - pnpu_ready_response.json.service == "pnpu-portal"
+        fail_msg: Portal health check returned an unexpected payload.
+
+    - name: Validate expected version when provided
+      ansible.builtin.assert:
+        that:
+          - pnpu_live_response.json.version == pnpu_release_version
+          - pnpu_ready_response.json.version == pnpu_release_version
+        fail_msg: Portal health check returned an unexpected version.
+      when: pnpu_release_version is defined

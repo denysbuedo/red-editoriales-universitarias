@@ -1,0 +1,461 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pnpu.mes.gob.cu/schemas/json-schema/publication.schema.json",
+  "title": "PNPU Publication",
+  "description": "Perfil de aplicacion PNPU para publicaciones editoriales universitarias. Reutiliza Dublin Core Terms, Schema.org, BIBO y SKOS mediante JSON-LD.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "identifier",
+    "title",
+    "creator",
+    "publisher",
+    "issued",
+    "language",
+    "subject",
+    "license",
+    "type",
+    "format",
+    "resources"
+  ],
+  "properties": {
+    "@context": {
+      "description": "Contexto JSON-LD que define los namespaces y el mapeo semantico de las propiedades.",
+      "type": [
+        "string",
+        "object",
+        "array"
+      ],
+      "default": "https://pnpu.mes.gob.cu/schemas/jsonld-context/context.jsonld"
+    },
+    "@id": {
+      "description": "URI publica persistente de la publicacion.",
+      "type": "string",
+      "format": "uri"
+    },
+    "@type": {
+      "description": "Tipo RDF/Schema.org de la publicacion.",
+      "type": "string",
+      "enum": [
+        "Book",
+        "CreativeWork",
+        "schema:Book",
+        "schema:CreativeWork",
+        "bibo:Book",
+        "bibo:Document"
+      ],
+      "default": "Book"
+    },
+    "identifier": {
+      "description": "Identificador principal PNPU de la publicacion expresado como UUID v7.",
+      "$ref": "#/$defs/uuidV7"
+    },
+    "title": {
+      "description": "Titulo principal de la publicacion.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500
+    },
+    "subtitle": {
+      "description": "Subtitulo de la publicacion, cuando exista.",
+      "type": "string",
+      "maxLength": 500
+    },
+    "creator": {
+      "description": "Contribuyentes responsables de la creacion intelectual de la publicacion.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/entityReference"
+          },
+          {
+            "$ref": "contributor.schema.json"
+          }
+        ]
+      }
+    },
+    "publisher": {
+      "description": "Editorial universitaria responsable de publicar la obra.",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/entityReference"
+        },
+        {
+          "$ref": "publisher.schema.json"
+        }
+      ]
+    },
+    "issued": {
+      "description": "Fecha de publicacion formal de la obra en ISO 8601.",
+      "type": "string",
+      "format": "date"
+    },
+    "language": {
+      "description": "Idioma principal de la publicacion, codificado segun ISO 639-1.",
+      "$ref": "#/$defs/languageCode"
+    },
+    "abstract": {
+      "description": "Resumen descriptivo de la publicacion.",
+      "type": "string",
+      "maxLength": 10000
+    },
+    "description": {
+      "description": "Descripcion general para interoperabilidad Dublin Core cuando difiera del resumen.",
+      "type": "string",
+      "maxLength": 10000
+    },
+    "subject": {
+      "description": "Materias, areas de conocimiento o conceptos SKOS asociados a la publicacion.",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/conceptReference"
+      }
+    },
+    "keywords": {
+      "description": "Palabras clave libres o normalizadas para descubrimiento. Maximo recomendado por PNPU: 10.",
+      "type": "array",
+      "maxItems": 10,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 120
+      }
+    },
+    "license": {
+      "description": "Licencia de distribucion o uso de la publicacion.",
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "Copyright",
+            "CC BY",
+            "CC BY-SA",
+            "CC BY-NC",
+            "Public Domain"
+          ]
+        },
+        {
+          "type": "string",
+          "format": "uri"
+        }
+      ]
+    },
+    "type": {
+      "description": "Tipo documental segun vocabulario controlado PNPU.",
+      "type": "string",
+      "enum": [
+        "book",
+        "ebook",
+        "manual",
+        "monograph",
+        "conferenceProceedings",
+        "technicalReport",
+        "dataset",
+        "openEducationalResource",
+        "podcast",
+        "video",
+        "thesis",
+        "journal",
+        "bookChapter"
+      ]
+    },
+    "format": {
+      "description": "Formato principal de distribucion. Debe preferirse un MIME Type IANA cuando se conozca.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120,
+      "examples": [
+        "application/pdf",
+        "application/epub+zip",
+        "text/html"
+      ]
+    },
+    "rights": {
+      "description": "Declaracion textual complementaria sobre derechos.",
+      "type": "string",
+      "maxLength": 5000
+    },
+    "isbn": {
+      "description": "ISBN impreso normalizado como ISBN-10 o ISBN-13 sin guiones.",
+      "$ref": "#/$defs/isbn"
+    },
+    "eisbn": {
+      "description": "ISBN electronico normalizado como ISBN-10 o ISBN-13 sin guiones.",
+      "$ref": "#/$defs/isbn"
+    },
+    "doi": {
+      "description": "DOI de la publicacion, expresado como URI resoluble.",
+      "type": "string",
+      "pattern": "^https://doi\\.org/10\\.[^\\s]+$"
+    },
+    "collection": {
+      "description": "Coleccion editorial a la que pertenece la publicacion.",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/entityReference"
+        },
+        {
+          "$ref": "collection.schema.json"
+        }
+      ]
+    },
+    "editorialSeries": {
+      "description": "Serie editorial asociada a la publicacion, cuando aplique. Extension PNPU.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "edition": {
+      "description": "Numero o descripcion de edicion bibliografica.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "numberOfPages": {
+      "description": "Cantidad total de paginas de la publicacion.",
+      "type": "integer",
+      "minimum": 1
+    },
+    "volume": {
+      "description": "Volumen bibliografico cuando la publicacion forma parte de una obra seriada.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80
+    },
+    "issue": {
+      "description": "Numero o entrega bibliografica cuando aplique.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80
+    },
+    "accessLevel": {
+      "description": "Nivel de acceso definido por PNPU.",
+      "type": "string",
+      "enum": [
+        "openAccess",
+        "restrictedAccess",
+        "metadataOnly",
+        "externalLink"
+      ]
+    },
+    "digitalAvailability": {
+      "description": "Estado de disponibilidad digital de la publicacion. Extension PNPU.",
+      "type": "string",
+      "enum": [
+        "available",
+        "pendingDigitization",
+        "notAvailable",
+        "external"
+      ]
+    },
+    "qualityScore": {
+      "description": "Indicador derivado de calidad de metadatos o disponibilidad calculado por PNPU.",
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "resources": {
+      "description": "Manifestaciones digitales de la publicacion. Toda publicacion debe tener al menos un recurso.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/digitalResource"
+      }
+    },
+    "sameAs": {
+      "description": "URIs equivalentes en sistemas externos como Crossref, OpenAlex, Wikidata, repositorios u OAI-PMH.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "format": "uri"
+      }
+    }
+  },
+  "$defs": {
+    "uuidV7": {
+      "type": "string",
+      "pattern": "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-7[0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+    },
+    "languageCode": {
+      "type": "string",
+      "pattern": "^[a-z]{2}$"
+    },
+    "isbn": {
+      "type": "string",
+      "pattern": "^(?:[0-9]{9}[0-9X]|97[89][0-9]{10})$"
+    },
+    "entityReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "identifier",
+        "name"
+      ],
+      "properties": {
+        "identifier": {
+          "description": "UUID v7 de la entidad referenciada.",
+          "$ref": "#/$defs/uuidV7"
+        },
+        "@id": {
+          "description": "URI publica de la entidad referenciada.",
+          "type": "string",
+          "format": "uri"
+        },
+        "name": {
+          "description": "Etiqueta legible de la entidad referenciada.",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "conceptReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "identifier",
+        "preferredLabel"
+      ],
+      "properties": {
+        "identifier": {
+          "description": "URI, codigo UNESCO o UUID v7 del concepto.",
+          "type": "string",
+          "minLength": 1
+        },
+        "@id": {
+          "description": "URI del concepto SKOS.",
+          "type": "string",
+          "format": "uri"
+        },
+        "preferredLabel": {
+          "description": "Etiqueta preferida del concepto.",
+          "type": "string",
+          "minLength": 1
+        },
+        "broader": {
+          "description": "Concepto SKOS mas amplio.",
+          "type": "string",
+          "format": "uri"
+        },
+        "related": {
+          "description": "Concepto SKOS relacionado.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      }
+    },
+    "digitalResource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "url",
+        "format"
+      ],
+      "properties": {
+        "@type": {
+          "description": "Tipo Schema.org del recurso digital.",
+          "type": "string",
+          "enum": [
+            "MediaObject",
+            "schema:MediaObject"
+          ],
+          "default": "MediaObject"
+        },
+        "url": {
+          "description": "URL publica o controlada del recurso digital.",
+          "type": "string",
+          "format": "uri"
+        },
+        "format": {
+          "description": "MIME Type IANA o descripcion de formato del recurso.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "fileSize": {
+          "description": "Tamano del archivo en bytes.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "checksum": {
+          "description": "Checksum de preservacion del archivo.",
+          "type": "string",
+          "minLength": 32,
+          "maxLength": 256
+        },
+        "language": {
+          "description": "Idioma del recurso digital segun ISO 639-1.",
+          "$ref": "#/$defs/languageCode"
+        },
+        "license": {
+          "description": "Licencia aplicable especificamente al recurso digital.",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "@context": "https://pnpu.mes.gob.cu/schemas/jsonld-context/context.jsonld",
+      "@type": "Book",
+      "@id": "https://pnpu.mes.gob.cu/publicaciones/018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c05",
+      "identifier": "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c05",
+      "title": "Arquitectura empresarial para universidades",
+      "creator": [
+        {
+          "identifier": "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c01",
+          "@id": "https://pnpu.mes.gob.cu/autores/018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c01",
+          "name": "Juana Perez Rodriguez"
+        }
+      ],
+      "publisher": {
+        "identifier": "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c03",
+        "@id": "https://pnpu.mes.gob.cu/editoriales/018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c03",
+        "name": "Editorial Universidad de La Habana"
+      },
+      "issued": "2026-07-14",
+      "language": "es",
+      "abstract": "Estudio sobre arquitectura empresarial aplicada a instituciones universitarias.",
+      "subject": [
+        {
+          "identifier": "unesco:1203",
+          "@id": "https://pnpu.mes.gob.cu/vocabularies/subjects/1203",
+          "preferredLabel": "Ciencia de los ordenadores"
+        }
+      ],
+      "keywords": [
+        "arquitectura empresarial",
+        "universidades",
+        "gobierno de datos"
+      ],
+      "license": "CC BY",
+      "type": "book",
+      "format": "application/pdf",
+      "isbn": "9789590000003",
+      "resources": [
+        {
+          "@type": "MediaObject",
+          "url": "https://pnpu.mes.gob.cu/recursos/018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c05.pdf",
+          "format": "application/pdf",
+          "fileSize": 2457600,
+          "checksum": "d41d8cd98f00b204e9800998ecf8427e",
+          "language": "es",
+          "license": "CC BY"
+        }
+      ],
+      "accessLevel": "openAccess",
+      "digitalAvailability": "available",
+      "qualityScore": 0.95
+    }
+  ]
+}

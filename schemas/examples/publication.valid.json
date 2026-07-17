@@ -1,0 +1,52 @@
+{
+  "@context": "../jsonld-context/context.jsonld",
+  "@type": "Book",
+  "@id": "https://pnpu.mes.gob.cu/publicaciones/018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c05",
+  "identifier": "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c05",
+  "title": "Arquitectura empresarial para universidades",
+  "creator": [
+    {
+      "identifier": "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c01",
+      "@id": "https://pnpu.mes.gob.cu/autores/018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c01",
+      "name": "Juana Perez Rodriguez"
+    }
+  ],
+  "publisher": {
+    "identifier": "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c03",
+    "@id": "https://pnpu.mes.gob.cu/editoriales/018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c03",
+    "name": "Editorial Universidad de La Habana"
+  },
+  "issued": "2026-07-14",
+  "language": "es",
+  "abstract": "Estudio sobre arquitectura empresarial aplicada a instituciones universitarias.",
+  "subject": [
+    {
+      "identifier": "unesco:1203",
+      "@id": "https://pnpu.mes.gob.cu/vocabularies/subjects/1203",
+      "preferredLabel": "Ciencia de los ordenadores"
+    }
+  ],
+  "keywords": [
+    "arquitectura empresarial",
+    "universidades",
+    "gobierno de datos"
+  ],
+  "license": "CC BY",
+  "type": "book",
+  "format": "application/pdf",
+  "isbn": "9789590000003",
+  "resources": [
+    {
+      "@type": "MediaObject",
+      "url": "https://pnpu.mes.gob.cu/recursos/018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c05.pdf",
+      "format": "application/pdf",
+      "fileSize": 2457600,
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e",
+      "language": "es",
+      "license": "CC BY"
+    }
+  ],
+  "accessLevel": "openAccess",
+  "digitalAvailability": "available",
+  "qualityScore": 0.95
+}

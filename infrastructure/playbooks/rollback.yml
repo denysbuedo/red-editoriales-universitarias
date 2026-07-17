@@ -1,0 +1,72 @@
+---
+- name: Roll back PNPU portal release
+  hosts: portal
+  become: true
+  gather_facts: true
+  vars:
+    pnpu_previous_release_path: "{{ pnpu_base_dir }}/releases/{{ pnpu_previous_release_version }}"
+  tasks:
+    - name: Validate previous release version
+      ansible.builtin.assert:
+        that:
+          - pnpu_previous_release_version is defined
+          - pnpu_previous_release_version | length > 0
+        fail_msg: pnpu_previous_release_version is required.
+
+    - name: Check previous release exists
+      ansible.builtin.stat:
+        path: "{{ pnpu_previous_release_path }}"
+      register: pnpu_previous_release
+
+    - name: Stop when previous release is missing
+      ansible.builtin.assert:
+        that:
+          - pnpu_previous_release.stat.isdir | default(false)
+        fail_msg: Previous release directory does not exist.
+
+    - name: Point current symlink to previous release
+      ansible.builtin.file:
+        src: "{{ pnpu_previous_release_path }}"
+        dest: "{{ pnpu_base_dir }}/current"
+        state: link
+        owner: "{{ pnpu_service_user }}"
+        group: "{{ pnpu_service_group }}"
+        force: true
+
+    - name: Restart portal service
+      ansible.builtin.systemd:
+        name: "{{ pnpu_service_name }}"
+        state: restarted
+        daemon_reload: true
+
+    - name: Verify portal readiness after rollback
+      ansible.builtin.uri:
+        url: "{{ pnpu_health_ready_url }}"
+        method: GET
+        status_code: 200
+        return_content: true
+        timeout: "{{ pnpu_health_timeout }}"
+      register: pnpu_rollback_ready_response
+
+    - name: Validate rollback readiness payload
+      ansible.builtin.assert:
+        that:
+          - pnpu_rollback_ready_response.json.status == "ready"
+          - pnpu_rollback_ready_response.json.service == "pnpu-portal"
+          - pnpu_rollback_ready_response.json.version == pnpu_previous_release_version
+        fail_msg: Portal rollback readiness check failed.
+
+    - name: Register rollback metadata
+      ansible.builtin.copy:
+        dest: "{{ pnpu_base_dir }}/shared/deployments/rollback-{{ pnpu_previous_release_version }}-{{ ansible_date_time.epoch }}.json"
+        owner: "{{ pnpu_service_user }}"
+        group: "{{ pnpu_service_group }}"
+        mode: "0640"
+        content: |
+          {
+            "application": "pnpu-portal",
+            "rollbackToVersion": "{{ pnpu_previous_release_version }}",
+            "releasePath": "{{ pnpu_previous_release_path }}",
+            "rolledBackAt": "{{ ansible_date_time.iso8601 }}",
+            "ready": true
+          }

@@ -1,0 +1,32 @@
+name: OpenAPI CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+    paths:
+      - "openapi/**"
+      - "requirements-openapi.txt"
+      - "scripts/validate-openapi.py"
+      - ".github/workflows/openapi-ci.yml"
+
+jobs:
+  validate-openapi:
+    name: Validate OpenAPI
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install OpenAPI validator
+        run: python -m pip install -r requirements-openapi.txt
+
+      - name: Validate OpenAPI contracts
+        run: python scripts/validate-openapi.py

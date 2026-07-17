@@ -1,0 +1,51 @@
+@prefix pnpu: <https://pnpu.mes.gob.cu/ns#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+pnpu:uuid a rdf:Property ;
+  rdfs:label "PNPU UUID" ;
+  rdfs:comment "Identificador persistente canonico de un recurso PNPU." .
+
+pnpu:publisherCode a rdf:Property ;
+  rdfs:label "Publisher code" ;
+  rdfs:comment "Codigo institucional de la editorial universitaria." .
+
+pnpu:universityCode a rdf:Property ;
+  rdfs:label "University code" ;
+  rdfs:comment "Codigo institucional de la universidad." .
+
+pnpu:collectionCode a rdf:Property ;
+  rdfs:label "Collection code" ;
+  rdfs:comment "Codigo local de una coleccion editorial." .
+
+pnpu:editorialSeries a rdf:Property ;
+  rdfs:label "Editorial series" ;
+  rdfs:comment "Serie editorial asociada a una coleccion o publicacion." .
+
+pnpu:resourceType a rdf:Property ;
+  rdfs:label "Resource type" ;
+  rdfs:comment "Tipo normalizado del recurso digital." .
+
+pnpu:fileSize a rdf:Property ;
+  rdfs:label "File size" ;
+  rdfs:comment "Tamano del fichero cuando Omeka no lo expone como metadato estructurado." .
+
+pnpu:checksum a rdf:Property ;
+  rdfs:label "Checksum" ;
+  rdfs:comment "Digest criptografico del recurso digital." .
+
+pnpu:contributorRole a rdf:Property ;
+  rdfs:label "Contributor role" ;
+  rdfs:comment "Rol editorial normalizado del contribuidor." .
+
+pnpu:accessLevel a rdf:Property ;
+  rdfs:label "Access level" ;
+  rdfs:comment "Nivel de acceso del recurso digital." .
+
+pnpu:digitalAvailability a rdf:Property ;
+  rdfs:label "Digital availability" ;
+  rdfs:comment "Estado de disponibilidad digital de la publicacion." .
+
+pnpu:qualityScore a rdf:Property ;
+  rdfs:label "Quality score" ;
+  rdfs:comment "Indicador interno de calidad de metadatos." .

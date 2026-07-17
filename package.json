@@ -1,0 +1,57 @@
+{
+  "name": "pnpu-portal",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Portal de la Plataforma Nacional de Publicaciones Universitarias.",
+  "scripts": {
+    "dev": "next dev",
+    "dev:local": "next dev -H 127.0.0.1 -p 4307",
+    "build": "next build",
+    "package:release": "node scripts/package-release.mjs",
+    "package:validate": "node scripts/validate-release-artifact.mjs",
+    "start": "next start",
+    "smoke": "node scripts/smoke-test.mjs",
+    "omeka:check": "node scripts/check-omeka.mjs",
+    "omeka:install-profile": "node scripts/install-omeka-profile.mjs",
+    "omeka:map": "node scripts/map-omeka-catalog.mjs",
+    "omeka:seed-sample": "node scripts/seed-omeka-sample.mjs",
+    "prepare": "husky",
+    "lint": "eslint .",
+    "format": "prettier --check \"*.{json,js,mjs,ts,yml}\" \"src/**/*.{ts,tsx,css}\" \".github/**/*.yml\" \"infrastructure/**/*.yml\" \"openapi/**/*.yml\"",
+    "format:write": "prettier --write \"*.{json,js,mjs,ts,yml}\" \"src/**/*.{ts,tsx,css}\" \".github/**/*.yml\" \"infrastructure/**/*.yml\" \"openapi/**/*.yml\"",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "quality": "npm run format && npm run lint && npm run typecheck && npm test",
+    "test:watch": "vitest"
+  },
+  "engines": {
+    "node": ">=22.13.0",
+    "npm": ">=10.0.0"
+  },
+  "overrides": {
+    "postcss": "^8.5.19"
+  },
+  "dependencies": {
+    "next": "^16.2.10",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^21.2.1",
+    "@commitlint/config-conventional": "^21.2.0",
+    "@eslint/js": "^9.39.5",
+    "@next/eslint-plugin-next": "^16.2.10",
+    "@types/node": "26.1.1",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
+    "postcss": "^8.5.19",
+    "prettier": "^3.9.5",
+    "tailwindcss": "^3.4.19",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.64.0",
+    "vitest": "^4.1.10"
+  }
+}

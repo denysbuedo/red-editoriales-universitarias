@@ -1,0 +1,16 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <https://schema.org/> .
+
+<https://pnpu.mes.gob.cu/autores/018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c01>
+    a schema:Person, foaf:Person ;
+    dcterms:identifier "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c01" ;
+    foaf:name "Juana Perez Rodriguez" ;
+    foaf:givenName "Juana" ;
+    foaf:familyName "Perez Rodriguez" ;
+    schema:identifier <https://orcid.org/0000-0002-1825-0097> ;
+    schema:affiliation "Universidad de La Habana" ;
+    schema:email "juana.perez@uh.cu" ;
+    schema:addressCountry "CU" ;
+    schema:roleName "author" ;
+    schema:sameAs <https://orcid.org/0000-0002-1825-0097> .

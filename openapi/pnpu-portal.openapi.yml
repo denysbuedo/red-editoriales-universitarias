@@ -1,0 +1,1131 @@
+openapi: 3.1.0
+info:
+  title: PNPU Portal API
+  version: 0.1.0
+  description: API técnica inicial del Portal PNPU.
+servers:
+  - url: http://127.0.0.1:4307
+    description: Desarrollo local
+paths:
+  /v1/publications:
+    get:
+      operationId: listPublications
+      summary: Lista publicaciones públicas del catálogo PNPU.
+      tags:
+        - Catalog
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PageSize"
+        - $ref: "#/components/parameters/PublicationSearch"
+        - $ref: "#/components/parameters/PublicationPublisherId"
+        - $ref: "#/components/parameters/PublicationContributorId"
+        - $ref: "#/components/parameters/PublicationCollectionId"
+        - $ref: "#/components/parameters/PublicationLanguage"
+        - $ref: "#/components/parameters/PublicationSubject"
+        - $ref: "#/components/parameters/PublicationSort"
+      responses:
+        "200":
+          description: Listado paginado de publicaciones.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicationListResponse"
+        "422":
+          description: Parámetros de paginación inválidos.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /v1/publications/{id}:
+    get:
+      operationId: getPublication
+      summary: Devuelve la ficha pública de una publicación por UUID PNPU.
+      tags:
+        - Catalog
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: UUID v7 público de la publicación.
+          schema:
+            $ref: "#/components/schemas/PnpuUuid"
+      responses:
+        "200":
+          description: Ficha pública de la publicación.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicationDetailResponse"
+        "404":
+          description: Publicación no encontrada.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: Identificador inválido.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /v1/publishers:
+    get:
+      operationId: listPublishers
+      summary: Lista editoriales universitarias integradas en PNPU.
+      tags:
+        - Catalog
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PageSize"
+      responses:
+        "200":
+          description: Listado paginado de editoriales.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublisherListResponse"
+        "422":
+          description: Parámetros de paginación inválidos.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /v1/collections:
+    get:
+      operationId: listCollections
+      summary: Lista colecciones editoriales PNPU.
+      tags:
+        - Catalog
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PageSize"
+      responses:
+        "200":
+          description: Listado paginado de colecciones.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollectionListResponse"
+        "422":
+          description: Parámetros de paginación inválidos.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /v1/collections/{id}:
+    get:
+      operationId: getCollection
+      summary: Devuelve la ficha pública de una colección por UUID PNPU.
+      tags:
+        - Catalog
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: UUID v7 público de la colección.
+          schema:
+            $ref: "#/components/schemas/PnpuUuid"
+      responses:
+        "200":
+          description: Ficha pública de la colección.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollectionDetailResponse"
+        "404":
+          description: Colección no encontrada.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: Identificador inválido.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /v1/publishers/{id}:
+    get:
+      operationId: getPublisher
+      summary: Devuelve la ficha pública de una editorial por UUID PNPU.
+      tags:
+        - Catalog
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: UUID v7 público de la editorial.
+          schema:
+            $ref: "#/components/schemas/PnpuUuid"
+      responses:
+        "200":
+          description: Ficha pública de la editorial.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublisherDetailResponse"
+        "404":
+          description: Editorial no encontrada.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: Identificador inválido.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /v1/contributors:
+    get:
+      operationId: listContributors
+      summary: Lista autoridades de autores y contribuyentes PNPU.
+      tags:
+        - Catalog
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PageSize"
+      responses:
+        "200":
+          description: Listado paginado de contribuyentes.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContributorListResponse"
+        "422":
+          description: Parámetros de paginación inválidos.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /v1/contributors/{id}:
+    get:
+      operationId: getContributor
+      summary: Devuelve la ficha pública de un autor o contribuyente por UUID PNPU.
+      tags:
+        - Catalog
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: UUID v7 público del contribuyente.
+          schema:
+            $ref: "#/components/schemas/PnpuUuid"
+      responses:
+        "200":
+          description: Ficha pública del contribuyente.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContributorDetailResponse"
+        "404":
+          description: Contribuyente no encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: Identificador inválido.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /v1/subjects:
+    get:
+      operationId: listSubjects
+      summary: Lista materias públicas de la taxonomía PNPU.
+      tags:
+        - Catalog
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PageSize"
+      responses:
+        "200":
+          description: Listado paginado de materias.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubjectListResponse"
+        "422":
+          description: Parámetros de paginación inválidos.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /v1/subjects/{identifier}:
+    get:
+      operationId: getSubject
+      summary: Devuelve la ficha pública de una materia por identificador.
+      tags:
+        - Catalog
+      parameters:
+        - name: identifier
+          in: path
+          required: true
+          description: Identificador público de la materia. Debe enviarse codificado en URL cuando contenga caracteres reservados.
+          schema:
+            type: string
+            maxLength: 120
+      responses:
+        "200":
+          description: Ficha pública de la materia.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubjectDetailResponse"
+        "404":
+          description: Materia no encontrada.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: Identificador inválido.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /version:
+    get:
+      operationId: getVersion
+      summary: Devuelve metadata de versión del Portal PNPU.
+      tags:
+        - Operations
+      responses:
+        "200":
+          description: Metadata de versión.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VersionResponse"
+              examples:
+                version:
+                  value:
+                    service: pnpu-portal
+                    version: 0.1.0
+                    commitSha: null
+  /metrics:
+    get:
+      operationId: getMetrics
+      summary: Devuelve métricas básicas en formato Prometheus.
+      tags:
+        - Operations
+      responses:
+        "200":
+          description: Métricas Prometheus.
+          content:
+            text/plain:
+              schema:
+                type: string
+  /openapi.yaml:
+    get:
+      operationId: getOpenApiContract
+      summary: Devuelve el contrato OpenAPI del Portal PNPU.
+      tags:
+        - Documentation
+      responses:
+        "200":
+          description: Contrato OpenAPI en formato YAML.
+          content:
+            application/yaml:
+              schema:
+                type: string
+  /health/live:
+    get:
+      operationId: getLiveHealth
+      summary: Verifica que el proceso del Portal está activo.
+      tags:
+        - Health
+      responses:
+        "200":
+          description: El proceso está activo.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LiveHealthResponse"
+              examples:
+                live:
+                  value:
+                    status: ok
+                    service: pnpu-portal
+                    version: 0.1.0
+                    commitSha: null
+  /health/ready:
+    get:
+      operationId: getReadyHealth
+      summary: Verifica que el Portal puede recibir tráfico.
+      tags:
+        - Health
+      responses:
+        "200":
+          description: El servicio está listo para recibir tráfico.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReadyHealthResponse"
+              examples:
+                ready:
+                  value:
+                    status: ready
+                    service: pnpu-portal
+                    version: 0.1.0
+                    commitSha: null
+                    dependencies: {}
+components:
+  parameters:
+    Page:
+      name: page
+      in: query
+      required: false
+      description: Número de página, empezando en 1.
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    PageSize:
+      name: pageSize
+      in: query
+      required: false
+      description: Cantidad de elementos por página.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    PublicationSearch:
+      name: q
+      in: query
+      required: false
+      description: Texto de búsqueda sobre título, subtítulo, resumen, editorial, identificadores, materias y palabras clave.
+      schema:
+        type: string
+        maxLength: 120
+    PublicationPublisherId:
+      name: publisherId
+      in: query
+      required: false
+      description: UUID PNPU de la editorial.
+      schema:
+        $ref: "#/components/schemas/PnpuUuid"
+    PublicationContributorId:
+      name: contributorId
+      in: query
+      required: false
+      description: UUID PNPU del autor o contribuyente.
+      schema:
+        $ref: "#/components/schemas/PnpuUuid"
+    PublicationCollectionId:
+      name: collectionId
+      in: query
+      required: false
+      description: UUID PNPU de la colección editorial.
+      schema:
+        $ref: "#/components/schemas/PnpuUuid"
+    PublicationLanguage:
+      name: language
+      in: query
+      required: false
+      description: Idioma ISO 639-1 de la publicación.
+      schema:
+        type: string
+        pattern: ^[a-z]{2}$
+    PublicationSubject:
+      name: subject
+      in: query
+      required: false
+      description: Texto o identificador de materia.
+      schema:
+        type: string
+        maxLength: 120
+    PublicationSort:
+      name: sort
+      in: query
+      required: false
+      description: Criterio de ordenamiento del listado de publicaciones.
+      schema:
+        type: string
+        default: publicationDateDesc
+        enum:
+          - publicationDateDesc
+          - publicationDateAsc
+          - titleAsc
+          - titleDesc
+          - publisherAsc
+  schemas:
+    PnpuUuid:
+      type: string
+      pattern: ^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-7[0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$
+    ApiMeta:
+      type: object
+      additionalProperties: false
+      required:
+        - apiVersion
+      properties:
+        apiVersion:
+          type: string
+          const: v1
+    ApiLinks:
+      type: object
+      additionalProperties: false
+      required:
+        - self
+      properties:
+        self:
+          type: string
+          format: uri
+        next:
+          type: string
+          format: uri
+        prev:
+          type: string
+          format: uri
+    Pagination:
+      type: object
+      additionalProperties: false
+      required:
+        - page
+        - pageSize
+        - total
+        - totalPages
+      properties:
+        page:
+          type: integer
+          minimum: 1
+        pageSize:
+          type: integer
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+          minimum: 0
+        totalPages:
+          type: integer
+          minimum: 0
+    PublisherSummary:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - officialName
+        - country
+      properties:
+        id:
+          $ref: "#/components/schemas/PnpuUuid"
+        officialName:
+          type: string
+        acronym:
+          type: string
+        country:
+          type: string
+          pattern: ^[A-Z]{2}$
+    PublisherDetail:
+      allOf:
+        - $ref: "#/components/schemas/PublisherSummary"
+        - type: object
+          additionalProperties: false
+          required:
+            - university
+          properties:
+            university:
+              type: object
+              additionalProperties: false
+              required:
+                - id
+                - officialName
+                - country
+              properties:
+                id:
+                  $ref: "#/components/schemas/PnpuUuid"
+                officialName:
+                  type: string
+                acronym:
+                  type: string
+                province:
+                  type: string
+                country:
+                  type: string
+                  pattern: ^[A-Z]{2}$
+                website:
+                  type: string
+                  format: uri
+            publisherCode:
+              type: string
+            description:
+              type: string
+            province:
+              type: string
+            website:
+              type: string
+              format: uri
+            logo:
+              type: string
+              format: uri
+            contactPoint:
+              type: object
+              additionalProperties: false
+              properties:
+                email:
+                  type: string
+                  format: email
+                telephone:
+                  type: string
+                url:
+                  type: string
+                  format: uri
+    CollectionSummary:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - title
+        - publisher
+        - publicationCount
+      properties:
+        id:
+          $ref: "#/components/schemas/PnpuUuid"
+        title:
+          type: string
+        publisher:
+          $ref: "#/components/schemas/PublisherSummary"
+        description:
+          type: string
+        collectionCode:
+          type: string
+        editorialSeries:
+          type: string
+        subjects:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubjectSummary"
+        publicationCount:
+          type: integer
+          minimum: 0
+    CollectionDetail:
+      allOf:
+        - $ref: "#/components/schemas/CollectionSummary"
+        - type: object
+          additionalProperties: false
+          required:
+            - publications
+          properties:
+            publications:
+              type: array
+              items:
+                $ref: "#/components/schemas/PublicationSummary"
+    ContributorSummary:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - name
+        - roles
+      properties:
+        id:
+          $ref: "#/components/schemas/PnpuUuid"
+        name:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+        orcid:
+          type: string
+          format: uri
+    ContributorAuthoritySummary:
+      allOf:
+        - $ref: "#/components/schemas/ContributorSummary"
+        - type: object
+          additionalProperties: false
+          required:
+            - publicationCount
+          properties:
+            givenName:
+              type: string
+            familyName:
+              type: string
+            affiliation:
+              type: string
+            country:
+              type: string
+              pattern: ^[A-Z]{2}$
+            publicationCount:
+              type: integer
+              minimum: 0
+    ContributorDetail:
+      allOf:
+        - $ref: "#/components/schemas/ContributorAuthoritySummary"
+        - type: object
+          additionalProperties: false
+          required:
+            - publications
+          properties:
+            biography:
+              type: string
+            publications:
+              type: array
+              items:
+                $ref: "#/components/schemas/PublicationSummary"
+    Identifier:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - value
+      properties:
+        type:
+          type: string
+          enum:
+            - isbn
+            - eisbn
+            - doi
+            - uri
+            - handle
+            - pnpuUuid
+        value:
+          type: string
+    SubjectSummary:
+      type: object
+      additionalProperties: false
+      required:
+        - identifier
+        - preferredLabel
+      properties:
+        identifier:
+          type: string
+        preferredLabel:
+          type: string
+        uri:
+          type: string
+          format: uri
+    SubjectAuthoritySummary:
+      allOf:
+        - $ref: "#/components/schemas/SubjectSummary"
+        - type: object
+          additionalProperties: false
+          required:
+            - publicationCount
+          properties:
+            broader:
+              type: string
+              format: uri
+            related:
+              type: array
+              items:
+                type: string
+                format: uri
+            publicationCount:
+              type: integer
+              minimum: 0
+    SubjectDetail:
+      allOf:
+        - $ref: "#/components/schemas/SubjectAuthoritySummary"
+        - type: object
+          additionalProperties: false
+          required:
+            - publications
+          properties:
+            publications:
+              type: array
+              items:
+                $ref: "#/components/schemas/PublicationSummary"
+    Resource:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - url
+        - format
+      properties:
+        type:
+          type: string
+        url:
+          type: string
+          format: uri
+        format:
+          type: string
+        fileSize:
+          type: integer
+          minimum: 0
+        checksum:
+          type: string
+        language:
+          type: string
+          pattern: ^[a-z]{2}$
+        license:
+          type: string
+    PublicationSummary:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - title
+        - publicationDate
+        - language
+        - type
+        - subjects
+        - publisher
+      properties:
+        id:
+          $ref: "#/components/schemas/PnpuUuid"
+        title:
+          type: string
+        subtitle:
+          type: string
+        publicationDate:
+          type: string
+          format: date
+        language:
+          type: string
+          pattern: ^[a-z]{2}$
+        type:
+          type: string
+        license:
+          type: string
+        primaryIdentifier:
+          $ref: "#/components/schemas/Identifier"
+        subjects:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubjectSummary"
+        keywords:
+          type: array
+          items:
+            type: string
+        publisher:
+          $ref: "#/components/schemas/PublisherSummary"
+    PublicationDetail:
+      allOf:
+        - $ref: "#/components/schemas/PublicationSummary"
+        - type: object
+          additionalProperties: false
+          required:
+            - format
+            - contributors
+            - identifiers
+            - subjects
+            - resources
+          properties:
+            subtitle:
+              type: string
+            abstract:
+              type: string
+            format:
+              type: string
+            license:
+              type: string
+            contributors:
+              type: array
+              items:
+                $ref: "#/components/schemas/ContributorSummary"
+            identifiers:
+              type: array
+              items:
+                $ref: "#/components/schemas/Identifier"
+            subjects:
+              type: array
+              items:
+                $ref: "#/components/schemas/SubjectSummary"
+            resources:
+              type: array
+              items:
+                $ref: "#/components/schemas/Resource"
+            keywords:
+              type: array
+              items:
+                type: string
+    PublicationListResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - data
+        - pagination
+        - links
+        - meta
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicationSummary"
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        links:
+          $ref: "#/components/schemas/ApiLinks"
+        meta:
+          $ref: "#/components/schemas/ApiMeta"
+    PublicationDetailResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - data
+        - links
+        - meta
+      properties:
+        data:
+          $ref: "#/components/schemas/PublicationDetail"
+        links:
+          type: object
+          additionalProperties: false
+          required:
+            - self
+          properties:
+            self:
+              type: string
+              format: uri
+        meta:
+          $ref: "#/components/schemas/ApiMeta"
+    PublisherListResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - data
+        - pagination
+        - links
+        - meta
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublisherSummary"
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        links:
+          $ref: "#/components/schemas/ApiLinks"
+        meta:
+          $ref: "#/components/schemas/ApiMeta"
+    PublisherDetailResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - data
+        - links
+        - meta
+      properties:
+        data:
+          $ref: "#/components/schemas/PublisherDetail"
+        links:
+          type: object
+          additionalProperties: false
+          required:
+            - self
+          properties:
+            self:
+              type: string
+              format: uri
+        meta:
+          $ref: "#/components/schemas/ApiMeta"
+    CollectionListResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - data
+        - pagination
+        - links
+        - meta
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/CollectionSummary"
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        links:
+          $ref: "#/components/schemas/ApiLinks"
+        meta:
+          $ref: "#/components/schemas/ApiMeta"
+    CollectionDetailResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - data
+        - links
+        - meta
+      properties:
+        data:
+          $ref: "#/components/schemas/CollectionDetail"
+        links:
+          type: object
+          additionalProperties: false
+          required:
+            - self
+          properties:
+            self:
+              type: string
+              format: uri
+        meta:
+          $ref: "#/components/schemas/ApiMeta"
+    ContributorListResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - data
+        - pagination
+        - links
+        - meta
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ContributorAuthoritySummary"
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        links:
+          $ref: "#/components/schemas/ApiLinks"
+        meta:
+          $ref: "#/components/schemas/ApiMeta"
+    ContributorDetailResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - data
+        - links
+        - meta
+      properties:
+        data:
+          $ref: "#/components/schemas/ContributorDetail"
+        links:
+          type: object
+          additionalProperties: false
+          required:
+            - self
+          properties:
+            self:
+              type: string
+              format: uri
+        meta:
+          $ref: "#/components/schemas/ApiMeta"
+    SubjectListResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - data
+        - pagination
+        - links
+        - meta
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubjectAuthoritySummary"
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        links:
+          $ref: "#/components/schemas/ApiLinks"
+        meta:
+          $ref: "#/components/schemas/ApiMeta"
+    SubjectDetailResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - data
+        - links
+        - meta
+      properties:
+        data:
+          $ref: "#/components/schemas/SubjectDetail"
+        links:
+          type: object
+          additionalProperties: false
+          required:
+            - self
+          properties:
+            self:
+              type: string
+              format: uri
+        meta:
+          $ref: "#/components/schemas/ApiMeta"
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - code
+        - message
+        - correlationId
+      properties:
+        code:
+          type: string
+          enum:
+            - PNPU-404
+            - PNPU-409
+            - PNPU-422
+            - PNPU-429
+            - PNPU-503
+        message:
+          type: string
+        correlationId:
+          type: string
+    VersionResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - service
+        - version
+        - commitSha
+      properties:
+        service:
+          type: string
+          const: pnpu-portal
+        version:
+          type: string
+          pattern: ^[0-9]+\.[0-9]+\.[0-9]+$
+        commitSha:
+          type:
+            - string
+            - "null"
+    LiveHealthResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - status
+        - service
+        - version
+        - commitSha
+      properties:
+        status:
+          type: string
+          const: ok
+        service:
+          type: string
+          const: pnpu-portal
+        version:
+          type: string
+          pattern: ^[0-9]+\.[0-9]+\.[0-9]+$
+        commitSha:
+          type:
+            - string
+            - "null"
+    ReadyHealthResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - status
+        - service
+        - version
+        - commitSha
+        - dependencies
+      properties:
+        status:
+          type: string
+          const: ready
+        service:
+          type: string
+          const: pnpu-portal
+        version:
+          type: string
+          pattern: ^[0-9]+\.[0-9]+\.[0-9]+$
+        commitSha:
+          type:
+            - string
+            - "null"
+        dependencies:
+          type: object
+          additionalProperties:
+            type: string
+tags:
+  - name: Catalog
+    description: Endpoints públicos del catálogo editorial PNPU.
+  - name: Documentation
+    description: Endpoints técnicos de documentación de contratos.
+  - name: Health
+    description: Endpoints técnicos de disponibilidad.
+  - name: Operations
+    description: Endpoints técnicos de operación y observabilidad.

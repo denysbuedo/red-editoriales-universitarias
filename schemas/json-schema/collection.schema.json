@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pnpu.mes.gob.cu/schemas/json-schema/collection.schema.json",
+  "title": "PNPU Collection",
+  "description": "Perfil de aplicacion PNPU para colecciones editoriales. Reutiliza Dublin Core Terms, Schema.org CollectionPage y BIBO.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "identifier",
+    "title",
+    "publisher"
+  ],
+  "properties": {
+    "@context": {
+      "description": "Contexto JSON-LD que define los namespaces y el mapeo semantico de las propiedades.",
+      "type": [
+        "string",
+        "object",
+        "array"
+      ],
+      "default": "https://pnpu.mes.gob.cu/schemas/jsonld-context/context.jsonld"
+    },
+    "@id": {
+      "description": "URI publica persistente de la coleccion.",
+      "type": "string",
+      "format": "uri"
+    },
+    "@type": {
+      "description": "Tipo RDF/Schema.org de la coleccion.",
+      "type": "string",
+      "enum": [
+        "CollectionPage",
+        "schema:CollectionPage",
+        "bibo:Collection"
+      ],
+      "default": "CollectionPage"
+    },
+    "identifier": {
+      "description": "Identificador principal PNPU de la coleccion expresado como UUID v7.",
+      "$ref": "#/$defs/uuidV7"
+    },
+    "title": {
+      "description": "Titulo oficial de la coleccion.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
+    },
+    "publisher": {
+      "description": "Editorial responsable de la coleccion.",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/entityReference"
+        },
+        {
+          "$ref": "publisher.schema.json"
+        }
+      ]
+    },
+    "description": {
+      "description": "Descripcion de alcance, proposito o linea editorial de la coleccion.",
+      "type": "string",
+      "maxLength": 5000
+    },
+    "collectionCode": {
+      "description": "Codigo editorial o institucional de la coleccion. Extension PNPU.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80
+    },
+    "editorialSeries": {
+      "description": "Serie editorial asociada a la coleccion, cuando aplique. Extension PNPU.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "subject": {
+      "description": "Materias SKOS asociadas a la coleccion.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/conceptReference"
+      }
+    },
+    "sameAs": {
+      "description": "URIs equivalentes de la coleccion en otros sistemas.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "format": "uri"
+      }
+    }
+  },
+  "$defs": {
+    "uuidV7": {
+      "type": "string",
+      "pattern": "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-7[0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$"
+    },
+    "entityReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "identifier",
+        "name"
+      ],
+      "properties": {
+        "identifier": {
+          "description": "UUID v7 de la entidad referenciada.",
+          "$ref": "#/$defs/uuidV7"
+        },
+        "@id": {
+          "description": "URI publica de la entidad referenciada.",
+          "type": "string",
+          "format": "uri"
+        },
+        "name": {
+          "description": "Etiqueta legible de la entidad referenciada.",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "conceptReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "identifier",
+        "preferredLabel"
+      ],
+      "properties": {
+        "identifier": {
+          "description": "URI, codigo UNESCO o UUID v7 del concepto.",
+          "type": "string",
+          "minLength": 1
+        },
+        "@id": {
+          "description": "URI del concepto SKOS.",
+          "type": "string",
+          "format": "uri"
+        },
+        "preferredLabel": {
+          "description": "Etiqueta preferida del concepto.",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "@context": "https://pnpu.mes.gob.cu/schemas/jsonld-context/context.jsonld",
+      "@type": "CollectionPage",
+      "@id": "https://pnpu.mes.gob.cu/colecciones/018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c04",
+      "identifier": "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c04",
+      "title": "Biblioteca Universitaria",
+      "publisher": {
+        "identifier": "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c03",
+        "@id": "https://pnpu.mes.gob.cu/editoriales/018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c03",
+        "name": "Editorial Universidad de La Habana"
+      },
+      "description": "Coleccion dedicada a textos docentes y monografias universitarias.",
+      "collectionCode": "COL-BU"
+    }
+  ]
+}

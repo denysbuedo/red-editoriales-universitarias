@@ -1,0 +1,279 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "profile": "PNPU Omeka S sample catalog",
+  "version": "0.2.0",
+  "records": {
+    "universities": [
+      {
+        "key": "uh",
+        "uuid": "01990f5a-0000-7000-8000-000000000202",
+        "name": "Universidad de La Habana",
+        "acronym": "UH",
+        "code": "UH",
+        "province": "La Habana",
+        "country": "CU",
+        "url": "https://www.uh.cu"
+      },
+      {
+        "key": "uclv",
+        "uuid": "01990f5a-0000-7000-8000-000000000302",
+        "name": "Universidad Central Marta Abreu de Las Villas",
+        "acronym": "UCLV",
+        "code": "UCLV",
+        "province": "Villa Clara",
+        "country": "CU",
+        "url": "https://www.uclv.edu.cu"
+      },
+      {
+        "key": "uo",
+        "uuid": "01990f5a-0000-7000-8000-000000000402",
+        "name": "Universidad de Oriente",
+        "acronym": "UO",
+        "code": "UO",
+        "province": "Santiago de Cuba",
+        "country": "CU",
+        "url": "https://www.uo.edu.cu"
+      }
+    ],
+    "publishers": [
+      {
+        "key": "editorial-uh",
+        "uuid": "01990f5a-0000-7000-8000-000000000203",
+        "universityKey": "uh",
+        "name": "Editorial UH",
+        "acronym": "Editorial UH",
+        "code": "ED-UH",
+        "description": "Editorial universitaria orientada a ciencias sociales, educacion superior y patrimonio academico.",
+        "province": "La Habana",
+        "country": "CU",
+        "url": "https://editorial.uh.cu",
+        "email": "editorial@uh.cu",
+        "telephone": "+53 7 0000000"
+      },
+      {
+        "key": "editorial-feijoo",
+        "uuid": "01990f5a-0000-7000-8000-000000000303",
+        "universityKey": "uclv",
+        "name": "Editorial Feijoo",
+        "acronym": "Feijoo",
+        "code": "ED-FEIJOO",
+        "description": "Editorial universitaria de la region central de Cuba con catalogo cientifico, tecnico y humanistico.",
+        "province": "Villa Clara",
+        "country": "CU",
+        "url": "https://feijoo.uclv.edu.cu",
+        "email": "editorial@uclv.edu.cu",
+        "telephone": "+53 42 000000"
+      },
+      {
+        "key": "ediciones-oriente",
+        "uuid": "01990f5a-0000-7000-8000-000000000403",
+        "universityKey": "uo",
+        "name": "Ediciones Universidad de Oriente",
+        "acronym": "Ediciones UO",
+        "code": "ED-UO",
+        "description": "Sello editorial universitario enfocado en investigacion, innovacion y desarrollo territorial.",
+        "province": "Santiago de Cuba",
+        "country": "CU",
+        "url": "https://editorial.uo.edu.cu",
+        "email": "editorial@uo.edu.cu",
+        "telephone": "+53 22 000000"
+      }
+    ],
+    "subjects": [
+      {
+        "key": "educacion-superior",
+        "notation": "37.01",
+        "prefLabel": "Educacion superior",
+        "uri": "https://pnpu.mes.gob.cu/vocabularies/subjects/37-01"
+      },
+      {
+        "key": "gestion-editorial",
+        "notation": "070.5",
+        "prefLabel": "Gestion editorial",
+        "uri": "https://pnpu.mes.gob.cu/vocabularies/subjects/070-5"
+      },
+      {
+        "key": "ingenieria",
+        "notation": "62",
+        "prefLabel": "Ingenieria y tecnologia",
+        "uri": "https://pnpu.mes.gob.cu/vocabularies/subjects/62"
+      },
+      {
+        "key": "ciencias-sociales",
+        "notation": "30",
+        "prefLabel": "Ciencias sociales",
+        "uri": "https://pnpu.mes.gob.cu/vocabularies/subjects/30"
+      },
+      {
+        "key": "desarrollo-local",
+        "notation": "332.1",
+        "prefLabel": "Desarrollo local",
+        "uri": "https://pnpu.mes.gob.cu/vocabularies/subjects/332-1"
+      }
+    ],
+    "contributors": [
+      {
+        "key": "ana-perez",
+        "uuid": "01990f5a-0000-7000-8000-000000000201",
+        "name": "Ana Perez",
+        "givenName": "Ana",
+        "familyName": "Perez",
+        "role": "author",
+        "affiliation": "Universidad de La Habana",
+        "description": "Investigadora en gestion editorial universitaria.",
+        "country": "CU"
+      },
+      {
+        "key": "luis-gomez",
+        "uuid": "01990f5a-0000-7000-8000-000000000301",
+        "name": "Luis Gomez",
+        "givenName": "Luis",
+        "familyName": "Gomez",
+        "role": "editor",
+        "affiliation": "Universidad Central Marta Abreu de Las Villas",
+        "description": "Editor academico especializado en publicaciones cientificas.",
+        "country": "CU"
+      },
+      {
+        "key": "marta-rodriguez",
+        "uuid": "01990f5a-0000-7000-8000-000000000401",
+        "name": "Marta Rodriguez",
+        "givenName": "Marta",
+        "familyName": "Rodriguez",
+        "role": "author",
+        "affiliation": "Universidad de Oriente",
+        "description": "Profesora e investigadora en desarrollo territorial.",
+        "country": "CU"
+      },
+      {
+        "key": "carlos-menendez",
+        "uuid": "01990f5a-0000-7000-8000-000000000501",
+        "name": "Carlos Menendez",
+        "givenName": "Carlos",
+        "familyName": "Menendez",
+        "role": "reviewer",
+        "affiliation": "Red Nacional de Editoriales Universitarias",
+        "description": "Especialista en evaluacion editorial y calidad de publicaciones.",
+        "country": "CU"
+      }
+    ],
+    "collections": [
+      {
+        "key": "biblioteca-pnpu",
+        "uuid": "01990f5a-0000-7000-8000-000000000204",
+        "publisherKey": "editorial-uh",
+        "title": "Biblioteca PNPU",
+        "code": "BIB-PNPU",
+        "series": "Integracion editorial universitaria",
+        "description": "Coleccion de prueba para validar la integracion Omeka S y PNPU.",
+        "subjectKeys": ["educacion-superior", "gestion-editorial"]
+      },
+      {
+        "key": "ingenieria-aplicada",
+        "uuid": "01990f5a-0000-7000-8000-000000000304",
+        "publisherKey": "editorial-feijoo",
+        "title": "Ingenieria aplicada",
+        "code": "ING-APL",
+        "series": "Tecnologia universitaria",
+        "description": "Resultados docentes y cientificos para carreras tecnicas e ingenieriles.",
+        "subjectKeys": ["ingenieria"]
+      },
+      {
+        "key": "territorio-sociedad",
+        "uuid": "01990f5a-0000-7000-8000-000000000404",
+        "publisherKey": "ediciones-oriente",
+        "title": "Territorio y sociedad",
+        "code": "TER-SOC",
+        "series": "Estudios regionales",
+        "description": "Publicaciones sobre transformacion social, universidad y desarrollo local.",
+        "subjectKeys": ["ciencias-sociales", "desarrollo-local"]
+      }
+    ],
+    "publications": [
+      {
+        "key": "gestion-editorial",
+        "uuid": "01990f5a-0000-7000-8000-000000000205",
+        "publisherKey": "editorial-uh",
+        "collectionKey": "biblioteca-pnpu",
+        "creatorKeys": ["ana-perez"],
+        "contributorKeys": ["luis-gomez"],
+        "subjectKeys": ["educacion-superior", "gestion-editorial"],
+        "title": "Gestion editorial universitaria",
+        "subtitle": "Procesos, metadatos y visibilidad academica",
+        "abstract": "Guia introductoria para organizar procesos editoriales universitarios interoperables y sostenibles.",
+        "issued": "2026-07-16",
+        "language": "es",
+        "type": "book",
+        "format": "application/pdf",
+        "license": "CC BY",
+        "identifier": "https://pnpu.mes.gob.cu/publicaciones/gestion-editorial",
+        "isbn": "9789590000003",
+        "doi": "10.1234/pnpu.gestion-editorial",
+        "keywords": ["universidad", "editorial", "metadatos"],
+        "media": {
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+          "format": "application/pdf",
+          "resourceType": "pdf",
+          "language": "es",
+          "license": "CC BY"
+        }
+      },
+      {
+        "key": "automatizacion-laboratorios",
+        "uuid": "01990f5a-0000-7000-8000-000000000305",
+        "publisherKey": "editorial-feijoo",
+        "collectionKey": "ingenieria-aplicada",
+        "creatorKeys": ["luis-gomez"],
+        "contributorKeys": ["carlos-menendez"],
+        "subjectKeys": ["ingenieria", "educacion-superior"],
+        "title": "Automatizacion de laboratorios docentes",
+        "subtitle": "Experiencias para carreras de ingenieria",
+        "abstract": "Manual para disenar, documentar y evaluar practicas de automatizacion en laboratorios universitarios.",
+        "issued": "2026-05-20",
+        "language": "es",
+        "type": "book",
+        "format": "application/pdf",
+        "license": "CC BY-NC",
+        "identifier": "https://pnpu.mes.gob.cu/publicaciones/automatizacion-laboratorios",
+        "isbn": "9789590000004",
+        "doi": "10.1234/pnpu.automatizacion-laboratorios",
+        "keywords": ["ingenieria", "laboratorios", "automatizacion"],
+        "media": {
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+          "format": "application/pdf",
+          "resourceType": "pdf",
+          "language": "es",
+          "license": "CC BY-NC"
+        }
+      },
+      {
+        "key": "universidad-desarrollo-local",
+        "uuid": "01990f5a-0000-7000-8000-000000000405",
+        "publisherKey": "ediciones-oriente",
+        "collectionKey": "territorio-sociedad",
+        "creatorKeys": ["marta-rodriguez"],
+        "contributorKeys": ["ana-perez"],
+        "subjectKeys": ["desarrollo-local", "ciencias-sociales"],
+        "title": "Universidad y desarrollo local",
+        "subtitle": "Articulacion territorial desde la educacion superior",
+        "abstract": "Estudio sobre el papel de la universidad cubana en procesos de desarrollo territorial e innovacion social.",
+        "issued": "2026-03-12",
+        "language": "es",
+        "type": "book",
+        "format": "application/pdf",
+        "license": "CC BY",
+        "identifier": "https://pnpu.mes.gob.cu/publicaciones/universidad-desarrollo-local",
+        "isbn": "9789590000005",
+        "doi": "10.1234/pnpu.universidad-desarrollo-local",
+        "keywords": ["territorio", "desarrollo local", "universidad"],
+        "media": {
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+          "format": "application/pdf",
+          "resourceType": "pdf",
+          "language": "es",
+          "license": "CC BY"
+        }
+      }
+    ]
+  }
+}

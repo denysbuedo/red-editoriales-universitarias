@@ -1,0 +1,158 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Libro Blanco - Plataforma Nacional de Publicaciones Universitarias de Cuba</title>
+<style>
+body{font-family:Arial,sans-serif;max-width:1100px;margin:auto;line-height:1.6;color:#222;padding:40px}
+.cover{height:90vh;display:flex;flex-direction:column;justify-content:center;text-align:center;border-bottom:4px solid #0A2B5E}
+h1{font-size:44px;color:#0A2B5E}
+h2{color:#0A2B5E;border-bottom:2px solid #ddd;padding-bottom:6px;margin-top:50px}
+blockquote{border-left:5px solid #0A2B5E;padding-left:20px;color:#444;font-style:italic}
+table{width:100%;border-collapse:collapse}
+th,td{border:1px solid #bbb;padding:8px}
+th{background:#0A2B5E;color:white}
+.diagram{background:#f5f7fa;border:1px solid #ccc;padding:20px;font-family:monospace;white-space:pre}
+.callout{background:#eef5ff;border-left:6px solid #0A2B5E;padding:18px}
+</style>
+</head>
+<body>
+
+<div class="cover">
+<h1>PLATAFORMA NACIONAL DE PUBLICACIONES UNIVERSITARIAS DE CUBA</h1>
+<h2 style="border:none">Libro Blanco</h2>
+<h3>Arquitectura Funcional y Visión Estratégica</h3>
+<p><b>Versión 0.1 - Documento de Trabajo</b></p>
+<p>Ministerio de Educación Superior de Cuba</p>
+<p>Red Nacional de Editoriales Universitarias (RNEU)</p>
+<p><i>Una Red de Editoriales · Un Catálogo Nacional · Una Plataforma para el Conocimiento</i></p>
+</div>
+
+<h2>Resumen Ejecutivo</h2>
+
+<p>Este documento propone evolucionar la idea inicial de un portal institucional hacia una
+infraestructura digital nacional para la difusión de la producción editorial universitaria cubana.</p>
+
+<div class="callout">
+La propuesta no sustituye a las editoriales ni centraliza su gestión.
+Construye una plataforma federada donde cada institución conserva su identidad y sus sistemas,
+mientras comparte un catálogo nacional común.
+</div>
+
+<h2>1. Contexto</h2>
+
+<p>Las editoriales universitarias cubanas generan una parte significativa del patrimonio científico,
+académico y cultural del país. Sin embargo, esa producción permanece distribuida entre múltiples
+sitios institucionales, repositorios y catálogos independientes.</p>
+
+<p>La consecuencia es una baja visibilidad nacional e internacional, dificultades para localizar
+publicaciones y ausencia de un punto único de descubrimiento.</p>
+
+<blockquote>
+El problema principal no es tecnológico.
+El problema es la fragmentación del ecosistema editorial.
+</blockquote>
+
+<h2>2. Visión Estratégica</h2>
+
+<p>Crear la <b>Plataforma Nacional de Publicaciones Universitarias de Cuba (PNPU)</b>,
+concebida como una infraestructura digital que permita descubrir, preservar e integrar la producción
+editorial universitaria mediante estándares abiertos e interoperabilidad.</p>
+
+<div class="diagram">
+                 Ecosistema Editorial Cubano
+
+Universidades ─┐
+Editoriales ───┼──────────────┐
+Autores ───────┘              │
+                              ▼
+         Plataforma Nacional de Publicaciones
+                              │
+          ┌──────────┬────────┴────────┬─────────┐
+          ▼          ▼                 ▼
+       Libros     Editoriales      Colecciones
+          │
+          ▼
+Portal Público RNEU
+          │
+ Investigadores · Estudiantes · Bibliotecas · Sociedad
+</div>
+
+<h2>3. Principios Arquitectónicos</h2>
+
+<table>
+<tr><th>Principio</th><th>Descripción</th></tr>
+<tr><td>Una sola fuente de verdad</td><td>Cada dato tiene un único sistema responsable.</td></tr>
+<tr><td>API First</td><td>Toda integración será mediante APIs.</td></tr>
+<tr><td>Federación</td><td>La plataforma integra; no sustituye sistemas existentes.</td></tr>
+<tr><td>Software Libre</td><td>Prioridad al uso de tecnologías abiertas.</td></tr>
+<tr><td>SEO First</td><td>Cada libro debe ser indexable.</td></tr>
+<tr><td>Accesibilidad</td><td>Cumplimiento WCAG 2.2 AA.</td></tr>
+<tr><td>Preservación Digital</td><td>La publicación debe mantenerse disponible en el tiempo.</td></tr>
+<tr><td>Escalabilidad</td><td>Arquitectura preparada para crecer.</td></tr>
+</table>
+
+<h2>4. Arquitectura Conceptual</h2>
+
+<div class="diagram">
+Sistema de Gestión de Editoriales
+             │
+             │ REST API
+             ▼
+      Portal Nacional RNEU
+             ▲
+             │
+         API Omeka S
+             │
+             ▼
+        Libros · Autores
+        Colecciones
+</div>
+
+<p>El Portal no será propietario de la información institucional ni bibliográfica.
+Actuará como capa de integración, búsqueda y presentación.</p>
+
+<h2>5. Componentes de la Plataforma</h2>
+
+<ul>
+<li><b>Portal RNEU:</b> experiencia pública y descubrimiento.</li>
+<li><b>Sistema de Gestión de Editoriales:</b> fuente oficial de datos institucionales.</li>
+<li><b>Omeka S:</b> gestión bibliográfica y metadatos.</li>
+<li><b>Motor de búsqueda:</b> indexación nacional.</li>
+<li><b>API pública:</b> interoperabilidad con otros sistemas.</li>
+</ul>
+
+<h2>6. Beneficios</h2>
+
+<ul>
+<li>Mayor visibilidad internacional.</li>
+<li>Catálogo nacional único.</li>
+<li>Fortalecimiento de la marca RNEU.</li>
+<li>Mejor aprovechamiento del patrimonio editorial.</li>
+<li>Reducción de duplicidades.</li>
+<li>Base para futuras integraciones con Google Scholar, Crossref, OAI-PMH e IIIF.</li>
+</ul>
+
+<h2>7. Hoja de Ruta Inicial</h2>
+
+<table>
+<tr><th>Release</th><th>Objetivo</th></tr>
+<tr><td>R1</td><td>Portal institucional + Directorio desde API.</td></tr>
+<tr><td>R2</td><td>Integración Omeka S + Catálogo de libros.</td></tr>
+<tr><td>R3</td><td>Autores, colecciones y búsqueda avanzada.</td></tr>
+<tr><td>R4</td><td>SEO académico, interoperabilidad y API pública.</td></tr>
+</table>
+
+<h2>Conclusión</h2>
+
+<p>La Red Nacional de Editoriales Universitarias no debe entenderse únicamente como una organización
+de coordinación. Debe convertirse en la marca que articula una infraestructura nacional para la
+difusión del conocimiento universitario cubano.</p>
+
+<p>Este documento constituye el punto de partida para el diseño de la Plataforma Nacional de
+Publicaciones Universitarias de Cuba y servirá como base para los documentos de arquitectura de
+software, modelo de datos, APIs e infraestructura.</p>
+
+</body>
+</html>

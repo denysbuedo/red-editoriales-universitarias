@@ -1,0 +1,15 @@
+---
+pnpu_app_name: portal
+pnpu_service_name: pnpu-portal
+pnpu_service_user: pnpu
+pnpu_service_group: pnpu
+pnpu_base_dir: /opt/pnpu/portal
+pnpu_env_dir: /etc/pnpu
+pnpu_env_file: /etc/pnpu/portal.env
+pnpu_node_bin: /usr/bin/npm
+pnpu_node_env: production
+pnpu_port: 3000
+pnpu_portal_manage_service: true
+pnpu_catalog_repository: in-memory
+pnpu_omeka_base_url: ""
+pnpu_omeka_timeout_ms: 2000

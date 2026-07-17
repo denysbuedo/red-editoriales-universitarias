@@ -1,0 +1,61 @@
+name: Portal CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  quality:
+    name: Quality
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.13.0"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Security audit
+        run: npm audit --audit-level=moderate
+
+      - name: Build
+        run: npm run build
+
+      - name: Smoke test production server
+        run: |
+          npm run start -- -H 127.0.0.1 -p 4307 &
+          SERVER_PID=$!
+          trap "kill $SERVER_PID" EXIT
+          npm run smoke
+
+      - name: Package release artifact
+        run: npm run package:release
+
+      - name: Validate release artifact
+        run: npm run package:validate
+
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pnpu-portal-release
+          path: |
+            artifacts/*.tar.gz
+            artifacts/*.sha256

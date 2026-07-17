@@ -1,0 +1,184 @@
+@prefix bibo: <http://purl.org/ontology/bibo/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix pnpu: <https://pnpu.mes.gob.cu/ns#> .
+@prefix schema: <https://schema.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+pnpu:PublicationShape
+    a sh:NodeShape ;
+    sh:targetClass schema:Book, schema:CreativeWork, bibo:Document ;
+    sh:closed false ;
+    sh:property [
+        sh:path dcterms:identifier ;
+        sh:name "identifier" ;
+        sh:description "Identificador principal PNPU expresado como UUID v7." ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-7[0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}$" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path dcterms:title ;
+        sh:name "title" ;
+        sh:description "Titulo principal de la publicacion." ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path dcterms:creator ;
+        sh:name "creator" ;
+        sh:description "Contribuyente responsable de la creacion intelectual." ;
+        sh:class schema:Person ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path dcterms:publisher ;
+        sh:name "publisher" ;
+        sh:description "Editorial universitaria responsable de publicar la obra." ;
+        sh:class schema:Organization ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path dcterms:issued ;
+        sh:name "issued" ;
+        sh:description "Fecha de publicacion formal de la obra." ;
+        sh:datatype xsd:date ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path dcterms:language ;
+        sh:name "language" ;
+        sh:description "Idioma principal segun ISO 639-1." ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-z]{2}$" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path dcterms:abstract ;
+        sh:name "abstract" ;
+        sh:description "Resumen descriptivo recomendado de la publicacion." ;
+        sh:datatype xsd:string ;
+    ] ;
+    sh:property [
+        sh:path dcterms:subject ;
+        sh:name "subject" ;
+        sh:description "Materia o concepto de vocabulario controlado, preferentemente SKOS." ;
+        sh:class skos:Concept ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path dcterms:license ;
+        sh:name "license" ;
+        sh:description "Licencia de uso o distribucion." ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path dcterms:type ;
+        sh:name "type" ;
+        sh:description "Tipo documental segun vocabulario controlado PNPU." ;
+        sh:datatype xsd:string ;
+        sh:in ( "book" "ebook" "manual" "monograph" "conferenceProceedings" "technicalReport" "dataset" "openEducationalResource" "podcast" "video" "thesis" "journal" "bookChapter" ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path dcterms:format ;
+        sh:name "format" ;
+        sh:description "Formato principal de distribucion, preferentemente MIME Type IANA." ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path dcterms:rights ;
+        sh:name "rights" ;
+        sh:description "Declaracion textual complementaria sobre derechos." ;
+        sh:datatype xsd:string ;
+    ] ;
+    sh:property [
+        sh:path bibo:isbn ;
+        sh:name "isbn" ;
+        sh:description "ISBN impreso normalizado como ISBN-10 o ISBN-13 sin guiones." ;
+        sh:datatype xsd:string ;
+        sh:pattern "^(?:[0-9]{9}[0-9X]|97[89][0-9]{10})$" ;
+    ] ;
+    sh:property [
+        sh:path bibo:doi ;
+        sh:name "doi" ;
+        sh:description "DOI expresado como URI resoluble." ;
+        sh:nodeKind sh:IRI ;
+        sh:pattern "^https://doi\\.org/10\\.[^\\s]+$" ;
+    ] ;
+    sh:property [
+        sh:path schema:associatedMedia ;
+        sh:name "resources" ;
+        sh:description "Manifestaciones digitales asociadas a la publicacion." ;
+        sh:class schema:MediaObject ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path pnpu:accessLevel ;
+        sh:name "accessLevel" ;
+        sh:description "Nivel de acceso definido por PNPU." ;
+        sh:datatype xsd:string ;
+        sh:in ( "openAccess" "restrictedAccess" "metadataOnly" "externalLink" ) ;
+    ] ;
+    sh:property [
+        sh:path pnpu:digitalAvailability ;
+        sh:name "digitalAvailability" ;
+        sh:description "Estado de disponibilidad digital definido por PNPU." ;
+        sh:datatype xsd:string ;
+        sh:in ( "available" "pendingDigitization" "notAvailable" "external" ) ;
+    ] .
+
+pnpu:DigitalResourceShape
+    a sh:NodeShape ;
+    sh:targetClass schema:MediaObject ;
+    sh:closed false ;
+    sh:property [
+        sh:path schema:url ;
+        sh:name "url" ;
+        sh:description "URL publica o controlada del recurso digital." ;
+        sh:nodeKind sh:IRI ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path dcterms:format ;
+        sh:name "format" ;
+        sh:description "MIME Type IANA o descripcion de formato del recurso." ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path schema:contentSize ;
+        sh:name "fileSize" ;
+        sh:description "Tamano del archivo en bytes." ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+    ] ;
+    sh:property [
+        sh:path pnpu:checksum ;
+        sh:name "checksum" ;
+        sh:description "Checksum de preservacion del archivo." ;
+        sh:datatype xsd:string ;
+    ] .
+
+pnpu:PublicationExample
+    a schema:Book ;
+    dcterms:identifier "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c05" ;
+    dcterms:title "Arquitectura empresarial para universidades" ;
+    dcterms:issued "2026-07-14"^^xsd:date ;
+    dcterms:language "es" ;
+    dcterms:type "book" ;
+    dcterms:format "application/pdf" ;
+    dcterms:license "CC BY" ;
+    dcterms:creator pnpu:ContributorExample ;
+    dcterms:publisher pnpu:PublisherExample ;
+    dcterms:subject pnpu:SubjectExample ;
+    schema:associatedMedia pnpu:DigitalResourceExample .

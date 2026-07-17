@@ -1,0 +1,7 @@
+.next
+.venv
+artifacts
+coverage
+node_modules
+package-lock.json
+site

@@ -1,0 +1,10 @@
+---
+- name: Reload systemd
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Restart portal
+  ansible.builtin.systemd:
+    name: "{{ pnpu_service_name }}"
+    state: restarted
+  when: pnpu_portal_manage_service | bool

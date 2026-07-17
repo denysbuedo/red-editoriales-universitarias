@@ -1,0 +1,21 @@
+{
+  "@context": "../jsonld-context/context.jsonld",
+  "@type": "Book",
+  "@id": "not-a-url",
+  "identifier": "550e8400-e29b-41d4-a716-446655440000",
+  "creator": [],
+  "issued": "2026-07-14",
+  "language": "spanish",
+  "subject": [],
+  "license": "CC BY",
+  "type": "book",
+  "format": "application/pdf",
+  "isbn": "9789590000000",
+  "resources": [
+    {
+      "@type": "MediaObject",
+      "url": "not-a-url",
+      "format": "application/pdf"
+    }
+  ]
+}

@@ -1,0 +1,208 @@
+{
+  "@context": {
+    "dcterms": "http://purl.org/dc/terms/",
+    "schema": "https://schema.org/",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "foaf": "http://xmlns.com/foaf/0.1/",
+    "bibo": "http://purl.org/ontology/bibo/",
+    "pnpu": "https://pnpu.mes.gob.cu/ns#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "id": "@id",
+    "type": {
+      "@id": "dcterms:type"
+    },
+    "identifier": {
+      "@id": "dcterms:identifier"
+    },
+    "title": {
+      "@id": "dcterms:title"
+    },
+    "subtitle": {
+      "@id": "bibo:subtitle"
+    },
+    "creator": {
+      "@id": "dcterms:creator",
+      "@type": "@id"
+    },
+    "publisher": {
+      "@id": "dcterms:publisher",
+      "@type": "@id"
+    },
+    "issued": {
+      "@id": "dcterms:issued",
+      "@type": "xsd:date"
+    },
+    "language": {
+      "@id": "dcterms:language"
+    },
+    "abstract": {
+      "@id": "dcterms:abstract"
+    },
+    "description": {
+      "@id": "dcterms:description"
+    },
+    "subject": {
+      "@id": "dcterms:subject",
+      "@type": "@id"
+    },
+    "keywords": {
+      "@id": "schema:keywords"
+    },
+    "license": {
+      "@id": "dcterms:license"
+    },
+    "format": {
+      "@id": "dcterms:format"
+    },
+    "rights": {
+      "@id": "dcterms:rights"
+    },
+    "isbn": {
+      "@id": "bibo:isbn"
+    },
+    "eisbn": {
+      "@id": "bibo:isbn"
+    },
+    "doi": {
+      "@id": "bibo:doi",
+      "@type": "@id"
+    },
+    "edition": {
+      "@id": "bibo:edition"
+    },
+    "numberOfPages": {
+      "@id": "schema:numberOfPages",
+      "@type": "xsd:integer"
+    },
+    "volume": {
+      "@id": "bibo:volume"
+    },
+    "issue": {
+      "@id": "bibo:issue"
+    },
+    "collection": {
+      "@id": "dcterms:isPartOf",
+      "@type": "@id"
+    },
+    "resources": {
+      "@id": "schema:associatedMedia",
+      "@type": "@id"
+    },
+    "url": {
+      "@id": "schema:url",
+      "@type": "@id"
+    },
+    "fileSize": {
+      "@id": "schema:contentSize"
+    },
+    "checksum": {
+      "@id": "pnpu:checksum"
+    },
+    "name": {
+      "@id": "foaf:name"
+    },
+    "givenName": {
+      "@id": "foaf:givenName"
+    },
+    "familyName": {
+      "@id": "foaf:familyName"
+    },
+    "orcid": {
+      "@id": "schema:identifier",
+      "@type": "@id"
+    },
+    "isni": {
+      "@id": "schema:identifier"
+    },
+    "affiliation": {
+      "@id": "schema:affiliation",
+      "@type": "@id"
+    },
+    "email": {
+      "@id": "schema:email"
+    },
+    "biography": {
+      "@id": "schema:description"
+    },
+    "country": {
+      "@id": "schema:addressCountry"
+    },
+    "role": {
+      "@id": "schema:roleName"
+    },
+    "sameAs": {
+      "@id": "schema:sameAs",
+      "@type": "@id"
+    },
+    "officialName": {
+      "@id": "schema:legalName"
+    },
+    "acronym": {
+      "@id": "schema:alternateName"
+    },
+    "province": {
+      "@id": "schema:addressRegion"
+    },
+    "website": {
+      "@id": "schema:url",
+      "@type": "@id"
+    },
+    "logo": {
+      "@id": "schema:logo",
+      "@type": "@id"
+    },
+    "contactPoint": {
+      "@id": "schema:contactPoint"
+    },
+    "telephone": {
+      "@id": "schema:telephone"
+    },
+    "preferredLabel": {
+      "@id": "skos:prefLabel"
+    },
+    "alternativeLabels": {
+      "@id": "skos:altLabel"
+    },
+    "broader": {
+      "@id": "skos:broader",
+      "@type": "@id"
+    },
+    "narrower": {
+      "@id": "skos:narrower",
+      "@type": "@id"
+    },
+    "related": {
+      "@id": "skos:related",
+      "@type": "@id"
+    },
+    "definition": {
+      "@id": "skos:definition"
+    },
+    "university": {
+      "@id": "schema:parentOrganization",
+      "@type": "@id"
+    },
+    "universityCode": {
+      "@id": "pnpu:universityCode"
+    },
+    "publisherCode": {
+      "@id": "pnpu:publisherCode"
+    },
+    "collectionCode": {
+      "@id": "pnpu:collectionCode"
+    },
+    "editorialSeries": {
+      "@id": "pnpu:editorialSeries"
+    },
+    "accessLevel": {
+      "@id": "pnpu:accessLevel"
+    },
+    "digitalAvailability": {
+      "@id": "pnpu:digitalAvailability"
+    },
+    "qualityScore": {
+      "@id": "pnpu:qualityScore",
+      "@type": "xsd:decimal"
+    }
+  }
+}

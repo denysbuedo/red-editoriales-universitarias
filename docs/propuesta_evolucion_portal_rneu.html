@@ -1,0 +1,116 @@
+
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Propuesta de evolución del Portal RNEU</title>
+<style>
+:root{--navy:#0a2b5e;--blue:#3b82f6;--ink:#172331;--muted:#5f6f82;--line:#dbe3ec;--soft:#f3f6fa;--white:#fff;--gold:#d5aa2a;--green:#0e8a68;--max:1040px}
+*{box-sizing:border-box}body{margin:0;background:#eef3f8;color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.62}.page{width:min(var(--max),calc(100% - 2rem));margin:2rem auto;background:#fff;box-shadow:0 18px 55px rgba(10,43,94,.13)}
+.cover{min-height:86vh;color:#fff;padding:5rem 4.5rem;display:flex;flex-direction:column;justify-content:space-between;background:radial-gradient(circle at 82% 18%,rgba(59,130,246,.34),transparent 25%),linear-gradient(120deg,#061f43,#0a2b5e 62%,#1655a2)}
+.cover h1{font-family:Georgia,serif;font-size:clamp(2.8rem,6vw,5.2rem);line-height:.98;max-width:850px;margin:.5rem 0 1.2rem}.cover p{max-width:760px;font-size:1.2rem;color:#deebf8}.eyebrow{text-transform:uppercase;letter-spacing:.15em;font-size:.8rem;font-weight:900;color:#b9d5ff}
+.content{padding:4rem 4.5rem}h2{font-family:Georgia,serif;color:var(--navy);font-size:2.2rem;line-height:1.1;margin:3rem 0 1rem}h3{color:var(--navy);margin-top:2rem}.lead{font-size:1.14rem;color:#364658}.callout{border-left:5px solid var(--gold);background:#fff9e7;padding:1rem 1.2rem;margin:1.4rem 0}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem}.card{border:1px solid var(--line);border-radius:16px;padding:1.2rem;background:#fff}.card strong{color:var(--navy)}.soft{background:var(--soft);padding:1.4rem;border-radius:18px}.arch{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:.7rem;align-items:center;margin:1.5rem 0}.node{border:1px solid var(--line);border-radius:15px;padding:1rem;text-align:center;background:#fff}.node b{display:block;color:var(--navy)}.arrow{font-size:1.5rem;color:var(--blue)}table{width:100%;border-collapse:collapse;margin:1rem 0}th,td{border:1px solid var(--line);padding:.75rem;vertical-align:top;text-align:left}th{background:var(--navy);color:#fff}code{background:#edf3f9;padding:.15rem .35rem;border-radius:5px}.roadmap{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem}.phase{border-top:5px solid var(--blue);background:var(--soft);padding:1rem;border-radius:14px}.phase:nth-child(2){border-top-color:var(--green)}.phase:nth-child(3){border-top-color:var(--gold)}.phase:nth-child(4){border-top-color:#7c3aed}.small{font-size:.86rem;color:var(--muted)}.footer{padding:1.5rem 4.5rem;background:#061f43;color:#cbdcf1}
+@media(max-width:800px){.cover,.content{padding:2.5rem 1.4rem}.grid,.roadmap{grid-template-columns:1fr}.arch{grid-template-columns:1fr}.arrow{transform:rotate(90deg)}}
+@media print{body{background:#fff}.page{box-shadow:none;margin:0;width:100%}.cover{min-height:95vh}.content{padding:2.5rem 3rem}.footer{display:none}}
+</style>
+</head>
+<body>
+<article class="page">
+<section class="cover">
+ <div><div class="eyebrow">Propuesta conceptual y tecnológica</div><h1>Evolución del Portal de la Red Nacional de Editoriales Universitarias</h1><p>De un directorio institucional a un catálogo nacional de libros, autores, colecciones y editoriales, preservando el concepto de Red como eje de identidad, articulación y unidad.</p></div>
+ <div><strong>Ministerio de Educación Superior de Cuba</strong><br>Documento de trabajo · Julio de 2026</div>
+</section>
+
+<section class="content">
+<h2>1. Punto de partida</h2>
+<p class="lead">La propuesta preliminar recibida define correctamente un portal informativo para presentar la Red, publicar el directorio de editoriales miembros, explicar su estructura organizativa, difundir novedades, reunir enlaces de interés y facilitar el contacto.</p>
+<p>Ese planteamiento constituye una base institucional válida. Sin embargo, presenta una limitación fundamental: describe con claridad <strong>quiénes integran la Red</strong>, pero apenas muestra <strong>qué producen las editoriales</strong>. La función esencial de cada editorial es editar, publicar, preservar, distribuir y promover libros y otras obras académicas.</p>
+<div class="callout"><strong>Decisión propuesta:</strong> conservar la visibilidad institucional de la Red, pero colocar los libros y la producción editorial en el centro de la experiencia pública.</div>
+
+<h2>2. Concepto rector</h2>
+<p>El portal debe asumir una doble identidad, complementaria y no contradictoria:</p>
+<div class="grid">
+ <div class="card"><strong>La Red como institución</strong><p>Da unidad, representación nacional, identidad compartida, cooperación, normas comunes, alianzas, noticias y visibilidad a cada editorial.</p></div>
+ <div class="card"><strong>El catálogo como servicio público</strong><p>Permite descubrir libros, autores, colecciones, temas y editoriales, y acceder a los sitios o plataformas donde las obras están disponibles.</p></div>
+</div>
+<p>La portada debe expresar ambas dimensiones con claridad: <strong>“Una Red, muchas voces editoriales”</strong> y <strong>“Libros que conectan universidades, autores y lectores”</strong>.</p>
+
+<h2>3. Arquitectura de información propuesta</h2>
+<table>
+<tr><th>Nivel principal</th><th>Contenido</th><th>Objetivo</th></tr>
+<tr><td>Libros</td><td>Novedades, catálogo, búsqueda, filtros, ficha bibliográfica, descarga o acceso</td><td>Convertir la producción editorial en el centro del portal</td></tr>
+<tr><td>Editoriales</td><td>Directorio, página institucional, catálogo, equipo, contacto e indicadores</td><td>Dar visibilidad individual y colectiva a los miembros de la Red</td></tr>
+<tr><td>Autores</td><td>Perfil, afiliación, ORCID, biografía y publicaciones</td><td>Mejorar descubrimiento, reconocimiento y SEO</td></tr>
+<tr><td>Colecciones</td><td>Series editoriales y agrupaciones temáticas</td><td>Organizar la producción y reforzar identidades editoriales</td></tr>
+<tr><td>La Red</td><td>Historia, objetivos, coordinación, miembros, alianzas y documentos</td><td>Transmitir unidad y gobernanza</td></tr>
+<tr><td>Novedades</td><td>Lanzamientos, convocatorias, ferias, catálogos y comunicados</td><td>Mantener actividad editorial visible y actualizada</td></tr>
+</table>
+
+<h2>4. Arquitectura tecnológica</h2>
+<p>El portal no debe convertirse en un tercer sistema de gestión. Debe actuar como una capa pública de presentación, búsqueda, integración y posicionamiento.</p>
+<div class="arch">
+ <div class="node"><b>Sistema de gestión de editoriales</b><span>Editoriales, responsables, contactos, universidades, provincias y estados</span></div><div class="arrow">→</div>
+ <div class="node"><b>Portal RNEU</b><span>Experiencia pública, navegación, buscador, SEO y páginas institucionales</span></div><div class="arrow">←</div>
+ <div class="node"><b>Omeka S</b><span>Libros, autores, colecciones, metadatos, portadas, ficheros y relaciones</span></div>
+</div>
+<div class="soft"><strong>Principio de integración:</strong> cada dato debe tener una única fuente maestra. El portal consulta las APIs, transforma los datos para presentación y mantiene solamente caché e índices de búsqueda cuando sea necesario.</div>
+
+<h3>4.1 Sistema de gestión de editoriales</h3>
+<p>El sistema existente debe seguir siendo la fuente oficial de:</p>
+<ul><li>nombre y sigla de la editorial;</li><li>universidad o institución de adscripción;</li><li>provincia y ubicación;</li><li>director, responsable de ISBN y contactos;</li><li>logotipo y sitio web;</li><li>estado de membresía y fecha de actualización.</li></ul>
+<p>Se recomienda exponer una API REST versionada, por ejemplo <code>/api/v1/editoriales</code>, con identificadores estables, paginación, filtros, fecha de modificación y documentación OpenAPI.</p>
+
+<h3>4.2 Gestión de libros en Omeka S</h3>
+<p>Omeka S es una opción adecuada para este proyecto porque está orientado a instituciones que necesitan gestionar un conjunto compartido de recursos y publicarlo en uno o varios sitios. Permite trabajar con elementos, conjuntos, vocabularios, plantillas de recursos, relaciones entre recursos y una API propia.</p>
+<p>Se propone utilizar Omeka S como repositorio descriptivo y de publicación de:</p>
+<ul><li>libros y capítulos;</li><li>autores y colaboradores;</li><li>colecciones editoriales;</li><li>editoriales como entidades enlazables;</li><li>portadas, PDF, EPUB y otros medios cuando corresponda;</li><li>enlaces a repositorios institucionales, eLibro u otras plataformas.</li></ul>
+
+<h2>5. Modelo mínimo de metadatos</h2>
+<table>
+<tr><th>Entidad</th><th>Campos esenciales</th></tr>
+<tr><td>Libro</td><td>Título, subtítulo, autores, ISBN, fecha, editorial, colección, edición, idioma, resumen, palabras clave, materia, licencia, formato, portada, URL de acceso y disponibilidad</td></tr>
+<tr><td>Autor</td><td>Nombre normalizado, afiliación, ORCID, biografía y publicaciones relacionadas</td></tr>
+<tr><td>Editorial</td><td>Identificador del sistema maestro, nombre, universidad, logo, provincia y URL institucional</td></tr>
+<tr><td>Colección</td><td>Nombre, descripción, editorial responsable, ISSN si aplica y libros asociados</td></tr>
+</table>
+<p>Las plantillas de Omeka S deben basarse en vocabularios normalizados, combinando Dublin Core Terms, Bibliographic Ontology y propiedades específicas estrictamente necesarias.</p>
+
+<h2>6. Criterio sobre Omeka</h2>
+<div class="grid">
+ <div class="card"><strong>Por qué sí</strong><ul><li>software libre y orientado a colecciones;</li><li>metadatos estructurados;</li><li>relaciones entre libros, autores y colecciones;</li><li>API REST;</li><li>varios sitios sobre una misma instalación;</li><li>integración con IIIF y visores;</li><li>importación masiva.</li></ul></div>
+ <div class="card"><strong>Precauciones</strong><ul><li>no sustituye un sistema editorial de flujo de trabajo;</li><li>requiere definir previamente el modelo de metadatos;</li><li>la calidad del catálogo depende de normalización y control de autoridades;</li><li>debe evaluarse almacenamiento de PDF y derechos de acceso;</li><li>el buscador público puede requerir un índice adicional al crecer.</li></ul></div>
+</div>
+<div class="callout"><strong>Recomendación:</strong> utilizar <strong>Omeka S</strong>, no Omeka Classic, porque el proyecto es institucional, multi-editorial, relacional y potencialmente multisede.</div>
+
+<h2>7. Flujo de publicación recomendado</h2>
+<ol>
+<li>La editorial actualiza sus datos institucionales en el sistema de gestión existente.</li>
+<li>El responsable registra o importa el libro en Omeka S mediante una plantilla normalizada.</li>
+<li>Se valida ISBN, autorías, editorial, colección, licencia y URL de acceso.</li>
+<li>Omeka S publica el registro y expone sus datos mediante API.</li>
+<li>El portal RNEU sincroniza o consulta el registro y crea la página pública optimizada para buscadores.</li>
+<li>El usuario descubre el libro y accede al PDF, EPUB, repositorio, eLibro o portal editorial según corresponda.</li>
+</ol>
+
+<h2>8. SEO y visibilidad</h2>
+<p>Cada libro, autor, colección y editorial debe tener una URL estable. Las fichas de libros deben incorporar datos estructurados de Schema.org, especialmente <code>Book</code>, <code>Person</code>, <code>Organization</code> y <code>BreadcrumbList</code>.</p>
+<p>Ejemplos de URL:</p>
+<ul><li><code>/libros/inteligencia-artificial-aplicada/</code></li><li><code>/autores/maria-perez-garcia/</code></li><li><code>/editoriales/editorial-feijoo/</code></li><li><code>/colecciones/ciencias-de-la-educacion/</code></li></ul>
+<p>El portal debe producir sitemap XML, metadatos sociales, títulos únicos, canonicales, páginas rápidas y contenido HTML rastreable sin depender completamente de JavaScript.</p>
+
+<h2>9. Hoja de ruta</h2>
+<div class="roadmap">
+ <div class="phase"><strong>Fase 1</strong><p>Validar nombre, arquitectura, fuentes maestras y modelo de datos.</p></div>
+ <div class="phase"><strong>Fase 2</strong><p>Publicar directorio desde la API del sistema existente y desplegar Omeka S.</p></div>
+ <div class="phase"><strong>Fase 3</strong><p>Importar catálogo inicial, normalizar autores, editoriales y colecciones.</p></div>
+ <div class="phase"><strong>Fase 4</strong><p>Activar buscador nacional, analítica, SEO, indicadores y mejoras continuas.</p></div>
+</div>
+
+<h2>10. Conclusión</h2>
+<p class="lead">La propuesta inicial debe mantenerse como fundamento institucional, pero ampliarse con una visión editorial y de servicio público. La Red debe verse y sentirse como una organización unida; los libros deben demostrar el valor concreto de esa unidad.</p>
+<p>El resultado esperado no es solamente un portal corporativo ni un repositorio aislado. Es un <strong>ecosistema nacional de descubrimiento editorial universitario</strong>, integrado mediante APIs, con Omeka S como plataforma de colecciones y el portal RNEU como experiencia pública común.</p>
+<p class="small">Documento elaborado a partir de la propuesta preliminar de diseño informacional del Portal RNEU, de fecha 26 de junio de 2026, complementada con criterios de arquitectura de información, integración, gestión de metadatos, experiencia de usuario y SEO.</p>
+</section>
+<div class="footer">Red Nacional de Editoriales Universitarias · Documento de trabajo</div>
+</article>
+</body></html>
