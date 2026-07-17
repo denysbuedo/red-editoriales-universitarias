@@ -1,9 +1,13 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
-import HomePage from "./page";
+import HomePage, { dynamic } from "./page";
 
 describe("HomePage", () => {
+  it("is dynamic because catalog metrics depend on the active repository", () => {
+    expect(dynamic).toBe("force-dynamic");
+  });
+
   it("renders the institutional home with catalog data", async () => {
     const html = renderToStaticMarkup(await HomePage());
 

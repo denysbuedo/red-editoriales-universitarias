@@ -7,6 +7,8 @@ import {
 } from "@/modules/catalog/application";
 import { createCatalogServices } from "@/modules/catalog/interfaces/http/catalog-services";
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   const {
     collectionService,
