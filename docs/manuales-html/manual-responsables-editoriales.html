@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Manual para responsables de editoriales</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --text: #171717;
+      --muted: #525252;
+      --line: #d4d4d4;
+      --soft: #f5f5f5;
+      --accent: #166534;
+      --accent-soft: #ecfdf5;
+    }
+    body {
+      margin: 0;
+      background: #ffffff;
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 24px 56px;
+    }
+    h1 {
+      margin: 0 0 24px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid var(--accent);
+      font-size: 2rem;
+      line-height: 1.2;
+    }
+    h2 {
+      margin-top: 36px;
+      padding-top: 8px;
+      font-size: 1.35rem;
+      line-height: 1.3;
+    }
+    h3 {
+      margin-top: 28px;
+      font-size: 1.1rem;
+    }
+    p {
+      margin: 12px 0;
+    }
+    ul, ol {
+      padding-left: 28px;
+    }
+    li {
+      margin: 6px 0;
+    }
+    table {
+      width: 100%;
+      margin: 18px 0;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 9px 10px;
+      vertical-align: top;
+    }
+    th {
+      background: var(--accent-soft);
+      text-align: left;
+    }
+    code {
+      border-radius: 4px;
+      background: var(--soft);
+      padding: 2px 4px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92em;
+    }
+    pre {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--soft);
+      padding: 14px;
+    }
+    pre code {
+      background: transparent;
+      padding: 0;
+    }
+    .meta {
+      margin-bottom: 28px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    @media print {
+      main {
+        max-width: none;
+        padding: 20mm 16mm;
+      }
+      h1 {
+        font-size: 1.6rem;
+      }
+      a {
+        color: inherit;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="meta">Plataforma Nacional de Publicaciones Universitarias · Documento operativo</p>
+    <h1>Manual para responsables de editoriales</h1>
+    <h2>Objetivo</h2>
+    <p>Guiar a los responsables de editoriales universitarias en la carga y correccion de metadatos bibliograficos dentro de Omeka S para su publicacion en el portal nacional PNPU.</p>
+    <p>Omeka S es el espacio de trabajo para registrar publicaciones, colecciones, autores, materias y recursos digitales. El portal PNPU es el sitio publico donde esos datos aparecen despues de ser validados.</p>
+    <h2>Responsabilidades de la editorial</h2>
+    <p>Cada editorial debe:</p>
+    <ul>
+    <li>cargar publicaciones con metadatos completos;</li>
+    <li>asociar autores y contribuidores correctamente;</li>
+    <li>vincular publicaciones con su editorial y universidad;</li>
+    <li>crear o seleccionar colecciones editoriales;</li>
+    <li>asignar materias controladas;</li>
+    <li>adjuntar recursos digitales;</li>
+    <li>corregir errores reportados por el administrador PNPU;</li>
+    <li>mantener actualizados contactos, enlaces y datos editoriales cuando corresponda.</li>
+    </ul>
+    <p>La editorial no debe modificar plantillas PNPU, vocabularios ni configuraciones globales de Omeka.</p>
+    <h2>Conceptos basicos</h2>
+    <table><thead><tr><th>Concepto en Omeka</th><th>Uso en PNPU</th></tr></thead><tbody><tr><td>Item <code>PNPU Publication</code></td><td>Publicacion del catalogo</td></tr><tr><td>Item <code>PNPU Contributor</code></td><td>Autor, editor, revisor u otra persona/entidad participante</td></tr><tr><td>Item <code>PNPU Publisher</code></td><td>Editorial universitaria</td></tr><tr><td>Item <code>PNPU University</code></td><td>Universidad asociada</td></tr><tr><td>Item <code>PNPU Subject</code></td><td>Materia o termino controlado</td></tr><tr><td>Item Set <code>PNPU Collection</code></td><td>Coleccion editorial</td></tr><tr><td>Media</td><td>PDF, EPUB, enlace, cubierta u otro recurso digital</td></tr></tbody></table>
+    <h2>Orden recomendado de carga</h2>
+    <ol>
+    <li>Confirmar que la universidad existe.</li>
+    <li>Confirmar que la editorial existe.</li>
+    <li>Crear o revisar autores y contribuidores.</li>
+    <li>Crear o revisar materias.</li>
+    <li>Crear o revisar colecciones.</li>
+    <li>Crear la publicacion.</li>
+    <li>Adjuntar recursos digitales.</li>
+    <li>Solicitar revision o refresh al administrador PNPU.</li>
+    </ol>
+    <p>Este orden evita publicaciones incompletas o con relaciones rotas.</p>
+    <h2>Carga de autores y contribuidores</h2>
+    <p>Crear un Item con template <code>PNPU Contributor</code>.</p>
+    <p>Campos recomendados:</p>
+    <ul>
+    <li>nombre completo;</li>
+    <li>nombres;</li>
+    <li>apellidos;</li>
+    <li>rol;</li>
+    <li>ORCID, si existe;</li>
+    <li>afiliacion;</li>
+    <li>pais;</li>
+    <li>biografia breve.</li>
+    </ul>
+    <p>Roles habituales:</p>
+    <ul>
+    <li><code>author</code>;</li>
+    <li><code>editor</code>;</li>
+    <li><code>scientificEditor</code>;</li>
+    <li><code>compiler</code>;</li>
+    <li><code>translator</code>;</li>
+    <li><code>illustrator</code>;</li>
+    <li><code>reviewer</code>;</li>
+    <li><code>contributor</code>;</li>
+    <li><code>organization</code>.</li>
+    </ul>
+    <p>Si una persona tiene varios roles, deben registrarse segun la politica definida por PNPU.</p>
+    <h2>Carga de colecciones</h2>
+    <p>Crear un Item Set con template <code>PNPU Collection</code>.</p>
+    <p>Campos recomendados:</p>
+    <ul>
+    <li>UUID PNPU;</li>
+    <li>titulo;</li>
+    <li>editorial responsable;</li>
+    <li>descripcion;</li>
+    <li>codigo de coleccion;</li>
+    <li>serie editorial;</li>
+    <li>materias relacionadas.</li>
+    </ul>
+    <p>Una coleccion no es una publicacion. Sirve para agrupar publicaciones relacionadas por linea editorial, serie, tema o programa.</p>
+    <h2>Carga de publicaciones</h2>
+    <p>Crear un Item con template <code>PNPU Publication</code>.</p>
+    <p>Campos minimos:</p>
+    <ul>
+    <li>UUID PNPU;</li>
+    <li>titulo;</li>
+    <li>fecha de publicacion;</li>
+    <li>idioma;</li>
+    <li>tipo de publicacion;</li>
+    <li>formato;</li>
+    <li>editorial;</li>
+    <li>autores o contribuidores;</li>
+    <li>identificador;</li>
+    <li>materia;</li>
+    <li>recurso digital asociado.</li>
+    </ul>
+    <p>Campos recomendados:</p>
+    <ul>
+    <li>subtitulo;</li>
+    <li>resumen;</li>
+    <li>ISBN;</li>
+    <li>DOI;</li>
+    <li>licencia;</li>
+    <li>palabras clave;</li>
+    <li>coleccion;</li>
+    <li>cubierta;</li>
+    <li>URL publica persistente.</li>
+    </ul>
+    <h2>Identificadores</h2>
+    <p>Usar identificadores reales y revisados:</p>
+    <ul>
+    <li>ISBN;</li>
+    <li>eISBN;</li>
+    <li>DOI;</li>
+    <li>URI;</li>
+    <li>Handle u otro identificador persistente aprobado.</li>
+    </ul>
+    <p>No inventar ISBN ni DOI. Si una publicacion no tiene DOI, puede registrarse ISBN o URI persistente si la politica PNPU lo permite.</p>
+    <h2>Materias</h2>
+    <p>Las materias deben seleccionarse de vocabularios controlados o recursos <code>PNPU Subject</code> existentes.</p>
+    <p>Evitar:</p>
+    <ul>
+    <li>materias escritas de formas distintas para el mismo concepto;</li>
+    <li>abreviaturas no aprobadas;</li>
+    <li>terminos demasiado generales si existe uno mas preciso;</li>
+    <li>errores ortograficos.</li>
+    </ul>
+    <p>Ejemplo correcto:</p>
+    <ul>
+    <li><code>Educacion superior</code></li>
+    <li><code>Ingenieria y tecnologia</code></li>
+    <li><code>Desarrollo local</code></li>
+    </ul>
+    <h2>Recursos digitales</h2>
+    <p>Toda publicacion necesita al menos un Media asociado.</p>
+    <p>Tipos posibles:</p>
+    <ul>
+    <li>PDF;</li>
+    <li>EPUB;</li>
+    <li>HTML;</li>
+    <li>imagen de cubierta;</li>
+    <li>enlace externo;</li>
+    <li>audio;</li>
+    <li>video;</li>
+    <li>otro formato aprobado.</li>
+    </ul>
+    <p>Datos recomendados del recurso:</p>
+    <ul>
+    <li>tipo;</li>
+    <li>URL o archivo;</li>
+    <li>formato MIME;</li>
+    <li>licencia;</li>
+    <li>idioma;</li>
+    <li>tamano, si esta disponible;</li>
+    <li>checksum, si la politica lo exige.</li>
+    </ul>
+    <p>Si el recurso esta restringido, debe indicarse claramente segun la politica aprobada.</p>
+    <h2>Licencias</h2>
+    <p>Registrar la licencia cuando sea posible.</p>
+    <p>Ejemplos:</p>
+    <ul>
+    <li>Copyright;</li>
+    <li>CC BY;</li>
+    <li>CC BY-SA;</li>
+    <li>CC BY-NC;</li>
+    <li>licencia institucional especifica.</li>
+    </ul>
+    <p>No asumir que una publicacion es de acceso abierto si la editorial no lo ha aprobado.</p>
+    <h2>Revision antes de solicitar publicacion</h2>
+    <p>Antes de pedir al administrador PNPU que refresque el catalogo, revisar:</p>
+    <ul>
+    <li>el titulo esta completo;</li>
+    <li>la fecha es correcta;</li>
+    <li>la editorial asociada es la correcta;</li>
+    <li>todos los autores estan vinculados;</li>
+    <li>existe al menos un identificador;</li>
+    <li>existe al menos una materia;</li>
+    <li>la coleccion es correcta, si aplica;</li>
+    <li>hay al menos un recurso digital;</li>
+    <li>el resumen no contiene texto provisional;</li>
+    <li>la licencia esta indicada cuando corresponde.</li>
+    </ul>
+    <h2>Como aparece en PNPU</h2>
+    <p>Si el registro es valido, aparecera en:</p>
+    <ul>
+    <li>catalogo de publicaciones;</li>
+    <li>ficha de la publicacion;</li>
+    <li>ficha de la editorial;</li>
+    <li>ficha de autores o contribuidores;</li>
+    <li>ficha de coleccion;</li>
+    <li>navegacion por materias;</li>
+    <li>API publica y sitemap.</li>
+    </ul>
+    <p>Si no aparece, probablemente falte un campo obligatorio o exista un valor invalido.</p>
+    <h2>Errores comunes</h2>
+    <table><thead><tr><th>Error</th><th>Consecuencia</th></tr></thead><tbody><tr><td>Crear publicacion sin template PNPU</td><td>PNPU puede ignorarla</td></tr><tr><td>Escribir editorial como texto libre</td><td>PNPU no puede relacionarla correctamente</td></tr><tr><td>No adjuntar Media</td><td>La publicacion puede quedar excluida</td></tr><tr><td>Usar ORCID invalido</td><td>PNPU puede omitir el ORCID</td></tr><tr><td>No asignar materia</td><td>La publicacion puede quedar excluida</td></tr><tr><td>Crear coleccion como Item en vez de Item Set</td><td>La coleccion puede no aparecer</td></tr><tr><td>Repetir autores con nombres distintos</td><td>Se duplica la autoridad</td></tr><tr><td>Escribir ISBN con errores</td><td>El identificador puede ser rechazado</td></tr></tbody></table>
+    <h2>Buenas practicas</h2>
+    <ul>
+    <li>Cargar primero autoridades y colecciones.</li>
+    <li>Reutilizar autores existentes en vez de duplicarlos.</li>
+    <li>Revisar nombres propios antes de publicar.</li>
+    <li>Usar titulos y resumenes definitivos.</li>
+    <li>Mantener consistencia en materias y palabras clave.</li>
+    <li>Adjuntar recursos con nombres claros.</li>
+    <li>Consultar al administrador PNPU antes de crear nuevos tipos o campos.</li>
+    </ul>
+    <h2>Solicitud de revision</h2>
+    <p>Despues de cargar o corregir datos, enviar al administrador PNPU:</p>
+    <ul>
+    <li>editorial responsable;</li>
+    <li>titulo de la publicacion;</li>
+    <li>coleccion asociada;</li>
+    <li>fecha de carga o correccion;</li>
+    <li>observaciones relevantes;</li>
+    <li>si requiere publicacion inmediata o puede esperar al refresco programado.</li>
+    </ul>
+    <p>El administrador revisara el estado del catalogo y confirmara si la publicacion quedo visible en PNPU o si requiere correcciones.</p>
+    <h2>Lo que no debe hacerse</h2>
+    <ul>
+    <li>No crear campos nuevos sin autorizacion.</li>
+    <li>No cambiar plantillas PNPU.</li>
+    <li>No cargar documentos sin derechos claros.</li>
+    <li>No duplicar editoriales, universidades o autores.</li>
+    <li>No usar textos temporales como resumen definitivo.</li>
+    <li>No borrar recursos compartidos sin coordinacion.</li>
+    <li>No guardar claves API o contrasenas dentro de metadatos.</li>
+    </ul>
+  </main>
+</body>
+</html>

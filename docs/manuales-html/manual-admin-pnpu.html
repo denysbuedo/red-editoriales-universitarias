@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Manual del administrador PNPU</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --text: #171717;
+      --muted: #525252;
+      --line: #d4d4d4;
+      --soft: #f5f5f5;
+      --accent: #166534;
+      --accent-soft: #ecfdf5;
+    }
+    body {
+      margin: 0;
+      background: #ffffff;
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 24px 56px;
+    }
+    h1 {
+      margin: 0 0 24px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid var(--accent);
+      font-size: 2rem;
+      line-height: 1.2;
+    }
+    h2 {
+      margin-top: 36px;
+      padding-top: 8px;
+      font-size: 1.35rem;
+      line-height: 1.3;
+    }
+    h3 {
+      margin-top: 28px;
+      font-size: 1.1rem;
+    }
+    p {
+      margin: 12px 0;
+    }
+    ul, ol {
+      padding-left: 28px;
+    }
+    li {
+      margin: 6px 0;
+    }
+    table {
+      width: 100%;
+      margin: 18px 0;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 9px 10px;
+      vertical-align: top;
+    }
+    th {
+      background: var(--accent-soft);
+      text-align: left;
+    }
+    code {
+      border-radius: 4px;
+      background: var(--soft);
+      padding: 2px 4px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92em;
+    }
+    pre {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--soft);
+      padding: 14px;
+    }
+    pre code {
+      background: transparent;
+      padding: 0;
+    }
+    .meta {
+      margin-bottom: 28px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    @media print {
+      main {
+        max-width: none;
+        padding: 20mm 16mm;
+      }
+      h1 {
+        font-size: 1.6rem;
+      }
+      a {
+        color: inherit;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="meta">Plataforma Nacional de Publicaciones Universitarias · Documento operativo</p>
+    <h1>Manual del administrador PNPU</h1>
+    <h2>Objetivo</h2>
+    <p>Guiar al administrador nacional de la Plataforma Nacional de Publicaciones Universitarias en la operacion diaria del portal, la integracion con Omeka S y la supervision del catalogo publico.</p>
+    <p>Este manual no sustituye la arquitectura empresarial ni los runbooks tecnicos. Describe el proceso operativo esperado para mantener visible, consistente y verificable el catalogo nacional.</p>
+    <h2>Alcance del administrador</h2>
+    <p>El administrador PNPU es responsable de:</p>
+    <ul>
+    <li>mantener la configuracion operativa del portal;</li>
+    <li>verificar que Omeka S este disponible;</li>
+    <li>instalar o revisar el perfil PNPU de Omeka;</li>
+    <li>coordinar la carga de datos con las editoriales;</li>
+    <li>ejecutar o autorizar refrescos del catalogo;</li>
+    <li>revisar errores de calidad de metadatos;</li>
+    <li>validar que el portal publico muestre datos correctos;</li>
+    <li>escalar incidencias tecnicas cuando el problema no sea de metadatos.</li>
+    </ul>
+    <p>El administrador PNPU no debe modificar directamente la base de datos de Omeka, la base de datos de PNPU ni secretos almacenados fuera de los mecanismos operativos definidos.</p>
+    <h2>Sistemas involucrados</h2>
+    <table><thead><tr><th>Sistema</th><th>Uso operativo</th></tr></thead><tbody><tr><td>Portal PNPU</td><td>Publicacion, descubrimiento, API publica, SEO y estado operativo</td></tr><tr><td>Omeka S</td><td>Gestion de publicaciones, colecciones, autores, materias y recursos digitales</td></tr><tr><td>Sistema de Gestion de Editoriales</td><td>Fuente oficial futura para editoriales y universidades</td></tr><tr><td>GitHub Actions</td><td>Validacion continua del codigo y artefactos</td></tr><tr><td>systemd</td><td>Ejecucion del proceso PNPU en Ubuntu Server</td></tr><tr><td>Ansible</td><td>Provisionamiento, despliegue y rollback</td></tr></tbody></table>
+    <h2>Flujo general</h2>
+    <ol>
+    <li>La editorial carga o corrige metadatos en Omeka S.</li>
+    <li>El administrador revisa que los recursos usen plantillas PNPU.</li>
+    <li>PNPU refresca el snapshot del catalogo Omeka.</li>
+    <li>PNPU valida y normaliza los datos contra el modelo de dominio.</li>
+    <li>Los registros validos aparecen en el portal publico.</li>
+    <li>Los registros rechazados se corrigen en Omeka S.</li>
+    </ol>
+    <p>PNPU no publica automaticamente datos invalidos. Si un registro no cumple las reglas minimas del dominio, debe corregirse en Omeka.</p>
+    <h2>Configuracion local de referencia</h2>
+    <p>En entorno local de desarrollo, la integracion se valida con:</p>
+    <pre><code>PNPU_CATALOG_REPOSITORY=omeka
+PNPU_OMEKA_BASE_URL=http://127.0.0.1/omeka-s
+PNPU_OMEKA_REQUIRE_APPROVED_MAPPING=true
+PNPU_OMEKA_PAGE_SIZE=100
+PNPU_OMEKA_MAX_PAGES=100
+PNPU_OMEKA_CACHE_TTL_SECONDS=60
+PNPU_CATALOG_REFRESH_TOKEN=...</code></pre>
+    <p>Los secretos, claves API y tokens no deben almacenarse en el repositorio.</p>
+    <h2>Instalacion o revision del perfil PNPU en Omeka</h2>
+    <p>Antes de usar Omeka como fuente activa del catalogo, debe existir el perfil PNPU:</p>
+    <ul>
+    <li>vocabularios requeridos;</li>
+    <li>resource templates PNPU;</li>
+    <li>propiedades obligatorias;</li>
+    <li>plantilla de colecciones como Item Set;</li>
+    <li>plantilla de recursos digitales como Media asociado a publicaciones.</li>
+    </ul>
+    <p>Comando de diagnostico:</p>
+    <pre><code>npm run omeka:check</code></pre>
+    <p>El estado esperado es:</p>
+    <pre><code>{
+  &quot;installation&quot;: {
+    &quot;missingVocabularies&quot;: [],
+    &quot;missingProperties&quot;: [],
+    &quot;readyForPnpuMapping&quot;: true
+  }
+}</code></pre>
+    <p>Si faltan vocabularios o propiedades, no debe activarse el repositorio Omeka para publicacion.</p>
+    <h2>Instalacion automatizada del perfil</h2>
+    <p>Crear una clave API en Omeka S desde el usuario administrador y exportarla solo en la sesion de trabajo:</p>
+    <pre><code>PNPU_OMEKA_BASE_URL=http://127.0.0.1/omeka-s
+PNPU_OMEKA_KEY_IDENTITY=...
+PNPU_OMEKA_KEY_CREDENTIAL=...</code></pre>
+    <p>Revisar acciones sin escribir:</p>
+    <pre><code>npm run omeka:install-profile -- --dry-run</code></pre>
+    <p>Instalar perfil:</p>
+    <pre><code>npm run omeka:install-profile</code></pre>
+    <p>El instalador usa la API REST de Omeka S. No escribe directamente en la base de datos.</p>
+    <h2>Carga inicial de prueba</h2>
+    <p>Despues de instalar el perfil PNPU, puede cargarse el catalogo minimo de prueba:</p>
+    <pre><code>npm run omeka:seed-sample -- --dry-run
+npm run omeka:seed-sample</code></pre>
+    <p>La carga de prueba crea:</p>
+    <ul>
+    <li>tres universidades;</li>
+    <li>tres editoriales;</li>
+    <li>cinco materias;</li>
+    <li>cuatro contribuidores;</li>
+    <li>tres colecciones;</li>
+    <li>tres publicaciones;</li>
+    <li>tres recursos digitales asociados.</li>
+    </ul>
+    <p>La carga productiva no debe depender de estos datos de prueba.</p>
+    <h2>Validacion del mapeo Omeka a PNPU</h2>
+    <p>Ejecutar:</p>
+    <pre><code>npm run omeka:map</code></pre>
+    <p>Este comando permite revisar si Omeka contiene recursos reconocibles por PNPU. Debe usarse despues de cargas masivas, correcciones importantes o cambios en plantillas.</p>
+    <h2>Refresco del catalogo publico</h2>
+    <p>PNPU usa cache en memoria por proceso para no leer Omeka en cada navegacion. Despues de modificar datos en Omeka, puede forzarse una recarga controlada:</p>
+    <pre><code>curl -X POST \
+  -H &quot;X-PNPU-Refresh-Token: $PNPU_CATALOG_REFRESH_TOKEN&quot; \
+  http://127.0.0.1:4307/health/catalog/refresh</code></pre>
+    <p>En el entorno local actual puede usarse el puerto donde este ejecutandose el portal, por ejemplo <code>4310</code>.</p>
+    <p>Si el token no esta configurado o es incorrecto, PNPU debe rechazar la operacion.</p>
+    <h2>Revision del estado operativo</h2>
+    <p>Endpoints principales:</p>
+    <table><thead><tr><th>Endpoint</th><th>Uso</th></tr></thead><tbody><tr><td><code>/estado</code></td><td>Vista operativa legible para revisar catalogo y cache</td></tr><tr><td><code>/health/catalog</code></td><td>Diagnostico JSON del catalogo Omeka</td></tr><tr><td><code>/health/catalog/refresh</code></td><td>Refresco controlado del snapshot</td></tr><tr><td><code>/health/ready</code></td><td>Disponibilidad para recibir trafico</td></tr><tr><td><code>/health/live</code></td><td>Proceso vivo</td></tr><tr><td><code>/metrics</code></td><td>Metricas Prometheus</td></tr></tbody></table>
+    <p>Despues de una carga o correccion, revisar:</p>
+    <ol>
+    <li><code>/health/catalog</code>;</li>
+    <li><code>/estado</code>;</li>
+    <li><code>/publicaciones</code>;</li>
+    <li><code>/editoriales</code>;</li>
+    <li>ficha de la editorial afectada;</li>
+    <li>ficha de la publicacion afectada.</li>
+    </ol>
+    <h2>Reglas minimas para publicacion</h2>
+    <p>Una publicacion debe tener:</p>
+    <ul>
+    <li>UUID PNPU;</li>
+    <li>titulo;</li>
+    <li>fecha de publicacion;</li>
+    <li>idioma;</li>
+    <li>tipo;</li>
+    <li>formato;</li>
+    <li>editorial;</li>
+    <li>al menos un contribuidor;</li>
+    <li>al menos un identificador;</li>
+    <li>al menos una materia;</li>
+    <li>al menos un recurso digital.</li>
+    </ul>
+    <p>Si falta alguno de estos elementos, PNPU puede excluir el registro del catalogo publico.</p>
+    <h2>Errores frecuentes</h2>
+    <table><thead><tr><th>Situacion</th><th>Accion recomendada</th></tr></thead><tbody><tr><td>La publicacion existe en Omeka pero no aparece en PNPU</td><td>Revisar <code>/health/catalog</code> y campos obligatorios</td></tr><tr><td>Aparece una editorial menos que en Omeka</td><td>Confirmar que todos los Publishers usan template PNPU y UUID valido</td></tr><tr><td>Una coleccion no aparece</td><td>Verificar que sea Item Set con template <code>PNPU Collection</code></td></tr><tr><td>Autor sin ORCID visible</td><td>Revisar formato ORCID; si es invalido, PNPU puede omitirlo</td></tr><tr><td>Recurso digital no aparece</td><td>Revisar Media asociado a la publicacion y URL/formato</td></tr><tr><td>Cambios en Omeka no se ven</td><td>Ejecutar refresh o esperar expiracion del cache</td></tr></tbody></table>
+    <h2>Operacion segura</h2>
+    <ul>
+    <li>No guardar claves API en archivos versionados.</li>
+    <li>No compartir tokens de refresh por correo o mensajeria no segura.</li>
+    <li>No corregir datos directamente en MySQL.</li>
+    <li>No cambiar plantillas PNPU sin decision de arquitectura o gobierno de datos.</li>
+    <li>No publicar registros incompletos para &quot;resolver rapido&quot;.</li>
+    <li>Documentar fecha, operador y motivo de cargas masivas.</li>
+    </ul>
+    <h2>Checklist despues de carga editorial</h2>
+    <ul>
+    <li>Omeka responde correctamente.</li>
+    <li>Los nuevos Items usan Resource Templates PNPU.</li>
+    <li>Las colecciones estan creadas como Item Sets.</li>
+    <li>Las publicaciones tienen Media asociado.</li>
+    <li><code>npm run omeka:map</code> no reporta rechazos criticos.</li>
+    <li>El refresh del catalogo responde correctamente.</li>
+    <li><code>/estado</code> muestra snapshot reciente.</li>
+    <li>Las fichas publicas muestran datos completos.</li>
+    </ul>
+    <h2>Escalamiento</h2>
+    <p>Escalar a equipo tecnico cuando:</p>
+    <ul>
+    <li>Omeka no responde;</li>
+    <li>PNPU devuelve <code>PNPU-503</code> sin causa clara de metadatos;</li>
+    <li>el refresh falla con token valido;</li>
+    <li>el build o despliegue falla;</li>
+    <li>hay errores repetidos en <code>/health/ready</code>;</li>
+    <li>se requiere cambiar plantillas, modelos, ADRs o reglas de dominio.</li>
+    </ul>
+  </main>
+</body>
+</html>

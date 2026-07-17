@@ -10,4 +10,9 @@ Este sitio reúne la documentación técnica operativa de la PNPU.
 - Manual del administrador PNPU.
 - Manual para responsables de editoriales.
 
+## Versiones HTML para operación
+
+- [Manual del administrador PNPU](manuales-html/manual-admin-pnpu.html).
+- [Manual para responsables de editoriales](manuales-html/manual-responsables-editoriales.html).
+
 La arquitectura empresarial aprobada se mantiene en las carpetas numeradas del repositorio y no se reorganiza desde este sitio.
