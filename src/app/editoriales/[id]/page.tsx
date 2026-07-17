@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -82,10 +83,13 @@ export default async function PublisherDetailPage({ params }: PublisherPageProps
         </h1>
         {publisher.logo === undefined ? null : (
           <div className="mt-5">
-            <img
+            <Image
               alt={`Logo de ${publisher.officialName}`}
               className="h-16 w-auto rounded-md border border-neutral-200 bg-white p-2"
+              height={64}
+              unoptimized
               src={publisher.logo}
+              width={160}
             />
           </div>
         )}
