@@ -18,7 +18,23 @@ describe("buildOmekaSnapshotDiagnostics", () => {
         knownClassification("digitalResource", 20, "PNPU Digital Resource"),
       ],
       quality: {
-        issues: [],
+        issues: [
+          {
+            severity: "warning",
+            code: "OMEKA_UNKNOWN_TEMPLATE",
+            omekaId: 3,
+            templateLabel: "Legacy Book",
+            message: "Omeka Resource Template is not part of the PNPU mapping proposal.",
+          },
+          {
+            severity: "rejected",
+            code: "OMEKA_MISSING_REQUIRED_FIELD",
+            omekaId: 1,
+            templateLabel: "PNPU Publication",
+            field: "dcterms:title",
+            message: "Publication title is required.",
+          },
+        ],
         rejectedCount: 1,
         warningCount: 2,
       },
@@ -54,8 +70,48 @@ describe("buildOmekaSnapshotDiagnostics", () => {
       quality: {
         warnings: 2,
         rejected: 1,
+        issues: [
+          {
+            severity: "warning",
+            code: "OMEKA_UNKNOWN_TEMPLATE",
+            omekaId: 3,
+            templateLabel: "Legacy Book",
+            message: "Omeka Resource Template is not part of the PNPU mapping proposal.",
+          },
+          {
+            severity: "rejected",
+            code: "OMEKA_MISSING_REQUIRED_FIELD",
+            omekaId: 1,
+            templateLabel: "PNPU Publication",
+            field: "dcterms:title",
+            message: "Publication title is required.",
+          },
+        ],
       },
     });
+  });
+
+  it("limits the quality issue sample for operational responses", () => {
+    const snapshot: OmekaCatalogSnapshot = {
+      items: [],
+      itemSets: [],
+      media: [],
+      resourceTemplates: [],
+      classifications: [],
+      quality: {
+        issues: Array.from({ length: 25 }, (_, index) => ({
+          severity: "warning",
+          code: "OMEKA_UNKNOWN_TEMPLATE",
+          omekaId: index + 1,
+          templateLabel: "Legacy Book",
+          message: "Omeka Resource Template is not part of the PNPU mapping proposal.",
+        })),
+        rejectedCount: 0,
+        warningCount: 25,
+      },
+    };
+
+    expect(buildOmekaSnapshotDiagnostics(snapshot).quality.issues).toHaveLength(20);
   });
 });
 

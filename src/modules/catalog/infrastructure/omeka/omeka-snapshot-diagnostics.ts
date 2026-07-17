@@ -4,6 +4,7 @@ import {
   OmekaPnpuResourceKind,
   OmekaResourceClassification,
 } from "./omeka-resource-template-classifier";
+import { OmekaQualityIssue } from "./omeka-quality-report";
 
 export interface OmekaSnapshotDiagnostics {
   readonly totals: {
@@ -22,8 +23,11 @@ export interface OmekaSnapshotDiagnostics {
   readonly quality: {
     readonly warnings: number;
     readonly rejected: number;
+    readonly issues: readonly OmekaQualityIssue[];
   };
 }
+
+const MAX_QUALITY_ISSUES = 20;
 
 export function buildOmekaSnapshotDiagnostics(
   snapshot: OmekaCatalogSnapshot,
@@ -66,6 +70,7 @@ export function buildOmekaSnapshotDiagnostics(
     quality: {
       warnings: snapshot.quality.warningCount,
       rejected: snapshot.quality.rejectedCount,
+      issues: snapshot.quality.issues.slice(0, MAX_QUALITY_ISSUES),
     },
   };
 }

@@ -123,6 +123,78 @@ export default async function CatalogStatusPage() {
               </dl>
             </div>
           </section>
+
+          <section className="mt-8 rounded-md border border-neutral-200 bg-white p-5 shadow-sm">
+            <h2 className="text-xl font-semibold text-neutral-950">
+              Incidencias de calidad detectadas
+            </h2>
+            {diagnostics.snapshot.quality.issues.length === 0 ? (
+              <p className="mt-3 text-sm leading-6 text-neutral-700">
+                No hay advertencias ni rechazos de mapeo en el snapshot Omeka actual.
+              </p>
+            ) : (
+              <>
+                <p className="mt-3 text-sm leading-6 text-neutral-700">
+                  Se muestran hasta 20 incidencias para orientar la corrección de metadatos en Omeka
+                  S.
+                </p>
+                <div className="mt-4 overflow-x-auto">
+                  <table className="min-w-full border-collapse text-sm">
+                    <thead>
+                      <tr className="border-b border-neutral-200 text-left text-neutral-600">
+                        <th className="py-2 pr-4 font-semibold">Severidad</th>
+                        <th className="py-2 pr-4 font-semibold">Omeka ID</th>
+                        <th className="py-2 pr-4 font-semibold">Plantilla</th>
+                        <th className="py-2 pr-4 font-semibold">Campo</th>
+                        <th className="py-2 pr-4 font-semibold">Mensaje</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {diagnostics.snapshot.quality.issues.map((issue, index) => (
+                        <tr
+                          className="border-b border-neutral-100 align-top last:border-0"
+                          key={`${issue.code}-${String(issue.omekaId ?? "none")}-${issue.field ?? "none"}-${String(index)}`}
+                        >
+                          <td className="py-2 pr-4">
+                            <span
+                              className={
+                                issue.severity === "rejected"
+                                  ? "rounded-md bg-red-50 px-2 py-1 text-xs font-semibold text-red-800"
+                                  : "rounded-md bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-800"
+                              }
+                            >
+                              {issue.severity === "rejected" ? "rechazo" : "advertencia"}
+                            </span>
+                          </td>
+                          <td className="py-2 pr-4 text-neutral-950">
+                            {issue.omekaId ?? "sin id"}
+                          </td>
+                          <td className="py-2 pr-4 text-neutral-700">
+                            {issue.templateLabel ?? "sin plantilla"}
+                          </td>
+                          <td className="py-2 pr-4 text-neutral-700">{issue.field ?? "n/a"}</td>
+                          <td className="py-2 pr-4 text-neutral-700">{issue.message}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            )}
+          </section>
+
+          <section className="mt-8 grid gap-4 md:grid-cols-2">
+            <ListPanel
+              emptyText="Todas las plantillas PNPU esperadas tienen recursos reconocidos."
+              items={diagnostics.snapshot.missingPnpuTemplates}
+              title="Plantillas PNPU sin recursos"
+            />
+            <ListPanel
+              emptyText="No hay plantillas externas o desconocidas en el snapshot."
+              items={diagnostics.snapshot.unknown.templateLabels}
+              title="Plantillas no reconocidas"
+            />
+          </section>
         </>
       )}
     </main>
@@ -143,6 +215,33 @@ function MetricRow({ label, value }: { readonly label: string; readonly value: n
     <div className="flex items-center justify-between gap-3 border-b border-neutral-100 pb-2">
       <dt className="text-sm text-neutral-700">{label}</dt>
       <dd className="text-sm font-semibold text-neutral-950">{value}</dd>
+    </div>
+  );
+}
+
+function ListPanel({
+  emptyText,
+  items,
+  title,
+}: {
+  readonly emptyText: string;
+  readonly items: readonly string[];
+  readonly title: string;
+}) {
+  return (
+    <div className="rounded-md border border-neutral-200 bg-white p-5 shadow-sm">
+      <h2 className="text-xl font-semibold text-neutral-950">{title}</h2>
+      {items.length === 0 ? (
+        <p className="mt-3 text-sm leading-6 text-neutral-700">{emptyText}</p>
+      ) : (
+        <ul className="mt-3 space-y-2 text-sm text-neutral-700">
+          {items.map((item) => (
+            <li className="rounded-md bg-neutral-50 px-3 py-2" key={item}>
+              {item}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
