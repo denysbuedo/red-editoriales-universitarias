@@ -22,6 +22,8 @@ nav:
   - Dominio de catálogo: catalog-domain.md
   - Propuesta Omeka S: omeka-pnpu-mapping-proposal.md
   - Omeka S local: omeka-local-runbook.md
+  - Manual administrador PNPU: manual-admin-pnpu.md
+  - Manual responsables editoriales: manual-responsables-editoriales.md
   - Despliegue: deployment-runbook.md
   - Rollback: rollback-runbook.md
   - Observabilidad: observability-runbook.md
