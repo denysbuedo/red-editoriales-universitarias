@@ -86,6 +86,22 @@ export default async function PublicationDetailPage({ params }: PublicationPageP
             {publication.abstract}
           </p>
         )}
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Link
+            className="inline-flex rounded-md bg-green-900 px-4 py-2 text-sm font-semibold text-white hover:bg-green-950"
+            href={`/publicaciones?publisherId=${publication.publisher.id}`}
+          >
+            Ver catálogo de la editorial
+          </Link>
+          {publication.collection === undefined ? null : (
+            <Link
+              className="inline-flex rounded-md border border-neutral-300 px-4 py-2 text-sm font-semibold text-neutral-900 hover:border-green-800 hover:text-green-900"
+              href={`/publicaciones?collectionId=${publication.collection.id}`}
+            >
+              Ver colección en catálogo
+            </Link>
+          )}
+        </div>
         <dl className="mt-8 grid gap-4 rounded-md border border-neutral-200 bg-white p-5 shadow-sm md:grid-cols-2">
           <div>
             <dt className="text-sm font-semibold text-neutral-600">Editorial</dt>
@@ -209,9 +225,15 @@ export default async function PublicationDetailPage({ params }: PublicationPageP
                 <span className="ml-2 text-sm text-neutral-600">{subject.identifier}</span>
                 <Link
                   className="ml-0 mt-1 block text-sm text-green-800 hover:text-green-950 md:ml-2 md:inline"
-                  href={`/materias/${encodeURIComponent(subject.identifier)}`}
+                  href={`/publicaciones?subject=${encodeURIComponent(subject.identifier)}`}
                 >
                   Ver publicaciones
+                </Link>
+                <Link
+                  className="ml-0 mt-1 block text-sm text-green-800 hover:text-green-950 md:ml-2 md:inline"
+                  href={`/materias/${encodeURIComponent(subject.identifier)}`}
+                >
+                  Ficha de materia
                 </Link>
                 {subject.uri === undefined ? null : (
                   <a

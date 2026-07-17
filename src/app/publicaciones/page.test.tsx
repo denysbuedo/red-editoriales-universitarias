@@ -12,6 +12,7 @@ describe("PublicationsPage", () => {
     expect(html).toContain("Gobierno, integración y sostenibilidad tecnológica");
     expect(html).toContain("ISBN: 9789590000003");
     expect(html).toContain("Ciencia de los ordenadores");
+    expect(html).toContain("/publicaciones?subject=unesco%3A1203");
     expect(html).toContain("gobierno de datos");
     expect(html).toContain('name="q"');
     expect(html).toContain('name="language"');

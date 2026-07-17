@@ -192,7 +192,7 @@ export default async function ContributorDetailPage({ params }: ContributorPageP
                     {publication.subjects.map((subject) => (
                       <Link
                         className="rounded-md bg-neutral-100 px-2 py-1 text-xs font-medium text-neutral-700 hover:bg-neutral-200"
-                        href={`/materias/${encodeURIComponent(subject.identifier)}`}
+                        href={`/publicaciones?subject=${encodeURIComponent(subject.identifier)}`}
                         key={subject.identifier}
                       >
                         {subject.preferredLabel}

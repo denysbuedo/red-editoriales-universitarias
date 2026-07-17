@@ -20,6 +20,13 @@ describe("PublicationDetailPage", () => {
     expect(html).toContain("9789590000003");
     expect(html).toContain("Citación");
     expect(html).toContain("Ciencia de los ordenadores");
+    expect(html).toContain("Ver catálogo de la editorial");
+    expect(html).toContain("/publicaciones?publisherId=018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c03");
+    expect(html).toContain("Ver colección en catálogo");
+    expect(html).toContain("/publicaciones?collectionId=018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c08");
+    expect(html).toContain("/publicaciones?subject=unesco%3A1203");
+    expect(html).toContain("/materias/unesco%3A1203");
+    expect(html).toContain("Ficha de materia");
     expect(html).toContain("d41d8cd98f00b204e9800998ecf8427e");
     expect(html).toContain("ID PNPU");
     expect(html).toContain('type="application/ld+json"');

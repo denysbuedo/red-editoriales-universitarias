@@ -131,7 +131,7 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
               {collection.subjects.map((subject) => (
                 <Link
                   className="rounded-md bg-white px-3 py-2 text-sm font-medium text-neutral-800 hover:bg-neutral-100"
-                  href={`/materias/${encodeURIComponent(subject.identifier)}`}
+                  href={`/publicaciones?subject=${encodeURIComponent(subject.identifier)}`}
                   key={subject.identifier}
                 >
                   {subject.preferredLabel}

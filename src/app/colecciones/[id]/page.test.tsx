@@ -15,6 +15,7 @@ describe("CollectionDetailPage", () => {
     expect(html).toContain("Arquitectura empresarial para universidades");
     expect(html).toContain("UH-AGU");
     expect(html).toContain("Ver publicaciones de la colección");
+    expect(html).toContain("/publicaciones?subject=unesco%3A1203");
     expect(html).toContain("Serie editorial");
     expect(html).toContain("book");
     expect(html).toContain('type="application/ld+json"');

@@ -18,6 +18,7 @@ describe("ContributorDetailPage", () => {
     expect(html).toContain("Roles");
     expect(html).toContain("Autor");
     expect(html).toContain("Arquitectura empresarial para universidades");
+    expect(html).toContain("/publicaciones?subject=unesco%3A1203");
     expect(html).toContain('type="application/ld+json"');
     expect(html).toContain('"@type":"Person"');
     expect(html).toContain('"workExample"');
