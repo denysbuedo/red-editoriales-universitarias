@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   description: "Taxonomía pública de materias utilizadas por el catálogo PNPU.",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function SubjectsPage() {
   const { subjectService } = await createCatalogServices();
   const subjects = await subjectService.listSubjects({ page: 1, pageSize: 50 });

@@ -1,9 +1,13 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
-import CollectionsPage from "./page";
+import CollectionsPage, { dynamic } from "./page";
 
 describe("CollectionsPage", () => {
+  it("is dynamic because the collection list depends on the active repository", () => {
+    expect(dynamic).toBe("force-dynamic");
+  });
+
   it("renders the public collections list", async () => {
     const html = renderToStaticMarkup(await CollectionsPage());
 

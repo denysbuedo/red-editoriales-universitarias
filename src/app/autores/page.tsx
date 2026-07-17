@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   description: "Autoridades públicas de autores y contribuyentes integrados en la PNPU.",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function ContributorsPage() {
   const { contributorService } = await createCatalogServices();
   const contributors = await contributorService.listContributors({ page: 1, pageSize: 20 });

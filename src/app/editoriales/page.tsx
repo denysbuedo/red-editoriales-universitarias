@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   description: "Directorio público de editoriales universitarias integradas en la PNPU.",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function PublishersPage() {
   const { publicationService, publisherService } = await createCatalogServices();
   const publishers = await publisherService.listPublishers({ page: 1, pageSize: 20 });

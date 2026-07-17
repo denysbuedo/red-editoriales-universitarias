@@ -1,9 +1,13 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
-import ContributorsPage from "./page";
+import ContributorsPage, { dynamic } from "./page";
 
 describe("ContributorsPage", () => {
+  it("is dynamic because the authority list depends on the active repository", () => {
+    expect(dynamic).toBe("force-dynamic");
+  });
+
   it("renders the contributor authority list", async () => {
     const html = renderToStaticMarkup(await ContributorsPage());
 

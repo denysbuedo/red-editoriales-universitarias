@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   description: "Colecciones editoriales universitarias integradas en la PNPU.",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function CollectionsPage() {
   const { collectionService } = await createCatalogServices();
   const collections = await collectionService.listCollections({ page: 1, pageSize: 20 });

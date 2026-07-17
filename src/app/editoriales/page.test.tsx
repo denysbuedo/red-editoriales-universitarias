@@ -1,9 +1,13 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
-import PublishersPage from "./page";
+import PublishersPage, { dynamic } from "./page";
 
 describe("PublishersPage", () => {
+  it("is dynamic because the directory depends on the active repository", () => {
+    expect(dynamic).toBe("force-dynamic");
+  });
+
   it("renders the publisher directory page", async () => {
     const html = renderToStaticMarkup(await PublishersPage());
 
