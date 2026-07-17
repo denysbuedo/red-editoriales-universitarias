@@ -90,6 +90,12 @@
         chdir: "{{ pnpu_release_path }}"
       changed_when: true
 
+    - name: Build Next.js production assets
+      ansible.builtin.command:
+        cmd: "{{ pnpu_node_bin }} run build"
+        chdir: "{{ pnpu_release_path }}"
+      changed_when: true
+
     - name: Ensure release ownership after dependency install
       ansible.builtin.file:
         path: "{{ pnpu_release_path }}"

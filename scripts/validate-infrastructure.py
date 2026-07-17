@@ -20,7 +20,12 @@ REQUIRED_FILES = [
 
 REQUIRED_GROUP_VARS = {
     "pnpu_catalog_repository",
+    "pnpu_catalog_refresh_token",
     "pnpu_omeka_base_url",
+    "pnpu_omeka_cache_ttl_seconds",
+    "pnpu_omeka_max_pages",
+    "pnpu_omeka_page_size",
+    "pnpu_omeka_require_approved_mapping",
     "pnpu_omeka_timeout_ms",
 }
 
@@ -59,6 +64,26 @@ def main() -> None:
 
     if not isinstance(group_vars["pnpu_omeka_timeout_ms"], int):
         raise ValueError("pnpu_omeka_timeout_ms must be an integer.")
+
+    for integer_var in (
+        "pnpu_omeka_page_size",
+        "pnpu_omeka_max_pages",
+        "pnpu_omeka_cache_ttl_seconds",
+    ):
+        if not isinstance(group_vars[integer_var], int):
+            raise ValueError(f"{integer_var} must be an integer.")
+
+    service_unit = (root / "infrastructure/roles/portal/templates/pnpu-portal.service.j2").read_text(
+        encoding="utf-8",
+    )
+    for required_directive in (
+        "NoNewPrivileges=true",
+        "ProtectSystem=strict",
+        "PrivateTmp=true",
+        "RestrictSUIDSGID=true",
+    ):
+        if required_directive not in service_unit:
+            raise ValueError(f"systemd unit is missing hardening directive: {required_directive}")
 
     prometheus = load_yaml(root / "infrastructure/monitoring/prometheus.yml")
     if not isinstance(prometheus, dict) or "scrape_configs" not in prometheus:

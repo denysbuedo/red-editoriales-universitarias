@@ -1,6 +1,7 @@
 [Unit]
 Description=PNPU Portal
-After=network.target
+After=network-online.target
+Wants=network-online.target
 
 [Service]
 Type=simple
@@ -11,11 +12,23 @@ EnvironmentFile={{ pnpu_env_file }}
 ExecStart={{ pnpu_node_bin }} run start
 Restart=always
 RestartSec=5
+TimeoutStopSec=30
+KillSignal=SIGINT
 NoNewPrivileges=true
 PrivateTmp=true
-ProtectSystem=full
+ProtectSystem=strict
 ProtectHome=true
+PrivateDevices=true
+ProtectClock=true
+ProtectControlGroups=true
+ProtectKernelLogs=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+LockPersonality=true
 ReadWritePaths={{ pnpu_base_dir }}/shared
+ReadWritePaths=/tmp
 
 [Install]
 WantedBy=multi-user.target

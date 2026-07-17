@@ -11,6 +11,7 @@ Desplegar un artefacto versionado del Portal PNPU sobre Ubuntu Server mediante A
 - Variables de entorno externas configuradas en `/etc/pnpu/portal.env`.
 - VM accesible por Ansible mediante SSH.
 - HAProxy preparado para usar `/health/ready`.
+- Node.js y npm disponibles en la ruta definida por `pnpu_node_bin`.
 
 ## Flujo
 
@@ -21,10 +22,11 @@ Desplegar un artefacto versionado del Portal PNPU sobre Ubuntu Server mediante A
 5. Validar checksum SHA-256 en el nodo objetivo.
 6. Descomprimir en `/opt/pnpu/portal/releases/<version>`.
 7. Instalar dependencias de producción con `npm ci --omit=dev`.
-8. Actualizar `current`.
-9. Reiniciar `pnpu-portal`.
-10. Validar `/health/live` y `/health/ready`.
-11. Registrar versión, fecha, operador y resultado.
+8. Construir assets de producción con `npm run build`.
+9. Actualizar `current`.
+10. Reiniciar `pnpu-portal`.
+11. Validar `/health/live` y `/health/ready`.
+12. Registrar versión, fecha, operador y resultado.
 
 ## Comandos de referencia
 

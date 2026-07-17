@@ -13,3 +13,8 @@ pnpu_portal_manage_service: true
 pnpu_catalog_repository: in-memory
 pnpu_omeka_base_url: ""
 pnpu_omeka_timeout_ms: 2000
+pnpu_omeka_page_size: 100
+pnpu_omeka_max_pages: 100
+pnpu_omeka_cache_ttl_seconds: 60
+pnpu_omeka_require_approved_mapping: "false"
+pnpu_catalog_refresh_token: ""
