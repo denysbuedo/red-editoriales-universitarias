@@ -306,13 +306,13 @@ function readFilters(
   const params = searchParams ?? {};
 
   return {
-    q: firstValue(params.q),
-    language: firstValue(params.language),
-    publisherId: firstValue(params.publisherId),
-    contributorId: firstValue(params.contributorId),
-    collectionId: firstValue(params.collectionId),
-    subject: firstValue(params.subject),
-    sort: firstValue(params.sort),
+    q: optionalFilterValue(params.q),
+    language: optionalFilterValue(params.language),
+    publisherId: optionalFilterValue(params.publisherId),
+    contributorId: optionalFilterValue(params.contributorId),
+    collectionId: optionalFilterValue(params.collectionId),
+    subject: optionalFilterValue(params.subject),
+    sort: optionalFilterValue(params.sort),
   };
 }
 
@@ -340,6 +340,12 @@ function firstValue(value: string | readonly string[] | undefined): string | und
   }
 
   return value[0];
+}
+
+function optionalFilterValue(value: string | readonly string[] | undefined): string | undefined {
+  const selectedValue = firstValue(value)?.trim();
+
+  return selectedValue === undefined || selectedValue.length === 0 ? undefined : selectedValue;
 }
 
 function formatCollectionOption(collection: {

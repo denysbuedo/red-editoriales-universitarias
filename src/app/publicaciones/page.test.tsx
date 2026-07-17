@@ -50,4 +50,24 @@ describe("PublicationsPage", () => {
     );
     expect(html).toContain('<option value="titleAsc" selected="">Título A-Z</option>');
   });
+
+  it("ignores empty filter fields submitted by the catalog form", async () => {
+    const html = renderToStaticMarkup(
+      await PublicationsPage({
+        searchParams: Promise.resolve({
+          q: "",
+          publisherId: "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c03",
+          subject: "",
+          contributorId: "",
+          collectionId: "",
+          language: "",
+          sort: "publicationDateDesc",
+        }),
+      }),
+    );
+
+    expect(html).toContain("Publicaciones universitarias");
+    expect(html).toContain("1 resultado");
+    expect(html).toContain("Editorial Universidad de La Habana");
+  });
 });
