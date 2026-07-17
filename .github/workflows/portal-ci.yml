@@ -24,14 +24,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Lint
-        run: npm run lint
-
-      - name: Type check
-        run: npm run typecheck
-
-      - name: Test
-        run: npm test
+      - name: Quality gate
+        run: npm run quality
 
       - name: Security audit
         run: npm audit --audit-level=moderate
@@ -40,22 +34,12 @@ jobs:
         run: npm run build
 
       - name: Smoke test production server
+        env:
+          HOSTNAME: 127.0.0.1
+          PORT: 4307
+          PNPU_SMOKE_BASE_URL: http://127.0.0.1:4307
         run: |
-          npm run start -- -H 127.0.0.1 -p 4307 &
+          npm run start &
           SERVER_PID=$!
           trap "kill $SERVER_PID" EXIT
           npm run smoke
-
-      - name: Package release artifact
-        run: npm run package:release
-
-      - name: Validate release artifact
-        run: npm run package:validate
-
-      - name: Upload release artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: pnpu-portal-release
-          path: |
-            artifacts/*.tar.gz
-            artifacts/*.sha256

@@ -9,6 +9,7 @@ on:
       - "infrastructure/**"
       - "requirements-infra.txt"
       - "scripts/health-check.sh"
+      - "scripts/validate-infrastructure.py"
       - ".github/workflows/infrastructure-ci.yml"
 
 jobs:
