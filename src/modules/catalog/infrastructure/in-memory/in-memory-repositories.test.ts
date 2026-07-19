@@ -78,6 +78,34 @@ describe("in-memory catalog repositories", () => {
     });
   });
 
+  it("searches publications by contributor, collection and digital resource metadata", async () => {
+    const sampleData = createSampleCatalogData();
+    const publicationService = new PublicationService(
+      new InMemoryPublicationRepository(sampleData.publications),
+    );
+
+    for (const q of [
+      "Juana Perez",
+      "0000-0002-1825-0097",
+      "Gestión universitaria",
+      "UH-AGU",
+      "application/pdf",
+      "d41d8cd98f00b204e9800998ecf8427e",
+    ]) {
+      await expect(
+        publicationService.listPublications({
+          page: 1,
+          pageSize: 10,
+          q,
+        }),
+      ).resolves.toMatchObject({
+        pagination: {
+          total: 1,
+        },
+      });
+    }
+  });
+
   it("sorts publications before pagination", async () => {
     const sampleData = createSampleCatalogData();
     const firstPublication = sampleData.publications[0];

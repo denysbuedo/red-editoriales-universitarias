@@ -117,11 +117,39 @@ function matchesSearchText(publication: Publication, query: string): boolean {
     snapshot.abstract,
     snapshot.publisher.officialName(),
     snapshot.publisher.snapshot().acronym,
+    snapshot.collection?.title(),
+    snapshot.collection?.snapshot().collectionCode,
+    snapshot.collection?.snapshot().editorialSeries,
+    ...snapshot.contributors.flatMap((contributor) => {
+      const contributorSnapshot = contributor.snapshot();
+
+      return [
+        contributorSnapshot.name,
+        contributorSnapshot.givenName,
+        contributorSnapshot.familyName,
+        contributorSnapshot.affiliation,
+        contributorSnapshot.orcid?.value(),
+        contributorSnapshot.country,
+        ...contributorSnapshot.roles,
+      ];
+    }),
     ...snapshot.identifiers.map((identifier) => identifier.snapshot().value),
     ...snapshot.subjects.flatMap((subject) => {
       const subjectSnapshot = subject.snapshot();
 
       return [subjectSnapshot.identifier, subjectSnapshot.preferredLabel];
+    }),
+    ...snapshot.resources.flatMap((resource) => {
+      const resourceSnapshot = resource.snapshot();
+
+      return [
+        resourceSnapshot.type,
+        resourceSnapshot.url,
+        resourceSnapshot.format,
+        resourceSnapshot.checksum,
+        resourceSnapshot.license,
+        resourceSnapshot.language?.value(),
+      ];
     }),
     ...(snapshot.keywords ?? []),
   ]

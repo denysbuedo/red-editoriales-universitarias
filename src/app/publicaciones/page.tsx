@@ -212,6 +212,22 @@ export default async function PublicationsPage({ searchParams }: PublicationsPag
             <p className="mt-2 text-sm leading-6 text-neutral-700">
               No hay publicaciones que coincidan con los filtros aplicados.
             </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Link
+                className="inline-flex rounded-md border border-green-800 px-3 py-2 text-sm font-semibold text-green-900 hover:bg-green-50"
+                href="/publicaciones"
+              >
+                Limpiar filtros
+              </Link>
+              {filters.q === undefined ? null : (
+                <Link
+                  className="inline-flex rounded-md border border-neutral-300 px-3 py-2 text-sm font-semibold text-neutral-800 hover:bg-white"
+                  href={buildPublicationsHref({ ...filters, q: undefined }, 1)}
+                >
+                  Quitar búsqueda
+                </Link>
+              )}
+            </div>
           </div>
         ) : (
           <div className="grid gap-4">

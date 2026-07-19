@@ -82,4 +82,20 @@ describe("PublicationsPage", () => {
     expect(html).toContain("1 resultado");
     expect(html).toContain("Editorial Universidad de La Habana");
   });
+
+  it("renders recovery actions when filters return no publications", async () => {
+    const html = renderToStaticMarkup(
+      await PublicationsPage({
+        searchParams: Promise.resolve({
+          q: "sin coincidencias",
+          subject: "unesco:1203",
+        }),
+      }),
+    );
+
+    expect(html).toContain("Sin resultados");
+    expect(html).toContain("Limpiar filtros");
+    expect(html).toContain("Quitar búsqueda");
+    expect(html).toContain('href="/publicaciones?subject=unesco%3A1203"');
+  });
 });
