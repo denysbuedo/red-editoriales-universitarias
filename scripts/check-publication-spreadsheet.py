@@ -36,6 +36,12 @@ PNPU_ENRICHMENT_FIELDS = [
     "publisherAuthorityId",
 ]
 
+DATE_PATTERNS = {
+    "yearOnly": re.compile(r"^\d{4}$"),
+    "monthYear": re.compile(r"^(0?[1-9]|1[0-2])[/.-]\d{4}$"),
+    "isoDate": re.compile(r"^\d{4}-\d{2}-\d{2}$"),
+}
+
 
 @dataclass(frozen=True)
 class SpreadsheetRow:
@@ -114,6 +120,9 @@ def diagnose_workbook(path: Path, sheet_name: str = "EDUNIV") -> dict[str, Any]:
         for row in rows
         if row.isbn.strip() != "" and not is_valid_isbn(row.isbn)
     ]
+    missing_row_samples = missing_rows(rows)
+    duplicate_isbns = duplicate_isbn_rows(rows)
+    publication_date_formats = classify_publication_dates(rows)
     rows_with_required_fields = [
         row
         for row in rows
@@ -128,10 +137,15 @@ def diagnose_workbook(path: Path, sheet_name: str = "EDUNIV") -> dict[str, Any]:
             "rowsWithRequiredSpreadsheetFields": len(rows_with_required_fields),
             "missingFieldCount": sum(missing_by_field.values()),
             "invalidIsbnCount": len(invalid_isbn_rows),
+            "duplicateIsbnCount": len(duplicate_isbns),
+            "invalidPublicationDateCount": publication_date_formats["invalid"],
             "missingPnpuEnrichmentFields": PNPU_ENRICHMENT_FIELDS,
         },
         "missingByField": missing_by_field,
+        "missingRows": missing_row_samples,
         "invalidIsbnRows": invalid_isbn_rows[:20],
+        "duplicateIsbns": duplicate_isbns,
+        "publicationDateFormats": publication_date_formats,
         "distinctValues": {
             "publishers": top_values(row.publisher for row in rows),
             "genresOrPublicationTypes": top_values(row.genre_or_publication_type for row in rows),
@@ -250,7 +264,7 @@ def cell_value(cell: ElementTree.Element, shared_strings: list[str]) -> str:
 
 
 def is_valid_isbn(value: str) -> bool:
-    normalized = re.sub(r"[^0-9Xx]", "", value).upper()
+    normalized = normalize_isbn(value)
 
     if len(normalized) == 10:
         total = 0
@@ -270,6 +284,103 @@ def is_valid_isbn(value: str) -> bool:
         return check_digit == int(normalized[-1])
 
     return False
+
+
+def normalize_isbn(value: str) -> str:
+    return re.sub(r"[^0-9Xx]", "", value).upper()
+
+
+def missing_rows(rows: list[SpreadsheetRow], limit: int = 20) -> list[dict[str, Any]]:
+    samples: list[dict[str, Any]] = []
+
+    for row in rows:
+        missing_fields = [field for field, value in row.as_mapping().items() if value.strip() == ""]
+        if not missing_fields:
+            continue
+
+        samples.append(
+            {
+                "row": row.row_number,
+                "isbn": row.isbn,
+                "title": row.title,
+                "missingFields": missing_fields,
+            }
+        )
+        if len(samples) >= limit:
+            break
+
+    return samples
+
+
+def duplicate_isbn_rows(rows: list[SpreadsheetRow], limit: int = 20) -> list[dict[str, Any]]:
+    grouped_rows: dict[str, list[SpreadsheetRow]] = {}
+
+    for row in rows:
+        normalized = normalize_isbn(row.isbn)
+        if normalized == "":
+            continue
+        grouped_rows.setdefault(normalized, []).append(row)
+
+    duplicates: list[dict[str, Any]] = []
+    for isbn, grouped in grouped_rows.items():
+        if len(grouped) <= 1:
+            continue
+
+        duplicates.append(
+            {
+                "isbn": isbn,
+                "count": len(grouped),
+                "rows": [
+                    {
+                        "row": duplicate.row_number,
+                        "title": duplicate.title,
+                    }
+                    for duplicate in grouped[:10]
+                ],
+            }
+        )
+        if len(duplicates) >= limit:
+            break
+
+    return duplicates
+
+
+def classify_publication_dates(rows: list[SpreadsheetRow], limit: int = 20) -> dict[str, Any]:
+    counts: dict[str, Any] = {
+        "empty": 0,
+        "yearOnly": 0,
+        "monthYear": 0,
+        "isoDate": 0,
+        "invalid": 0,
+        "invalidRows": [],
+    }
+
+    for row in rows:
+        value = row.publication_date.strip()
+        if value == "":
+            counts["empty"] += 1
+            continue
+
+        matching_format = next(
+            (name for name, pattern in DATE_PATTERNS.items() if pattern.match(value)),
+            None,
+        )
+        if matching_format is not None:
+            counts[matching_format] += 1
+            continue
+
+        counts["invalid"] += 1
+        if len(counts["invalidRows"]) < limit:
+            counts["invalidRows"].append(
+                {
+                    "row": row.row_number,
+                    "date": value,
+                    "isbn": row.isbn,
+                    "title": row.title,
+                }
+            )
+
+    return counts
 
 
 def split_values(value: str) -> list[str]:
@@ -299,6 +410,8 @@ def print_human_diagnostics(diagnostics: dict[str, Any]) -> None:
     print(f"Filas con campos base completos: {summary['rowsWithRequiredSpreadsheetFields']}")
     print(f"Campos vacios acumulados: {summary['missingFieldCount']}")
     print(f"ISBN invalidos: {summary['invalidIsbnCount']}")
+    print(f"ISBN duplicados: {summary['duplicateIsbnCount']}")
+    print(f"Fechas invalidas: {summary['invalidPublicationDateCount']}")
     print()
     print("Campos faltantes para publicacion PNPU completa:")
     for field in summary["missingPnpuEnrichmentFields"]:
@@ -307,6 +420,33 @@ def print_human_diagnostics(diagnostics: dict[str, Any]) -> None:
     print("Campos vacios por columna:")
     for field, count in diagnostics["missingByField"].items():
         print(f"- {field}: {count}")
+    print()
+    print("Filas con campos vacios (muestra):")
+    if diagnostics["missingRows"]:
+        for row in diagnostics["missingRows"]:
+            missing = ", ".join(row["missingFields"])
+            print(f"- Fila {row['row']}: {missing} | ISBN: {row['isbn']} | Titulo: {row['title']}")
+    else:
+        print("- No se detectaron filas incompletas.")
+    print()
+    print("ISBN duplicados (muestra):")
+    if diagnostics["duplicateIsbns"]:
+        for duplicate in diagnostics["duplicateIsbns"]:
+            rows = ", ".join(str(item["row"]) for item in duplicate["rows"])
+            print(f"- {duplicate['isbn']}: {duplicate['count']} apariciones | filas {rows}")
+    else:
+        print("- No se detectaron ISBN duplicados.")
+    print()
+    print("Formato de fechas:")
+    date_formats = diagnostics["publicationDateFormats"]
+    print(f"- Vacias: {date_formats['empty']}")
+    print(f"- Solo ano: {date_formats['yearOnly']}")
+    print(f"- Mes/ano: {date_formats['monthYear']}")
+    print(f"- Fecha ISO: {date_formats['isoDate']}")
+    print(f"- Invalidas: {date_formats['invalid']}")
+    if date_formats["invalidRows"]:
+        for row in date_formats["invalidRows"]:
+            print(f"  - Fila {row['row']}: {row['date']} | ISBN: {row['isbn']} | Titulo: {row['title']}")
     print()
     print("Valores principales:")
     for group, values in diagnostics["distinctValues"].items():
@@ -324,15 +464,20 @@ def run_self_test() -> None:
         create_test_workbook(workbook)
         diagnostics = diagnose_workbook(workbook)
 
-    assert diagnostics["summary"]["rowCount"] == 2, "self-test row count mismatch"
+    assert diagnostics["summary"]["rowCount"] == 4, "self-test row count mismatch"
     assert (
-        diagnostics["summary"]["rowsWithRequiredSpreadsheetFields"] == 1
+        diagnostics["summary"]["rowsWithRequiredSpreadsheetFields"] == 2
     ), "self-test complete row count mismatch"
     assert diagnostics["summary"]["invalidIsbnCount"] == 1, "self-test invalid ISBN count mismatch"
+    assert diagnostics["summary"]["duplicateIsbnCount"] == 1, "self-test duplicate ISBN count mismatch"
+    assert (
+        diagnostics["summary"]["invalidPublicationDateCount"] == 1
+    ), "self-test invalid date count mismatch"
     assert diagnostics["missingByField"]["title"] == 0, "self-test missing title count mismatch"
+    assert diagnostics["missingByField"]["format"] == 1, "self-test missing format count mismatch"
     assert diagnostics["distinctValues"]["formats"][0] == {
         "value": "pdf",
-        "count": 2,
+        "count": 3,
     }, "self-test format counter mismatch"
 
 
@@ -354,6 +499,8 @@ def create_test_workbook(path: Path) -> None:
         "2026",
         "9789590000004",
         "Libro invalido",
+        "07/2026",
+        "fecha erronea",
     ]
     sheet = """<?xml version="1.0" encoding="UTF-8"?>
 <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
@@ -366,6 +513,12 @@ def create_test_workbook(path: Path) -> None:
     </row>
     <row r="3">
       <c r="A3" t="s"><v>14</v></c><c r="B3" t="s"><v>15</v></c><c r="C3" t="s"><v>9</v></c><c r="D3" t="s"><v>10</v></c><c r="E3" t="s"><v>11</v></c><c r="F3" t="s"><v>12</v></c><c r="G3" t="s"><v>13</v></c>
+    </row>
+    <row r="4">
+      <c r="A4" t="s"><v>7</v></c><c r="B4" t="s"><v>8</v></c><c r="C4" t="s"><v>9</v></c><c r="D4" t="s"><v>10</v></c><c r="E4" t="s"><v>11</v></c><c r="F4" t="s"><v>12</v></c><c r="G4" t="s"><v>16</v></c>
+    </row>
+    <row r="5">
+      <c r="A5" t="s"><v>7</v></c><c r="B5" t="s"><v>8</v></c><c r="C5" t="s"><v>9</v></c><c r="D5" t="s"><v>10</v></c><c r="E5" t="s"><v>11</v></c><c r="G5" t="s"><v>17</v></c>
     </row>
   </sheetData>
 </worksheet>

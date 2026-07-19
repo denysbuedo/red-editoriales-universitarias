@@ -182,11 +182,21 @@ El comando debe:
 - contar registros;
 - validar ISBN;
 - detectar campos vacios;
+- mostrar una muestra de filas concretas con campos vacios;
+- detectar ISBN duplicados;
+- clasificar fechas como ano, mes/ano o fecha ISO;
 - listar editoriales, generos, formatos y fechas;
 - reportar campos faltantes para PNPU;
 - no escribir en Omeka;
 - no escribir en PostgreSQL;
 - no publicar registros.
+
+Observacion sobre la tabla EDUNIV analizada:
+
+- la columna `Fecha` aparece como ano de publicacion en los registros bibliograficos;
+- los campos de mes/ano corresponden mejor al flujo de libros en proceso de edicion;
+- el diagnostico debe aceptar ambos formatos, pero reportarlos por separado para que gobierno de datos
+  pueda decidir la normalizacion final.
 
 ## 11. Criterios de aceptacion
 
@@ -197,4 +207,3 @@ El comando debe:
 - Reporta salida legible y salida JSON opcional.
 - Tiene una autoprueba local del parser.
 - La documentacion explica limites y decisiones pendientes.
-
