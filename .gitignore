@@ -17,6 +17,7 @@ coverage/
 
 # Python
 .venv/
+__pycache__/
 
 # TypeScript
 *.tsbuildinfo

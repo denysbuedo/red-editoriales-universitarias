@@ -24,6 +24,7 @@ nav:
   - Omeka S local: omeka-local-runbook.md
   - Manual administrador PNPU: manual-admin-pnpu.md
   - Manual responsables editoriales: manual-responsables-editoriales.md
+  - Registro editorial e importación: editorial-registry-and-import-proposal.md
   - Despliegue: deployment-runbook.md
   - Rollback: rollback-runbook.md
   - Observabilidad: observability-runbook.md

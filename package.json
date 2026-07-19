@@ -13,6 +13,8 @@
     "smoke": "node scripts/smoke-test.mjs",
     "docs:manuals:html": "node scripts/export-manuals-html.mjs",
     "docs:manuals:check": "node scripts/export-manuals-html.mjs --check",
+    "publications:import-check": "python scripts/check-publication-spreadsheet.py",
+    "publications:import-check:self-test": "python scripts/check-publication-spreadsheet.py --self-test",
     "omeka:check": "node scripts/check-omeka.mjs",
     "omeka:install-profile": "node scripts/install-omeka-profile.mjs",
     "omeka:map": "node scripts/map-omeka-catalog.mjs",
@@ -23,7 +25,7 @@
     "format:write": "prettier --write \"*.{json,js,mjs,ts,yml}\" \"src/**/*.{ts,tsx,css}\" \".github/**/*.yml\" \"infrastructure/**/*.yml\" \"openapi/**/*.yml\"",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "quality": "npm run format && npm run docs:manuals:check && npm run lint && npm run typecheck && npm test",
+    "quality": "npm run format && npm run docs:manuals:check && npm run publications:import-check:self-test && npm run lint && npm run typecheck && npm test",
     "test:watch": "vitest"
   },
   "engines": {

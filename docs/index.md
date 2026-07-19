@@ -9,6 +9,7 @@ Este sitio reúne la documentación técnica operativa de la PNPU.
 - Especificación técnica del portal.
 - Manual del administrador PNPU.
 - Manual para responsables de editoriales.
+- Propuesta de registro editorial e importacion.
 
 ## Versiones HTML para operación
 
