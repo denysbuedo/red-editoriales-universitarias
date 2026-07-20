@@ -50,4 +50,21 @@ export interface PublicationImportDiagnosticsDto {
     readonly reason: string;
     readonly recommendedNextStep: string;
   };
+  readonly records?: readonly PublicationImportSpreadsheetRecordDto[];
+}
+
+export type PublicationImportSpreadsheetDateFormatDto = "yearOnly" | "monthYear" | "isoDate";
+
+export interface PublicationImportSpreadsheetRecordDto {
+  readonly row: number;
+  readonly isbn: string;
+  readonly normalizedIsbn: string;
+  readonly title: string;
+  readonly primaryContributor: string;
+  readonly publisher: string;
+  readonly genreOrPublicationType: string;
+  readonly format: string;
+  readonly formats: readonly string[];
+  readonly publicationDate: string;
+  readonly dateFormat?: PublicationImportSpreadsheetDateFormatDto;
 }

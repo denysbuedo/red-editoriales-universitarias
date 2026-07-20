@@ -29,7 +29,10 @@ export class PublicationImportDiagnosisService {
     command: DiagnosePublicationImportCommand,
   ): Promise<PublicationImportBatchSnapshot> {
     const sheet = normalizeSheet(command.sheet);
-    const sourcePath = this.resolveAllowedSourcePath(command.sourcePath);
+    const sourcePath = resolveAllowedPublicationImportSourcePath(
+      command.sourcePath,
+      this.options.importRoot,
+    );
     const diagnostics = await this.runner.diagnose({ sourcePath, sheet });
     const batch = PublicationImportBatch.fromDiagnostics(
       this.options.idGenerator?.() ?? crypto.randomUUID(),
@@ -39,39 +42,40 @@ export class PublicationImportDiagnosisService {
 
     return batch.toSnapshot();
   }
-
-  private resolveAllowedSourcePath(sourcePath: string): string {
-    const normalizedSourcePath = sourcePath.trim();
-
-    if (normalizedSourcePath.length === 0) {
-      throw ApplicationError.validation("Publication import sourcePath is required.");
-    }
-
-    if (path.isAbsolute(normalizedSourcePath)) {
-      throw ApplicationError.validation("Publication import sourcePath must be relative.");
-    }
-
-    if (path.extname(normalizedSourcePath).toLowerCase() !== ".xlsx") {
-      throw ApplicationError.validation(
-        "Publication import sourcePath must reference an .xlsx file.",
-      );
-    }
-
-    const importRoot = path.resolve(this.options.importRoot);
-    const candidate = path.resolve(importRoot, normalizedSourcePath);
-    const relativePath = path.relative(importRoot, candidate);
-
-    if (relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
-      throw ApplicationError.validation(
-        "Publication import sourcePath is outside the allowed root.",
-      );
-    }
-
-    return candidate;
-  }
 }
 
-function normalizeSheet(sheet: string | undefined): string {
+export function resolveAllowedPublicationImportSourcePath(
+  sourcePath: string,
+  importRootPath: string,
+): string {
+  const normalizedSourcePath = sourcePath.trim();
+
+  if (normalizedSourcePath.length === 0) {
+    throw ApplicationError.validation("Publication import sourcePath is required.");
+  }
+
+  if (path.isAbsolute(normalizedSourcePath)) {
+    throw ApplicationError.validation("Publication import sourcePath must be relative.");
+  }
+
+  if (path.extname(normalizedSourcePath).toLowerCase() !== ".xlsx") {
+    throw ApplicationError.validation(
+      "Publication import sourcePath must reference an .xlsx file.",
+    );
+  }
+
+  const importRoot = path.resolve(importRootPath);
+  const candidate = path.resolve(importRoot, normalizedSourcePath);
+  const relativePath = path.relative(importRoot, candidate);
+
+  if (relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
+    throw ApplicationError.validation("Publication import sourcePath is outside the allowed root.");
+  }
+
+  return candidate;
+}
+
+export function normalizePublicationImportSheet(sheet: string | undefined): string {
   const normalizedSheet = sheet?.trim();
 
   if (normalizedSheet === undefined || normalizedSheet.length === 0) {
@@ -84,3 +88,5 @@ function normalizeSheet(sheet: string | undefined): string {
 
   return normalizedSheet;
 }
+
+const normalizeSheet = normalizePublicationImportSheet;

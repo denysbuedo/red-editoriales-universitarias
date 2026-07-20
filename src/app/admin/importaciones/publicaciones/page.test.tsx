@@ -17,8 +17,9 @@ describe("PublicationImportDiagnosisForm", () => {
   it("renders the initial diagnosis form", () => {
     const html = renderToStaticMarkup(<PublicationImportDiagnosisForm />);
 
-    expect(html).toContain("Ejecutar diagnóstico");
+    expect(html).toContain("Ejecutar revisión");
     expect(html).toContain("Listado_Libro_Publicados_EDUNIV.xlsx");
     expect(html).toContain("Token administrativo");
+    expect(html).toContain("Preview mapeo");
   });
 });

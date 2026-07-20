@@ -372,6 +372,49 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /api/admin/publication-imports/mapping-preview:
+    post:
+      operationId: previewPublicationImportMapping
+      summary: Previsualiza el mapeo PNPU/Omeka de un archivo XLSX diagnosticado.
+      description: >
+        Endpoint operativo protegido por token. Evalúa filas de una planilla XLSX y clasifica cada
+        registro como mapeable, pendiente de enriquecimiento o rechazado. No escribe en Omeka S ni
+        PostgreSQL.
+      tags:
+        - Admin
+      security:
+        - PublicationImportToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PublicationImportMappingPreviewRequest"
+      responses:
+        "200":
+          description: Vista previa de mapeo del lote.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicationImportMappingPreviewResponse"
+        "403":
+          description: Token administrativo inválido.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: Solicitud inválida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Endpoint no configurado o preview no disponible.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /health/live:
     get:
       operationId: getLiveHealth
@@ -1320,6 +1363,145 @@ components:
                 properties:
                   date:
                     type: string
+    PublicationImportMappingPreviewRequest:
+      allOf:
+        - $ref: "#/components/schemas/PublicationImportDiagnoseRequest"
+        - type: object
+          additionalProperties: false
+          properties:
+            maxRows:
+              type: integer
+              minimum: 1
+              maximum: 500
+              default: 50
+    PublicationImportMappingPreview:
+      type: object
+      additionalProperties: false
+      required:
+        - source
+        - sheet
+        - generatedAt
+        - summary
+        - unresolvedPublishers
+        - unresolvedGenresOrPublicationTypes
+        - formatsWithoutDigitalResource
+        - rows
+        - diagnostics
+      properties:
+        source:
+          type: string
+        sheet:
+          type: string
+        generatedAt:
+          type: string
+          format: date-time
+        summary:
+          type: object
+          additionalProperties: false
+          required:
+            - totalRows
+            - mappable
+            - needsEnrichment
+            - rejected
+          properties:
+            totalRows:
+              type: integer
+              minimum: 0
+            mappable:
+              type: integer
+              minimum: 0
+            needsEnrichment:
+              type: integer
+              minimum: 0
+            rejected:
+              type: integer
+              minimum: 0
+        unresolvedPublishers:
+          type: array
+          items:
+            type: string
+        unresolvedGenresOrPublicationTypes:
+          type: array
+          items:
+            type: string
+        formatsWithoutDigitalResource:
+          type: array
+          items:
+            type: string
+        rows:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicationImportMappingPreviewRow"
+        diagnostics:
+          $ref: "#/components/schemas/PublicationImportDiagnostics"
+    PublicationImportMappingPreviewRow:
+      type: object
+      additionalProperties: false
+      required:
+        - row
+        - title
+        - isbn
+        - normalizedIsbn
+        - primaryContributor
+        - publisher
+        - genreOrPublicationType
+        - formats
+        - publicationDate
+        - normalizedPublicationDate
+        - decision
+        - reasons
+        - missingPnpuFields
+      properties:
+        row:
+          type: integer
+          minimum: 1
+        title:
+          type: string
+        isbn:
+          type: string
+        normalizedIsbn:
+          type: string
+        primaryContributor:
+          type: string
+        publisher:
+          type: string
+        genreOrPublicationType:
+          type: string
+        formats:
+          type: array
+          items:
+            type: string
+        publicationDate:
+          type: string
+        normalizedPublicationDate:
+          type:
+            - string
+            - "null"
+        decision:
+          type: string
+          enum:
+            - mappable
+            - needs_enrichment
+            - rejected
+        reasons:
+          type: array
+          items:
+            type: string
+        missingPnpuFields:
+          type: array
+          items:
+            type: string
+    PublicationImportMappingPreviewResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          $ref: "#/components/schemas/PublicationImportMappingPreview"
+        meta:
+          $ref: "#/components/schemas/ApiMeta"
     PublicationImportBatchResponse:
       type: object
       additionalProperties: false

@@ -247,3 +247,23 @@ La vista operativa inicial esta disponible en:
 
 La vista solicita el archivo XLSX, la hoja y el token administrativo. No almacena el token en el
 codigo ni en configuracion del cliente; lo usa solamente para invocar el endpoint protegido.
+
+## 13. Preview de mapeo
+
+Antes de escribir en Omeka S, PNPU expone un preview operativo:
+
+```http
+POST /api/admin/publication-imports/mapping-preview
+X-PNPU-Admin-Token: <token>
+Content-Type: application/json
+```
+
+El preview clasifica las filas como:
+
+- `mappable`: fila base lista para transformacion, cuando existan todos los datos necesarios;
+- `needs_enrichment`: fila bibliografica valida, pero pendiente de campos PNPU u otros mapeos;
+- `rejected`: fila con errores de planilla, ISBN duplicado, campos vacios o fecha invalida.
+
+En el incremento actual, las filas completas de EDUNIV se clasifican como `needs_enrichment`,
+porque la tabla no trae idioma, materias controladas, licencia, recurso digital ni autoridad
+institucional de editorial. Este paso sigue sin escribir en Omeka S ni PostgreSQL.

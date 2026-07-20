@@ -13,9 +13,13 @@ export class PythonPublicationSpreadsheetDiagnosticsRunner implements Publicatio
   public async diagnose(input: {
     readonly sourcePath: string;
     readonly sheet: string;
+    readonly includeRecords?: boolean;
   }): Promise<PublicationImportDiagnosticsDto> {
     const scriptPath = path.resolve("scripts", "check-publication-spreadsheet.py");
     const args = [scriptPath, input.sourcePath, "--sheet", input.sheet, "--json"];
+    if (input.includeRecords === true) {
+      args.push("--include-records");
+    }
 
     try {
       const result = await execFileAsync("python", args, {

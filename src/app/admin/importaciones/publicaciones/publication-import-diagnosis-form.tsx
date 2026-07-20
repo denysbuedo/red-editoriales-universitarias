@@ -2,10 +2,20 @@
 
 import { SyntheticEvent, useState } from "react";
 
-import { PublicationImportBatchSnapshot } from "@/modules/publication-import";
+import {
+  PublicationImportBatchSnapshot,
+  PublicationImportMappingPreviewDto,
+} from "@/modules/publication-import";
 
 interface PublicationImportDiagnosisApiResponse {
   readonly data: PublicationImportBatchSnapshot;
+  readonly meta: {
+    readonly apiVersion: "v1";
+  };
+}
+
+interface PublicationImportMappingPreviewApiResponse {
+  readonly data: PublicationImportMappingPreviewDto;
   readonly meta: {
     readonly apiVersion: "v1";
   };
@@ -22,17 +32,22 @@ export function PublicationImportDiagnosisForm() {
   const [sheet, setSheet] = useState("EDUNIV");
   const [token, setToken] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [action, setAction] = useState<"diagnose" | "preview">("diagnose");
   const [batch, setBatch] = useState<PublicationImportBatchSnapshot | null>(null);
+  const [preview, setPreview] = useState<PublicationImportMappingPreviewDto | null>(null);
   const [error, setError] = useState<PublicationImportDiagnosisApiError | null>(null);
 
-  async function submitDiagnosis(event: SyntheticEvent<HTMLFormElement>): Promise<void> {
+  async function submitImportAction(event: SyntheticEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
     setIsSubmitting(true);
     setBatch(null);
+    setPreview(null);
     setError(null);
+    const selectedAction = readSubmitAction(event);
+    setAction(selectedAction);
 
     try {
-      const response = await fetch("/api/admin/publication-imports/diagnose", {
+      const response = await fetch(endpointForAction(selectedAction), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -41,6 +56,7 @@ export function PublicationImportDiagnosisForm() {
         body: JSON.stringify({
           sourcePath,
           sheet,
+          maxRows: selectedAction === "preview" ? 25 : undefined,
         }),
       });
       const payload = (await response.json()) as unknown;
@@ -50,11 +66,15 @@ export function PublicationImportDiagnosisForm() {
         return;
       }
 
-      setBatch(readApiResponse(payload).data);
+      if (selectedAction === "preview") {
+        setPreview(readPreviewApiResponse(payload).data);
+      } else {
+        setBatch(readApiResponse(payload).data);
+      }
     } catch {
       setError({
         code: "PNPU-503",
-        message: "No se pudo ejecutar el diagnostico de importacion.",
+        message: "No se pudo ejecutar la operacion de importacion.",
       });
     } finally {
       setIsSubmitting(false);
@@ -66,10 +86,10 @@ export function PublicationImportDiagnosisForm() {
       <form
         className="rounded-md border border-neutral-200 bg-white p-5 shadow-sm"
         onSubmit={(event) => {
-          void submitDiagnosis(event);
+          void submitImportAction(event);
         }}
       >
-        <h2 className="text-xl font-semibold text-neutral-950">Ejecutar diagnóstico</h2>
+        <h2 className="text-xl font-semibold text-neutral-950">Ejecutar revisión</h2>
         <div className="mt-5 grid gap-4">
           <label className="grid gap-1 text-sm font-medium text-neutral-800">
             Archivo XLSX
@@ -110,13 +130,26 @@ export function PublicationImportDiagnosisForm() {
               value={token}
             />
           </label>
-          <button
-            className="h-10 rounded-md bg-green-900 px-4 text-sm font-semibold text-white hover:bg-green-950 disabled:cursor-not-allowed disabled:bg-neutral-400"
-            disabled={isSubmitting}
-            type="submit"
-          >
-            {isSubmitting ? "Diagnosticando" : "Diagnosticar"}
-          </button>
+          <div className="grid gap-2 sm:grid-cols-2">
+            <button
+              className="h-10 rounded-md bg-green-900 px-4 text-sm font-semibold text-white hover:bg-green-950 disabled:cursor-not-allowed disabled:bg-neutral-400"
+              disabled={isSubmitting}
+              name="intent"
+              type="submit"
+              value="diagnose"
+            >
+              {isSubmitting && action === "diagnose" ? "Diagnosticando" : "Diagnosticar"}
+            </button>
+            <button
+              className="h-10 rounded-md border border-green-800 px-4 text-sm font-semibold text-green-900 hover:bg-green-50 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:text-neutral-400"
+              disabled={isSubmitting}
+              name="intent"
+              type="submit"
+              value="preview"
+            >
+              {isSubmitting && action === "preview" ? "Preparando" : "Preview mapeo"}
+            </button>
+          </div>
         </div>
       </form>
 
@@ -127,12 +160,67 @@ export function PublicationImportDiagnosisForm() {
         <h2 className="text-xl font-semibold text-neutral-950">Resultado</h2>
         {error !== null ? <ErrorPanel error={error} /> : null}
         {batch !== null ? <BatchDiagnostics batch={batch} /> : null}
-        {error === null && batch === null ? (
+        {preview !== null ? <MappingPreview preview={preview} /> : null}
+        {error === null && batch === null && preview === null ? (
           <p className="mt-3 text-sm leading-6 text-neutral-700">
             Ejecute un diagnóstico para ver el estado del lote, errores de planilla y campos
             pendientes antes de cualquier mapeo.
           </p>
         ) : null}
+      </section>
+    </div>
+  );
+}
+
+function MappingPreview({ preview }: { readonly preview: PublicationImportMappingPreviewDto }) {
+  return (
+    <div className="mt-5">
+      <dl className="grid gap-3 md:grid-cols-4">
+        <Metric label="Filas" value={preview.summary.totalRows} />
+        <Metric label="Mapeables" value={preview.summary.mappable} />
+        <Metric label="Enriquecer" value={preview.summary.needsEnrichment} />
+        <Metric label="Rechazadas" value={preview.summary.rejected} />
+      </dl>
+
+      <div className="mt-6 grid gap-4 xl:grid-cols-3">
+        <CompactList items={preview.unresolvedPublishers} title="Editoriales sin resolver" />
+        <CompactList
+          items={preview.unresolvedGenresOrPublicationTypes}
+          title="Géneros/tipos sin resolver"
+        />
+        <CompactList items={preview.formatsWithoutDigitalResource} title="Formatos sin recurso" />
+      </div>
+
+      <section className="mt-6 rounded-md border border-neutral-200 bg-neutral-50 p-4">
+        <h3 className="text-base font-semibold text-neutral-950">Filas evaluadas</h3>
+        <div className="mt-3 overflow-x-auto">
+          <table className="min-w-full border-collapse text-sm">
+            <thead>
+              <tr className="border-b border-neutral-200 text-left text-neutral-600">
+                <th className="py-2 pr-4 font-semibold">Fila</th>
+                <th className="py-2 pr-4 font-semibold">Decisión</th>
+                <th className="py-2 pr-4 font-semibold">Título</th>
+                <th className="py-2 pr-4 font-semibold">ISBN</th>
+                <th className="py-2 pr-4 font-semibold">Causa</th>
+              </tr>
+            </thead>
+            <tbody>
+              {preview.rows.map((row) => (
+                <tr className="border-b border-neutral-100 align-top last:border-0" key={row.row}>
+                  <td className="py-2 pr-4 font-semibold text-neutral-950">{row.row}</td>
+                  <td className="py-2 pr-4">
+                    <span className={decisionClassName(row.decision)}>
+                      {formatDecision(row.decision)}
+                    </span>
+                  </td>
+                  <td className="py-2 pr-4 text-neutral-800">{row.title || "sin título"}</td>
+                  <td className="py-2 pr-4 text-neutral-700">{row.normalizedIsbn || "sin ISBN"}</td>
+                  <td className="py-2 pr-4 text-neutral-700">{row.reasons.join(" ")}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
     </div>
   );
@@ -264,6 +352,31 @@ function IssueList({
   );
 }
 
+function CompactList({
+  items,
+  title,
+}: {
+  readonly items: readonly string[];
+  readonly title: string;
+}) {
+  return (
+    <section className="rounded-md border border-neutral-200 bg-neutral-50 p-4">
+      <h3 className="text-base font-semibold text-neutral-950">{title}</h3>
+      {items.length === 0 ? (
+        <p className="mt-3 text-sm text-neutral-700">Sin incidencias.</p>
+      ) : (
+        <ul className="mt-3 space-y-2 text-sm text-neutral-700">
+          {items.slice(0, 8).map((item) => (
+            <li className="rounded-md bg-white px-3 py-2" key={item}>
+              {item}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
 function formatStatus(status: PublicationImportBatchSnapshot["status"]): string {
   if (status === "needs_correction") {
     return "requiere corrección";
@@ -290,12 +403,67 @@ function statusClassName(status: PublicationImportBatchSnapshot["status"]): stri
   return `${baseClassName} bg-green-50 text-green-900`;
 }
 
+function formatDecision(
+  decision: PublicationImportMappingPreviewDto["rows"][number]["decision"],
+): string {
+  if (decision === "needs_enrichment") {
+    return "enriquecer";
+  }
+
+  if (decision === "rejected") {
+    return "rechazada";
+  }
+
+  return "mapeable";
+}
+
+function decisionClassName(
+  decision: PublicationImportMappingPreviewDto["rows"][number]["decision"],
+): string {
+  const baseClassName = "rounded-md px-2 py-1 text-xs font-semibold";
+
+  if (decision === "rejected") {
+    return `${baseClassName} bg-red-50 text-red-800`;
+  }
+
+  if (decision === "needs_enrichment") {
+    return `${baseClassName} bg-amber-50 text-amber-900`;
+  }
+
+  return `${baseClassName} bg-green-50 text-green-900`;
+}
+
+function readSubmitAction(event: SyntheticEvent<HTMLFormElement>): "diagnose" | "preview" {
+  const nativeEvent = event.nativeEvent as SubmitEvent;
+  const submitter = nativeEvent.submitter;
+
+  if (submitter instanceof HTMLButtonElement && submitter.value === "preview") {
+    return "preview";
+  }
+
+  return "diagnose";
+}
+
+function endpointForAction(action: "diagnose" | "preview"): string {
+  return action === "preview"
+    ? "/api/admin/publication-imports/mapping-preview"
+    : "/api/admin/publication-imports/diagnose";
+}
+
 function readApiResponse(payload: unknown): PublicationImportDiagnosisApiResponse {
   if (typeof payload === "object" && payload !== null && "data" in payload && "meta" in payload) {
     return payload as PublicationImportDiagnosisApiResponse;
   }
 
   throw new Error("Invalid publication import diagnosis response.");
+}
+
+function readPreviewApiResponse(payload: unknown): PublicationImportMappingPreviewApiResponse {
+  if (typeof payload === "object" && payload !== null && "data" in payload && "meta" in payload) {
+    return payload as PublicationImportMappingPreviewApiResponse;
+  }
+
+  throw new Error("Invalid publication import mapping preview response.");
 }
 
 function readApiError(payload: unknown): PublicationImportDiagnosisApiError {

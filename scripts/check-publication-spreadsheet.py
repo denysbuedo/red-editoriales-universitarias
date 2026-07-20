@@ -73,6 +73,11 @@ def main() -> int:
     parser.add_argument("path", nargs="?", help="Ruta del archivo .xlsx a diagnosticar.")
     parser.add_argument("--json", action="store_true", help="Emite el diagnostico como JSON.")
     parser.add_argument("--sheet", default="EDUNIV", help="Nombre de la hoja principal.")
+    parser.add_argument(
+        "--include-records",
+        action="store_true",
+        help="Incluye filas normalizadas para procesos de preview de mapeo.",
+    )
     parser.add_argument("--self-test", action="store_true", help="Ejecuta autopruebas del parser.")
     args = parser.parse_args()
 
@@ -85,7 +90,7 @@ def main() -> int:
         if args.path is None:
             raise ValueError("Debe indicar la ruta de un archivo .xlsx.")
 
-        diagnostics = diagnose_workbook(Path(args.path), args.sheet)
+        diagnostics = diagnose_workbook(Path(args.path), args.sheet, include_records=args.include_records)
 
         if args.json:
             print(json.dumps(diagnostics, ensure_ascii=False, indent=2))
@@ -98,7 +103,7 @@ def main() -> int:
         return 1
 
 
-def diagnose_workbook(path: Path, sheet_name: str = "EDUNIV") -> dict[str, Any]:
+def diagnose_workbook(path: Path, sheet_name: str = "EDUNIV", include_records: bool = False) -> dict[str, Any]:
     if not path.exists():
         raise FileNotFoundError(f"No existe el archivo: {path}")
 
@@ -129,7 +134,7 @@ def diagnose_workbook(path: Path, sheet_name: str = "EDUNIV") -> dict[str, Any]:
         if all(value.strip() != "" for value in row.as_mapping().values()) and is_valid_isbn(row.isbn)
     ]
 
-    return {
+    diagnostics: dict[str, Any] = {
         "source": str(path),
         "sheet": sheet_name,
         "summary": {
@@ -161,6 +166,26 @@ def diagnose_workbook(path: Path, sheet_name: str = "EDUNIV") -> dict[str, Any]:
             "recommendedNextStep": "Completar enriquecimiento y mapear contra Omeka S o el flujo aprobado.",
         },
     }
+
+    if include_records:
+        diagnostics["records"] = [
+            {
+                "row": row.row_number,
+                "isbn": row.isbn,
+                "normalizedIsbn": normalize_isbn(row.isbn),
+                "title": row.title,
+                "primaryContributor": row.primary_contributor,
+                "publisher": row.publisher,
+                "genreOrPublicationType": row.genre_or_publication_type,
+                "format": row.format,
+                "formats": split_values(row.format),
+                "publicationDate": row.publication_date,
+                "dateFormat": classify_publication_date(row.publication_date),
+            }
+            for row in rows
+        ]
+
+    return diagnostics
 
 
 def read_shared_strings(archive: zipfile.ZipFile) -> list[str]:
@@ -361,10 +386,7 @@ def classify_publication_dates(rows: list[SpreadsheetRow], limit: int = 20) -> d
             counts["empty"] += 1
             continue
 
-        matching_format = next(
-            (name for name, pattern in DATE_PATTERNS.items() if pattern.match(value)),
-            None,
-        )
+        matching_format = classify_publication_date(value)
         if matching_format is not None:
             counts[matching_format] += 1
             continue
@@ -381,6 +403,17 @@ def classify_publication_dates(rows: list[SpreadsheetRow], limit: int = 20) -> d
             )
 
     return counts
+
+
+def classify_publication_date(value: str) -> str | None:
+    normalized = value.strip()
+    if normalized == "":
+        return None
+
+    return next(
+        (name for name, pattern in DATE_PATTERNS.items() if pattern.match(normalized)),
+        None,
+    )
 
 
 def split_values(value: str) -> list[str]:
@@ -463,6 +496,7 @@ def run_self_test() -> None:
         workbook = Path(directory) / "sample.xlsx"
         create_test_workbook(workbook)
         diagnostics = diagnose_workbook(workbook)
+        diagnostics_with_records = diagnose_workbook(workbook, include_records=True)
 
     assert diagnostics["summary"]["rowCount"] == 4, "self-test row count mismatch"
     assert (
@@ -479,6 +513,9 @@ def run_self_test() -> None:
         "value": "pdf",
         "count": 3,
     }, "self-test format counter mismatch"
+
+    assert len(diagnostics_with_records["records"]) == 4, "self-test records count mismatch"
+    assert diagnostics_with_records["records"][0]["dateFormat"] == "yearOnly", "self-test date format mismatch"
 
 
 def create_test_workbook(path: Path) -> None:
