@@ -38,6 +38,7 @@ const requiredTerms = [
   "npm run acceptance:v0.1",
   "npm run package:release",
   "npm run package:validate",
+  "docs/release-0.1-acceptance-report.md",
   "/health/live",
   "/health/ready",
   "/health/catalog",

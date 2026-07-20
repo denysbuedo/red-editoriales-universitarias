@@ -173,4 +173,5 @@ Si `PNPU_CATALOG_REFRESH_TOKEN` esta configurado, el script tambien prueba el re
 ## Decision de salida
 
 La v0.1 puede publicarse cuando todos los criterios automaticos y manuales aplicables esten en
-estado `OK` o tengan una excepcion documentada por el responsable del proyecto.
+estado `OK` o tengan una excepcion documentada por el responsable del proyecto. El resultado de la
+candidata local queda registrado en `docs/release-0.1-acceptance-report.md`.
