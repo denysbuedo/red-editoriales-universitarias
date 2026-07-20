@@ -244,7 +244,45 @@ Las tareas seguirán este orden:
 
 ---
 
-# 14. Criterios de aceptación
+# 14. Backlog Estratégico Marcado
+
+## PNPU-IMPORT-HIST-001 - Carga histórica inicial por importaciones
+
+Estado: Marcado para retomar.
+
+Contexto:
+
+Las editoriales universitarias ya existen antes de la PNPU y poseen datos bibliográficos históricos
+que deben incorporarse al portal nacional. El flujo de importación implementado actualmente permite
+diagnosticar, previsualizar, enriquecer, validar en seco y exportar candidatos, pero no escribe en
+Omeka S.
+
+Alcance futuro:
+
+- importar información inicial histórica desde planillas editoriales;
+- usar paquetes `validated_not_imported` como entrada controlada;
+- escribir en Omeka S solo cuando exista decisión arquitectónica aprobada;
+- auditar lotes importados;
+- permitir rollback operativo por lote.
+
+Dependencias:
+
+- ADR de escritura controlada hacia Omeka S;
+- reglas de deduplicación contra items existentes;
+- mapeo final a resource templates PNPU;
+- autenticación/autorización institucional para operaciones admin;
+- criterios de aceptación de gobierno de datos.
+
+No hacer todavía:
+
+- no escribir candidatos en Omeka S;
+- no convertir PNPU en sistema de gestión editorial;
+- no asumir que Omeka S gobierna datos institucionales de editoriales;
+- no importar registros incompletos.
+
+---
+
+# 15. Criterios de aceptación
 
 El backlog maestro será considerado aprobado cuando:
 

@@ -317,3 +317,26 @@ El paquete contiene:
 
 Este paquete cierra la etapa actual. Aun no representa una importacion real; es un artefacto
 validado para decision operativa y para una futura escritura controlada en Omeka S.
+
+## 16. Marca para retomar
+
+La importacion de publicaciones debe retomarse como candidato principal para la carga inicial
+historica de la PNPU.
+
+Razon:
+
+- las editoriales ya existen antes de la plataforma;
+- cada editorial posee informacion bibliografica anterior que debe subirse;
+- la carga manual registro a registro no escala para el arranque nacional;
+- el flujo actual ya permite diagnostico, enriquecimiento, dry-run y paquete validado.
+
+Pendiente para una etapa posterior:
+
+- aprobar una ADR de escritura controlada hacia Omeka S;
+- definir el mapeo final de candidatos `ready` a resource templates PNPU en Omeka S;
+- definir reglas de deduplicacion contra items existentes;
+- definir rollback operativo de importacion;
+- definir auditoria de lote importado;
+- reemplazar el token operativo temporal por autenticacion/autorizacion institucional.
+
+Hasta completar esas decisiones, esta etapa queda cerrada en modo `validated_not_imported`.
