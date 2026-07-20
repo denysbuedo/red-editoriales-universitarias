@@ -24,6 +24,10 @@ export class PythonPublicationSpreadsheetDiagnosticsRunner implements Publicatio
     try {
       const result = await execFileAsync("python", args, {
         cwd: process.cwd(),
+        env: {
+          ...process.env,
+          PYTHONIOENCODING: "utf-8",
+        },
         windowsHide: true,
         timeout: 30_000,
       });
