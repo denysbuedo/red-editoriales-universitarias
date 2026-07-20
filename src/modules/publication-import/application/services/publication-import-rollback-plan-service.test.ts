@@ -118,6 +118,7 @@ describe("PublicationImportRollbackPlanService", () => {
 function auditRepository(entry: PublicationImportAuditEntryDto): PublicationImportAuditRepository {
   return {
     append: () => Promise.resolve(),
+    appendRollback: () => Promise.resolve(),
     get: (id) => Promise.resolve(id === entry.id ? entry : null),
     list: () => Promise.resolve([entry]),
   };

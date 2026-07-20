@@ -10,10 +10,12 @@ import { PublicationImportDiagnosisService } from "../../application/services/pu
 import { PublicationImportDryRunService } from "../../application/services/publication-import-dry-run-service";
 import { PublicationImportMappingPreviewService } from "../../application/services/publication-import-mapping-preview-service";
 import { PublicationImportRollbackPlanService } from "../../application/services/publication-import-rollback-plan-service";
+import { PublicationImportRollbackService } from "../../application/services/publication-import-rollback-service";
 import {
   CatalogPublicationImportDuplicateLookup,
   FilePublicationImportAuditRepository,
   OmekaPublicationImportCommitWriter,
+  OmekaPublicationImportRollbackExecutor,
   OmekaPublicationImportRollbackVerifier,
   PythonPublicationSpreadsheetDiagnosticsRunner,
   readOmekaImportWriterConfig,
@@ -110,6 +112,33 @@ export function createPublicationImportRollbackPlanService(): PublicationImportR
     new FilePublicationImportAuditRepository(readPublicationImportAuditDirectory()),
     new OmekaPublicationImportRollbackVerifier(writerConfig),
     readPublicationImportOptions(),
+  );
+}
+
+export function createPublicationImportRollbackService(): PublicationImportRollbackService {
+  if (process.env.PNPU_OMEKA_ROLLBACK_ENABLED !== "true") {
+    throw new Error("PNPU_OMEKA_ROLLBACK_ENABLED must be true to rollback imports.");
+  }
+
+  const writerConfig = readOmekaImportWriterConfig();
+
+  if (writerConfig === null) {
+    throw new Error("Omeka rollback executor is not configured.");
+  }
+
+  const auditRepository = new FilePublicationImportAuditRepository(
+    readPublicationImportAuditDirectory(),
+  );
+  const planService = new PublicationImportRollbackPlanService(
+    auditRepository,
+    new OmekaPublicationImportRollbackVerifier(writerConfig),
+    readPublicationImportOptions(),
+  );
+
+  return new PublicationImportRollbackService(
+    planService,
+    new OmekaPublicationImportRollbackExecutor(writerConfig),
+    auditRepository,
   );
 }
 

@@ -57,6 +57,32 @@ describe("FilePublicationImportAuditRepository", () => {
         { id: "audit-1" },
       ]);
       await expect(repository.get("audit-1")).resolves.toMatchObject({ id: "audit-1" });
+      await repository.appendRollback({
+        rollbackId: "rollback-1",
+        auditId: "audit-1",
+        rolledBackAt: "2026-07-20T17:00:00.000Z",
+        status: "rolled_back",
+        summary: {
+          deletedItems: 1,
+          deletedMedia: 1,
+        },
+        deleted: [
+          {
+            type: "media",
+            omekaId: 9004,
+            pnpuUuid: "01990f5a-0000-7000-8000-000000000902",
+          },
+          {
+            type: "item",
+            omekaId: 9003,
+            pnpuUuid: "01990f5a-0000-7000-8000-000000000902",
+          },
+        ],
+      });
+      await expect(repository.list()).resolves.toMatchObject([
+        { id: "audit-2" },
+        { id: "audit-1" },
+      ]);
     } finally {
       await rm(directory, { force: true, recursive: true });
     }

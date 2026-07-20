@@ -10,6 +10,7 @@ import {
   PublicationImportCommitPlanDto,
   PublicationImportDryRunDto,
   PublicationImportMappingPreviewDto,
+  PublicationImportRollbackDto,
   PublicationImportRollbackPlanDto,
 } from "@/modules/publication-import";
 
@@ -69,6 +70,13 @@ interface PublicationImportRollbackPlanApiResponse {
   };
 }
 
+interface PublicationImportRollbackApiResponse {
+  readonly data: PublicationImportRollbackDto;
+  readonly meta: {
+    readonly apiVersion: "v1";
+  };
+}
+
 interface PublicationImportDiagnosisApiError {
   readonly code: string;
   readonly message: string;
@@ -91,6 +99,7 @@ export function PublicationImportDiagnosisForm() {
   const [dryRun, setDryRun] = useState<PublicationImportDryRunDto | null>(null);
   const [history, setHistory] = useState<PublicationImportAuditLogDto | null>(null);
   const [preview, setPreview] = useState<PublicationImportMappingPreviewDto | null>(null);
+  const [rollback, setRollback] = useState<PublicationImportRollbackDto | null>(null);
   const [rollbackPlan, setRollbackPlan] = useState<PublicationImportRollbackPlanDto | null>(null);
   const [error, setError] = useState<PublicationImportDiagnosisApiError | null>(null);
 
@@ -104,6 +113,7 @@ export function PublicationImportDiagnosisForm() {
     setDryRun(null);
     setHistory(null);
     setPreview(null);
+    setRollback(null);
     setRollbackPlan(null);
     setError(null);
     const selectedAction = readSubmitAction(event);
@@ -127,7 +137,10 @@ export function PublicationImportDiagnosisForm() {
                     ? packageJson
                     : undefined,
                 enrichmentCsv: selectedAction === "dryRun" ? enrichmentCsv : undefined,
-                auditId: selectedAction === "rollbackPlan" ? rollbackAuditId : undefined,
+                auditId:
+                  selectedAction === "rollbackPlan" || selectedAction === "rollback"
+                    ? rollbackAuditId
+                    : undefined,
                 maxRows: selectedAction === "preview" ? 25 : undefined,
               }),
       });
@@ -152,6 +165,8 @@ export function PublicationImportDiagnosisForm() {
         setHistory(readHistoryApiResponse(payload).data);
       } else if (selectedAction === "rollbackPlan") {
         setRollbackPlan(readRollbackPlanApiResponse(payload).data);
+      } else if (selectedAction === "rollback") {
+        setRollback(readRollbackApiResponse(payload).data);
       } else {
         setBatch(readApiResponse(payload).data);
       }
@@ -274,6 +289,15 @@ export function PublicationImportDiagnosisForm() {
           >
             {isSubmitting && action === "rollbackPlan" ? "Planificando" : "Plan de rollback"}
           </button>
+          <button
+            className="h-10 rounded-md bg-red-900 px-4 text-sm font-semibold text-white hover:bg-red-950 disabled:cursor-not-allowed disabled:bg-neutral-400"
+            disabled={isSubmitting}
+            name="intent"
+            type="submit"
+            value="rollback"
+          >
+            {isSubmitting && action === "rollback" ? "Revirtiendo" : "Ejecutar rollback"}
+          </button>
           <label className="grid gap-1 text-sm font-medium text-neutral-800">
             CSV enriquecido
             <textarea
@@ -339,6 +363,7 @@ export function PublicationImportDiagnosisForm() {
         {dryRun !== null ? <DryRunResult dryRun={dryRun} /> : null}
         {history !== null ? <HistoryResult history={history} /> : null}
         {preview !== null ? <MappingPreview preview={preview} /> : null}
+        {rollback !== null ? <RollbackResult rollback={rollback} /> : null}
         {rollbackPlan !== null ? <RollbackPlanResult rollbackPlan={rollbackPlan} /> : null}
         {error === null &&
         authorities === null &&
@@ -348,6 +373,7 @@ export function PublicationImportDiagnosisForm() {
         dryRun === null &&
         history === null &&
         preview === null &&
+        rollback === null &&
         rollbackPlan === null ? (
           <p className="mt-3 text-sm leading-6 text-neutral-700">
             Ejecute un diagnóstico para ver el estado del lote, errores de planilla y campos
@@ -457,6 +483,35 @@ function RollbackPlanResult({
             ))}
           </ul>
         )}
+      </section>
+    </div>
+  );
+}
+
+function RollbackResult({ rollback }: { readonly rollback: PublicationImportRollbackDto }) {
+  return (
+    <div className="mt-5">
+      <p className="text-sm leading-6 text-neutral-700">
+        Rollback ejecutado en Omeka S. El resultado quedó registrado en auditoria local.
+      </p>
+      <dl className="mt-5 grid gap-3 md:grid-cols-3">
+        <Metric label="Items eliminados" value={rollback.summary.deletedItems} />
+        <Metric label="Media eliminada" value={rollback.summary.deletedMedia} />
+        <Metric label="Audit ID" value={rollback.auditId} />
+      </dl>
+      <section className="mt-6 rounded-md border border-neutral-200 bg-neutral-50 p-4">
+        <h3 className="text-base font-semibold text-neutral-950">Recursos eliminados</h3>
+        <ul className="mt-3 space-y-2">
+          {rollback.deleted.map((resource) => (
+            <li
+              className="rounded-md bg-white px-3 py-2 text-sm text-neutral-800"
+              key={`${resource.type}-${String(resource.omekaId)}`}
+            >
+              <span className="font-semibold text-neutral-950">{resource.type}: </span>
+              {resource.omekaId}
+            </li>
+          ))}
+        </ul>
       </section>
     </div>
   );
@@ -1032,6 +1087,7 @@ type PublicationImportAction =
   | "dryRun"
   | "history"
   | "preview"
+  | "rollback"
   | "rollbackPlan";
 
 function readSubmitAction(event: SyntheticEvent<HTMLFormElement>): PublicationImportAction {
@@ -1066,6 +1122,10 @@ function readSubmitAction(event: SyntheticEvent<HTMLFormElement>): PublicationIm
     return "rollbackPlan";
   }
 
+  if (submitter instanceof HTMLButtonElement && submitter.value === "rollback") {
+    return "rollback";
+  }
+
   return "diagnose";
 }
 
@@ -1092,6 +1152,10 @@ function endpointForAction(action: PublicationImportAction): string {
 
   if (action === "rollbackPlan") {
     return "/api/admin/publication-imports/rollback-plan";
+  }
+
+  if (action === "rollback") {
+    return "/api/admin/publication-imports/rollback";
   }
 
   return action === "preview"
@@ -1403,6 +1467,14 @@ function readRollbackPlanApiResponse(payload: unknown): PublicationImportRollbac
   }
 
   throw new Error("Invalid publication import rollback-plan response.");
+}
+
+function readRollbackApiResponse(payload: unknown): PublicationImportRollbackApiResponse {
+  if (typeof payload === "object" && payload !== null && "data" in payload && "meta" in payload) {
+    return payload as PublicationImportRollbackApiResponse;
+  }
+
+  throw new Error("Invalid publication import rollback response.");
 }
 
 function readAuthoritiesApiResponse(payload: unknown): PublicationImportAuthoritiesApiResponse {

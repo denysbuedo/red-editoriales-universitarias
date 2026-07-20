@@ -651,6 +651,55 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /api/admin/publication-imports/rollback:
+    post:
+      operationId: rollbackPublicationImport
+      summary: Ejecuta rollback controlado de un commit importado.
+      description: >
+        Genera primero el plan de rollback, bloquea si existe cualquier riesgo y elimina en Omeka S
+        solo cuando `PNPU_OMEKA_ROLLBACK_ENABLED=true`. Registra el resultado de rollback en
+        auditoría local.
+      tags:
+        - Admin
+      security:
+        - PublicationImportToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PublicationImportRollbackPlanRequest"
+      responses:
+        "200":
+          description: Resultado de rollback ejecutado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicationImportRollbackResponse"
+        "403":
+          description: Token administrativo inválido.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Manifiesto de auditoría no encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: Solicitud inválida o plan bloqueado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Endpoint no configurado u Omeka no disponible.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /health/live:
     get:
       operationId: getLiveHealth
@@ -2274,6 +2323,74 @@ components:
       properties:
         data:
           $ref: "#/components/schemas/PublicationImportRollbackPlan"
+        meta:
+          $ref: "#/components/schemas/ApiMeta"
+    PublicationImportRollback:
+      type: object
+      additionalProperties: false
+      required:
+        - rollbackId
+        - auditId
+        - rolledBackAt
+        - status
+        - summary
+        - deleted
+      properties:
+        rollbackId:
+          type: string
+        auditId:
+          type: string
+        rolledBackAt:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum:
+            - rolled_back
+        summary:
+          type: object
+          additionalProperties: false
+          required:
+            - deletedItems
+            - deletedMedia
+          properties:
+            deletedItems:
+              type: integer
+              minimum: 0
+            deletedMedia:
+              type: integer
+              minimum: 0
+        deleted:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicationImportRollbackDeletedResource"
+    PublicationImportRollbackDeletedResource:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - omekaId
+        - pnpuUuid
+      properties:
+        type:
+          type: string
+          enum:
+            - item
+            - media
+        omekaId:
+          type: integer
+          minimum: 1
+        pnpuUuid:
+          type: string
+    PublicationImportRollbackResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          $ref: "#/components/schemas/PublicationImportRollback"
         meta:
           $ref: "#/components/schemas/ApiMeta"
     PublicationImportAuthorities:

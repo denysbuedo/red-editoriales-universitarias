@@ -34,6 +34,7 @@ describe("PublicationImportCommitService", () => {
           auditEntries.push(entry);
           return Promise.resolve();
         },
+        appendRollback: () => Promise.resolve(),
         get: (id) => Promise.resolve(auditEntries.find((entry) => entry.id === id) ?? null),
         list: () => Promise.resolve(auditEntries),
       },

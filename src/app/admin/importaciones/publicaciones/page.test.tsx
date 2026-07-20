@@ -24,6 +24,7 @@ describe("PublicationImportDiagnosisForm", () => {
     expect(html).toContain("Autoridades Omeka");
     expect(html).toContain("Historial de commits");
     expect(html).toContain("Plan de rollback");
+    expect(html).toContain("Ejecutar rollback");
     expect(html).toContain("CSV enriquecido");
     expect(html).toContain("Dry-run enriquecido");
     expect(html).toContain("Paquete validado");

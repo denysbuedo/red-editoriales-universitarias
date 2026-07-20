@@ -2,6 +2,7 @@ import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import { PublicationImportAuditEntryDto } from "../application/dtos";
+import { PublicationImportRollbackDto } from "../application/dtos/publication-import-rollback";
 import { PublicationImportAuditRepository } from "../application/ports/publication-import-audit-repository";
 
 export class FilePublicationImportAuditRepository implements PublicationImportAuditRepository {
@@ -12,6 +13,15 @@ export class FilePublicationImportAuditRepository implements PublicationImportAu
     await writeFile(
       path.join(this.directory, `${entry.id}.json`),
       `${JSON.stringify(entry, null, 2)}\n`,
+      "utf8",
+    );
+  }
+
+  public async appendRollback(result: PublicationImportRollbackDto): Promise<void> {
+    await mkdir(this.directory, { recursive: true });
+    await writeFile(
+      path.join(this.directory, `${result.auditId}.rollback.${result.rollbackId}.json`),
+      `${JSON.stringify(result, null, 2)}\n`,
       "utf8",
     );
   }
@@ -49,7 +59,7 @@ export class FilePublicationImportAuditRepository implements PublicationImportAu
 
     const entries = await Promise.all(
       fileNames
-        .filter((fileName) => fileName.endsWith(".json"))
+        .filter((fileName) => fileName.endsWith(".json") && !fileName.includes(".rollback."))
         .map(async (fileName) => readAuditEntry(path.join(this.directory, fileName))),
     );
 

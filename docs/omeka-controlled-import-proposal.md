@@ -284,10 +284,9 @@ El manifiesto conserva:
 Los manifiestos anteriores a esta version no tienen linea base de modificacion. Para ellos, el plan
 de rollback queda bloqueado con `missingModificationBaseline`.
 
-## 16. Plan de rollback implementado
+## 16. Rollback controlado implementado
 
-El rollback real sigue sin ejecutar eliminaciones. El incremento implementado genera un plan
-operativo:
+El primer paso de rollback genera un plan operativo no destructivo:
 
 ```http
 POST /api/admin/publication-imports/rollback-plan
@@ -314,13 +313,31 @@ El servicio:
 - devuelve operaciones proyectadas para eliminar primero Media y despues Item;
 - no elimina recursos en Omeka S.
 
+La ejecucion destructiva esta separada:
+
+```http
+POST /api/admin/publication-imports/rollback
+X-PNPU-Admin-Token: <token>
+Content-Type: application/json
+```
+
+Candados de ejecucion:
+
+- requiere `PNPU_OMEKA_ROLLBACK_ENABLED=true`;
+- requiere `PNPU_OMEKA_BASE_URL`;
+- requiere `PNPU_OMEKA_KEY_IDENTITY`;
+- requiere `PNPU_OMEKA_KEY_CREDENTIAL`;
+- ejecuta primero `rollback-plan`;
+- no elimina si el plan queda `blocked`;
+- elimina Media antes que Item;
+- registra el resultado en un manifiesto local `*.rollback.*.json`.
+
 Este registro local es una traza operativa temprana. No sustituye la auditoria empresarial futura en
-PostgreSQL ni habilita rollback automatico.
+PostgreSQL.
 
 ## 17. Siguiente incremento futuro
 
 Cuando se apruebe la decision, el siguiente incremento debe ser:
 
 - manifiesto de auditoria persistente en PostgreSQL;
-- rollback por lote con eliminacion controlada;
 - permisos institucionales con Keycloak/OIDC.

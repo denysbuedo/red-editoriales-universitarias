@@ -7,6 +7,7 @@ describe("PublicationImportAuditService", () => {
     const service = new PublicationImportAuditService(
       {
         append: () => Promise.resolve(),
+        appendRollback: () => Promise.resolve(),
         get: () => Promise.resolve(null),
         list: () =>
           Promise.resolve([
