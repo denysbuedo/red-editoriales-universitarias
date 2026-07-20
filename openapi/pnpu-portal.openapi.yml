@@ -330,6 +330,48 @@ paths:
             application/yaml:
               schema:
                 type: string
+  /api/admin/publication-imports/diagnose:
+    post:
+      operationId: diagnosePublicationImport
+      summary: Diagnostica un archivo XLSX de publicaciones entregado por una editorial.
+      description: >
+        Endpoint operativo protegido por token. No escribe en Omeka S, PostgreSQL ni publica
+        registros; solo devuelve un lote de importación con diagnóstico.
+      tags:
+        - Admin
+      security:
+        - PublicationImportToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PublicationImportDiagnoseRequest"
+      responses:
+        "200":
+          description: Diagnóstico del lote de importación.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicationImportBatchResponse"
+        "403":
+          description: Token administrativo inválido.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: Solicitud inválida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Endpoint no configurado o diagnóstico no disponible.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /health/live:
     get:
       operationId: getLiveHealth
@@ -372,6 +414,11 @@ paths:
                     commitSha: null
                     dependencies: {}
 components:
+  securitySchemes:
+    PublicationImportToken:
+      type: apiKey
+      in: header
+      name: X-PNPU-Admin-Token
   parameters:
     Page:
       name: page
@@ -1033,6 +1080,257 @@ components:
               format: uri
         meta:
           $ref: "#/components/schemas/ApiMeta"
+    PublicationImportDiagnoseRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - sourcePath
+      properties:
+        sourcePath:
+          type: string
+          description: Ruta relativa al directorio de importación permitido.
+          minLength: 1
+          maxLength: 260
+          pattern: ^(?![A-Za-z]:)(?!/)(?!.*\.\.).+\.xlsx$
+        sheet:
+          type: string
+          default: EDUNIV
+          minLength: 1
+          maxLength: 64
+    PublicationImportBatch:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - source
+        - sheet
+        - status
+        - diagnosedAt
+        - diagnostics
+      properties:
+        id:
+          type: string
+        source:
+          type: string
+        sheet:
+          type: string
+        status:
+          type: string
+          enum:
+            - diagnosed
+            - needs_correction
+            - ready_for_mapping
+            - rejected
+        diagnosedAt:
+          type: string
+          format: date-time
+        diagnostics:
+          $ref: "#/components/schemas/PublicationImportDiagnostics"
+    PublicationImportDiagnostics:
+      type: object
+      additionalProperties: false
+      required:
+        - source
+        - sheet
+        - summary
+        - missingByField
+        - missingRows
+        - invalidIsbnRows
+        - duplicateIsbns
+        - publicationDateFormats
+        - distinctValues
+        - mappingAssessment
+      properties:
+        source:
+          type: string
+        sheet:
+          type: string
+        summary:
+          type: object
+          additionalProperties: false
+          required:
+            - rowCount
+            - rowsWithRequiredSpreadsheetFields
+            - missingFieldCount
+            - invalidIsbnCount
+            - duplicateIsbnCount
+            - invalidPublicationDateCount
+            - missingPnpuEnrichmentFields
+          properties:
+            rowCount:
+              type: integer
+              minimum: 0
+            rowsWithRequiredSpreadsheetFields:
+              type: integer
+              minimum: 0
+            missingFieldCount:
+              type: integer
+              minimum: 0
+            invalidIsbnCount:
+              type: integer
+              minimum: 0
+            duplicateIsbnCount:
+              type: integer
+              minimum: 0
+            invalidPublicationDateCount:
+              type: integer
+              minimum: 0
+            missingPnpuEnrichmentFields:
+              type: array
+              items:
+                type: string
+        missingByField:
+          type: object
+          additionalProperties:
+            type: integer
+            minimum: 0
+        missingRows:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicationImportMissingRow"
+        invalidIsbnRows:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicationImportIssueRow"
+        duplicateIsbns:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicationImportDuplicateIsbn"
+        publicationDateFormats:
+          $ref: "#/components/schemas/PublicationImportDateFormats"
+        distinctValues:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: object
+              additionalProperties: false
+              required:
+                - value
+                - count
+              properties:
+                value:
+                  type: string
+                count:
+                  type: integer
+                  minimum: 0
+        mappingAssessment:
+          type: object
+          additionalProperties: false
+          required:
+            - canPublishDirectlyToPnpu
+            - reason
+            - recommendedNextStep
+          properties:
+            canPublishDirectlyToPnpu:
+              type: boolean
+            reason:
+              type: string
+            recommendedNextStep:
+              type: string
+    PublicationImportIssueRow:
+      type: object
+      additionalProperties: false
+      required:
+        - row
+        - isbn
+        - title
+      properties:
+        row:
+          type: integer
+          minimum: 1
+        isbn:
+          type: string
+        title:
+          type: string
+    PublicationImportMissingRow:
+      allOf:
+        - $ref: "#/components/schemas/PublicationImportIssueRow"
+        - type: object
+          additionalProperties: false
+          required:
+            - missingFields
+          properties:
+            missingFields:
+              type: array
+              items:
+                type: string
+    PublicationImportDuplicateIsbn:
+      type: object
+      additionalProperties: false
+      required:
+        - isbn
+        - count
+        - rows
+      properties:
+        isbn:
+          type: string
+        count:
+          type: integer
+          minimum: 2
+        rows:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - row
+              - title
+            properties:
+              row:
+                type: integer
+                minimum: 1
+              title:
+                type: string
+    PublicationImportDateFormats:
+      type: object
+      additionalProperties: false
+      required:
+        - empty
+        - yearOnly
+        - monthYear
+        - isoDate
+        - invalid
+        - invalidRows
+      properties:
+        empty:
+          type: integer
+          minimum: 0
+        yearOnly:
+          type: integer
+          minimum: 0
+        monthYear:
+          type: integer
+          minimum: 0
+        isoDate:
+          type: integer
+          minimum: 0
+        invalid:
+          type: integer
+          minimum: 0
+        invalidRows:
+          type: array
+          items:
+            allOf:
+              - $ref: "#/components/schemas/PublicationImportIssueRow"
+              - type: object
+                additionalProperties: false
+                required:
+                  - date
+                properties:
+                  date:
+                    type: string
+    PublicationImportBatchResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          $ref: "#/components/schemas/PublicationImportBatch"
+        meta:
+          $ref: "#/components/schemas/ApiMeta"
     ErrorResponse:
       type: object
       additionalProperties: false
@@ -1045,6 +1343,7 @@ components:
           type: string
           enum:
             - PNPU-404
+            - PNPU-403
             - PNPU-409
             - PNPU-422
             - PNPU-429
@@ -1121,6 +1420,8 @@ components:
           additionalProperties:
             type: string
 tags:
+  - name: Admin
+    description: Endpoints operativos protegidos para administracion PNPU.
   - name: Catalog
     description: Endpoints públicos del catálogo editorial PNPU.
   - name: Documentation

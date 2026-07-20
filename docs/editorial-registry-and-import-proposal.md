@@ -207,3 +207,34 @@ Observacion sobre la tabla EDUNIV analizada:
 - Reporta salida legible y salida JSON opcional.
 - Tiene una autoprueba local del parser.
 - La documentacion explica limites y decisiones pendientes.
+
+## 12. Endpoint operativo de diagnostico
+
+El diagnostico tambien queda expuesto como endpoint administrativo:
+
+```http
+POST /api/admin/publication-imports/diagnose
+X-PNPU-Admin-Token: <token>
+Content-Type: application/json
+```
+
+```json
+{
+  "sourcePath": "Listado_Libro_Publicados_EDUNIV.xlsx",
+  "sheet": "EDUNIV"
+}
+```
+
+Configuracion:
+
+- `PNPU_PUBLICATION_IMPORT_TOKEN`: token operativo requerido para ejecutar el diagnostico;
+- `PNPU_PUBLICATION_IMPORT_ROOT`: directorio local permitido para archivos XLSX, por defecto `Readme`.
+
+Restricciones:
+
+- solo acepta rutas relativas;
+- solo acepta archivos `.xlsx`;
+- rechaza rutas fuera del directorio permitido;
+- no escribe datos en Omeka S;
+- no escribe datos en PostgreSQL;
+- devuelve un lote con estado `diagnosed`, `needs_correction`, `ready_for_mapping` o `rejected`.
