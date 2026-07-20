@@ -22,6 +22,7 @@ describe("PublicationImportDiagnosisForm", () => {
     expect(html).toContain("Token administrativo");
     expect(html).toContain("Preview mapeo");
     expect(html).toContain("Autoridades Omeka");
+    expect(html).toContain("Historial de commits");
     expect(html).toContain("CSV enriquecido");
     expect(html).toContain("Dry-run enriquecido");
     expect(html).toContain("Paquete validado");

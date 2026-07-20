@@ -1,4 +1,7 @@
+import { randomUUID } from "node:crypto";
+
 import { PublicationImportCommitDto } from "../dtos";
+import { PublicationImportAuditRepository } from "../ports/publication-import-audit-repository";
 import { PublicationImportCommitWriter } from "../ports/publication-import-commit-writer";
 import {
   PublicationImportCommitPlanService,
@@ -17,6 +20,7 @@ export class PublicationImportCommitService {
     private readonly planService: PublicationImportCommitPlanService,
     private readonly writer: PublicationImportCommitWriter,
     private readonly options: PublicationImportDiagnosisServiceOptions,
+    private readonly auditRepository?: PublicationImportAuditRepository,
   ) {}
 
   public async commit(
@@ -30,17 +34,31 @@ export class PublicationImportCommitService {
 
     const importPackage = readReadyPublicationImportPackage(command.packageJson);
     const created = await this.writer.commit(importPackage.candidates);
+    const generatedAt = (this.options.now?.() ?? new Date()).toISOString();
+    const auditId = randomUUID();
+    const summary = {
+      candidates: importPackage.candidates.length,
+      createdItems: created.length,
+      createdMedia: created.filter((resource) => resource.omekaMediaId !== undefined).length,
+    };
 
-    return {
-      generatedAt: (this.options.now?.() ?? new Date()).toISOString(),
+    await this.auditRepository?.append({
+      id: auditId,
+      committedAt: generatedAt,
       source: importPackage.manifest.source,
       sheet: importPackage.manifest.sheet,
       status: "committed",
-      summary: {
-        candidates: importPackage.candidates.length,
-        createdItems: created.length,
-        createdMedia: created.filter((resource) => resource.omekaMediaId !== undefined).length,
-      },
+      summary,
+      created,
+    });
+
+    return {
+      auditId,
+      generatedAt,
+      source: importPackage.manifest.source,
+      sheet: importPackage.manifest.sheet,
+      status: "committed",
+      summary,
       created,
     };
   }

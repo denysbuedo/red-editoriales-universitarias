@@ -5,6 +5,7 @@ import {
   PublicationImportCommitWriter,
   PublicationImportDuplicateLookup,
   PublicationImportCommitPlanService,
+  PublicationImportAuditRepository,
 } from "@/modules/publication-import";
 
 describe("PublicationImportCommitService", () => {
@@ -20,6 +21,7 @@ describe("PublicationImportCommitService", () => {
     const writer: PublicationImportCommitWriter = {
       commit: commitMock,
     };
+    const auditEntries: Parameters<PublicationImportAuditRepository["append"]>[0][] = [];
     const service = new PublicationImportCommitService(
       new PublicationImportCommitPlanService({ importRoot: "Readme" }, noDuplicates()),
       writer,
@@ -27,13 +29,22 @@ describe("PublicationImportCommitService", () => {
         importRoot: "Readme",
         now: () => new Date("2026-07-20T15:00:00.000Z"),
       },
+      {
+        append: (entry) => {
+          auditEntries.push(entry);
+          return Promise.resolve();
+        },
+        list: () => Promise.resolve(auditEntries),
+      },
     );
 
     const result = await service.commit({
       packageJson: JSON.stringify(buildReadyPackage()),
     });
 
+    expect(result.auditId).toHaveLength(36);
     expect(result).toEqual({
+      auditId: result.auditId,
       generatedAt: "2026-07-20T15:00:00.000Z",
       source: "source.xlsx",
       sheet: "EDUNIV",
@@ -53,6 +64,21 @@ describe("PublicationImportCommitService", () => {
       ],
     });
     expect(commitMock).toHaveBeenCalledOnce();
+    expect(auditEntries).toEqual([
+      {
+        id: result.auditId,
+        committedAt: "2026-07-20T15:00:00.000Z",
+        source: "source.xlsx",
+        sheet: "EDUNIV",
+        status: "committed",
+        summary: {
+          candidates: 1,
+          createdItems: 1,
+          createdMedia: 1,
+        },
+        created: result.created,
+      },
+    ]);
   });
 
   it("does not write when the commit plan is blocked", async () => {

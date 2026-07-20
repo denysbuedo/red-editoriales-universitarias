@@ -6,6 +6,7 @@ export interface PublicationImportCommitCreatedResourceDto {
 }
 
 export interface PublicationImportCommitDto {
+  readonly auditId: string;
   readonly generatedAt: string;
   readonly source: string;
   readonly sheet: string;

@@ -255,11 +255,37 @@ Candados iniciales:
 Esta primera version no implementa rollback automatico. Para revertir un lote debe usarse el
 resultado del commit, que contiene los IDs Omeka creados.
 
-## 15. Siguiente incremento futuro
+## 15. Historial operativo implementado
+
+Cada commit ejecutado por la plataforma registra un manifiesto local de auditoria. La ubicacion por
+defecto es `.pnpu/import-audit`, excluida del repositorio. Puede cambiarse con:
+
+```text
+PNPU_PUBLICATION_IMPORT_AUDIT_DIR=.pnpu/import-audit
+```
+
+El historial se consulta desde la vista administrativa y desde:
+
+```http
+GET /api/admin/publication-imports/history
+X-PNPU-Admin-Token: <token>
+```
+
+El manifiesto conserva:
+
+- identificador de auditoria;
+- fecha/hora del commit;
+- archivo fuente y hoja;
+- conteos de candidatos, Items y Media creados;
+- filas, UUID PNPU e IDs Omeka creados.
+
+Este registro local es una traza operativa temprana. No sustituye la auditoria empresarial futura en
+PostgreSQL ni habilita rollback automatico.
+
+## 16. Siguiente incremento futuro
 
 Cuando se apruebe la decision, el siguiente incremento debe ser:
 
 - manifiesto de auditoria persistente en PostgreSQL;
 - rollback por lote;
-- UI de historial de importaciones;
 - permisos institucionales con Keycloak/OIDC.

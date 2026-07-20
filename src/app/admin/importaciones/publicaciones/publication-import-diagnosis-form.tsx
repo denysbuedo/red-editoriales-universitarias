@@ -5,6 +5,7 @@ import { SyntheticEvent, useState } from "react";
 import {
   PublicationImportBatchSnapshot,
   PublicationImportAuthoritiesDto,
+  PublicationImportAuditLogDto,
   PublicationImportCommitDto,
   PublicationImportCommitPlanDto,
   PublicationImportDryRunDto,
@@ -53,6 +54,13 @@ interface PublicationImportAuthoritiesApiResponse {
   };
 }
 
+interface PublicationImportHistoryApiResponse {
+  readonly data: PublicationImportAuditLogDto;
+  readonly meta: {
+    readonly apiVersion: "v1";
+  };
+}
+
 interface PublicationImportDiagnosisApiError {
   readonly code: string;
   readonly message: string;
@@ -72,6 +80,7 @@ export function PublicationImportDiagnosisForm() {
   const [commit, setCommit] = useState<PublicationImportCommitDto | null>(null);
   const [commitPlan, setCommitPlan] = useState<PublicationImportCommitPlanDto | null>(null);
   const [dryRun, setDryRun] = useState<PublicationImportDryRunDto | null>(null);
+  const [history, setHistory] = useState<PublicationImportAuditLogDto | null>(null);
   const [preview, setPreview] = useState<PublicationImportMappingPreviewDto | null>(null);
   const [error, setError] = useState<PublicationImportDiagnosisApiError | null>(null);
 
@@ -83,6 +92,7 @@ export function PublicationImportDiagnosisForm() {
     setCommit(null);
     setCommitPlan(null);
     setDryRun(null);
+    setHistory(null);
     setPreview(null);
     setError(null);
     const selectedAction = readSubmitAction(event);
@@ -90,13 +100,13 @@ export function PublicationImportDiagnosisForm() {
 
     try {
       const response = await fetch(endpointForAction(selectedAction), {
-        method: selectedAction === "authorities" ? "GET" : "POST",
+        method: selectedAction === "authorities" || selectedAction === "history" ? "GET" : "POST",
         headers: {
           "Content-Type": "application/json",
           "X-PNPU-Admin-Token": token,
         },
         body:
-          selectedAction === "authorities"
+          selectedAction === "authorities" || selectedAction === "history"
             ? undefined
             : JSON.stringify({
                 sourcePath,
@@ -126,6 +136,8 @@ export function PublicationImportDiagnosisForm() {
         setCommitPlan(readCommitPlanApiResponse(payload).data);
       } else if (selectedAction === "preview") {
         setPreview(readPreviewApiResponse(payload).data);
+      } else if (selectedAction === "history") {
+        setHistory(readHistoryApiResponse(payload).data);
       } else {
         setBatch(readApiResponse(payload).data);
       }
@@ -217,6 +229,15 @@ export function PublicationImportDiagnosisForm() {
           >
             {isSubmitting && action === "authorities" ? "Cargando" : "Autoridades Omeka"}
           </button>
+          <button
+            className="h-10 rounded-md border border-neutral-500 px-4 text-sm font-semibold text-neutral-800 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:text-neutral-400"
+            disabled={isSubmitting}
+            name="intent"
+            type="submit"
+            value="history"
+          >
+            {isSubmitting && action === "history" ? "Cargando" : "Historial de commits"}
+          </button>
           <label className="grid gap-1 text-sm font-medium text-neutral-800">
             CSV enriquecido
             <textarea
@@ -280,6 +301,7 @@ export function PublicationImportDiagnosisForm() {
         {commit !== null ? <CommitResult commit={commit} /> : null}
         {commitPlan !== null ? <CommitPlanResult commitPlan={commitPlan} /> : null}
         {dryRun !== null ? <DryRunResult dryRun={dryRun} /> : null}
+        {history !== null ? <HistoryResult history={history} /> : null}
         {preview !== null ? <MappingPreview preview={preview} /> : null}
         {error === null &&
         authorities === null &&
@@ -287,12 +309,57 @@ export function PublicationImportDiagnosisForm() {
         commit === null &&
         commitPlan === null &&
         dryRun === null &&
+        history === null &&
         preview === null ? (
           <p className="mt-3 text-sm leading-6 text-neutral-700">
             Ejecute un diagnóstico para ver el estado del lote, errores de planilla y campos
             pendientes antes de cualquier mapeo.
           </p>
         ) : null}
+      </section>
+    </div>
+  );
+}
+
+function HistoryResult({ history }: { readonly history: PublicationImportAuditLogDto }) {
+  return (
+    <div className="mt-5">
+      <p className="text-sm leading-6 text-neutral-700">
+        Historial operativo de commits registrados por la plataforma.
+      </p>
+      <dl className="mt-5 grid gap-3 md:grid-cols-3">
+        <Metric label="Lotes" value={history.summary.entries} />
+        <Metric label="Items Omeka" value={history.summary.createdItems} />
+        <Metric label="Media Omeka" value={history.summary.createdMedia} />
+      </dl>
+      <section className="mt-6 rounded-md border border-neutral-200 bg-neutral-50 p-4">
+        <h3 className="text-base font-semibold text-neutral-950">Commits registrados</h3>
+        {history.entries.length === 0 ? (
+          <p className="mt-3 text-sm text-neutral-700">No hay commits registrados.</p>
+        ) : (
+          <ul className="mt-3 space-y-3">
+            {history.entries.slice(0, 20).map((entry) => (
+              <li className="rounded-md bg-white px-3 py-3 text-sm text-neutral-700" key={entry.id}>
+                <p>
+                  <span className="font-semibold text-neutral-950">{entry.committedAt}</span>{" "}
+                  {entry.source} / {entry.sheet}
+                </p>
+                <p className="mt-1">
+                  Auditoria {entry.id}. Items {entry.summary.createdItems}, media{" "}
+                  {entry.summary.createdMedia}.
+                </p>
+                <p className="mt-1 text-xs text-neutral-600">
+                  {entry.created
+                    .map(
+                      (resource) =>
+                        `fila ${String(resource.row)}: item ${String(resource.omekaItemId)}`,
+                    )
+                    .join("; ")}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
     </div>
   );
@@ -861,7 +928,7 @@ function decisionClassName(
 }
 
 type PublicationImportAction =
-  "authorities" | "commit" | "commitPlan" | "diagnose" | "dryRun" | "preview";
+  "authorities" | "commit" | "commitPlan" | "diagnose" | "dryRun" | "history" | "preview";
 
 function readSubmitAction(event: SyntheticEvent<HTMLFormElement>): PublicationImportAction {
   const nativeEvent = event.nativeEvent as SubmitEvent;
@@ -881,6 +948,10 @@ function readSubmitAction(event: SyntheticEvent<HTMLFormElement>): PublicationIm
 
   if (submitter instanceof HTMLButtonElement && submitter.value === "dryRun") {
     return "dryRun";
+  }
+
+  if (submitter instanceof HTMLButtonElement && submitter.value === "history") {
+    return "history";
   }
 
   if (submitter instanceof HTMLButtonElement && submitter.value === "preview") {
@@ -905,6 +976,10 @@ function endpointForAction(action: PublicationImportAction): string {
 
   if (action === "dryRun") {
     return "/api/admin/publication-imports/dry-run";
+  }
+
+  if (action === "history") {
+    return "/api/admin/publication-imports/history";
   }
 
   return action === "preview"
@@ -1200,6 +1275,14 @@ function readCommitApiResponse(payload: unknown): PublicationImportCommitApiResp
   }
 
   throw new Error("Invalid publication import commit response.");
+}
+
+function readHistoryApiResponse(payload: unknown): PublicationImportHistoryApiResponse {
+  if (typeof payload === "object" && payload !== null && "data" in payload && "meta" in payload) {
+    return payload as PublicationImportHistoryApiResponse;
+  }
+
+  throw new Error("Invalid publication import history response.");
 }
 
 function readAuthoritiesApiResponse(payload: unknown): PublicationImportAuthoritiesApiResponse {

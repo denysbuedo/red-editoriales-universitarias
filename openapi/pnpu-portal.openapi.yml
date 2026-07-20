@@ -573,6 +573,36 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /api/admin/publication-imports/history:
+    get:
+      operationId: listPublicationImportHistory
+      summary: Lista manifiestos de auditoría de commits de importación.
+      description: >
+        Devuelve el historial operativo de lotes escritos desde la herramienta administrativa de
+        importación de publicaciones. No escribe en Omeka S ni PostgreSQL.
+      tags:
+        - Admin
+      security:
+        - PublicationImportToken: []
+      responses:
+        "200":
+          description: Historial de commits de importación.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicationImportAuditLogResponse"
+        "403":
+          description: Token administrativo inválido.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Endpoint no configurado o historial no disponible.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /health/live:
     get:
       operationId: getLiveHealth
@@ -1916,6 +1946,7 @@ components:
       type: object
       additionalProperties: false
       required:
+        - auditId
         - generatedAt
         - source
         - sheet
@@ -1923,6 +1954,8 @@ components:
         - summary
         - created
       properties:
+        auditId:
+          type: string
         generatedAt:
           type: string
           format: date-time
@@ -1983,6 +2016,95 @@ components:
       properties:
         data:
           $ref: "#/components/schemas/PublicationImportCommit"
+        meta:
+          $ref: "#/components/schemas/ApiMeta"
+    PublicationImportAuditLog:
+      type: object
+      additionalProperties: false
+      required:
+        - generatedAt
+        - summary
+        - entries
+      properties:
+        generatedAt:
+          type: string
+          format: date-time
+        summary:
+          type: object
+          additionalProperties: false
+          required:
+            - entries
+            - createdItems
+            - createdMedia
+          properties:
+            entries:
+              type: integer
+              minimum: 0
+            createdItems:
+              type: integer
+              minimum: 0
+            createdMedia:
+              type: integer
+              minimum: 0
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicationImportAuditEntry"
+    PublicationImportAuditEntry:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - committedAt
+        - source
+        - sheet
+        - status
+        - summary
+        - created
+      properties:
+        id:
+          type: string
+        committedAt:
+          type: string
+          format: date-time
+        source:
+          type: string
+        sheet:
+          type: string
+        status:
+          type: string
+          enum:
+            - committed
+        summary:
+          type: object
+          additionalProperties: false
+          required:
+            - candidates
+            - createdItems
+            - createdMedia
+          properties:
+            candidates:
+              type: integer
+              minimum: 0
+            createdItems:
+              type: integer
+              minimum: 0
+            createdMedia:
+              type: integer
+              minimum: 0
+        created:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicationImportCommitCreatedResource"
+    PublicationImportAuditLogResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          $ref: "#/components/schemas/PublicationImportAuditLog"
         meta:
           $ref: "#/components/schemas/ApiMeta"
     PublicationImportAuthorities:

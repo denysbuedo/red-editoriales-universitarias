@@ -33,6 +33,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Local PNPU runtime data
+.pnpu/
+
 # OS and editors
 .DS_Store
 Thumbs.db

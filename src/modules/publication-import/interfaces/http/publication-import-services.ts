@@ -3,6 +3,7 @@ import path from "node:path";
 import { createCatalogRepositoriesAsync } from "@/modules/catalog/infrastructure";
 
 import { PublicationImportAuthoritiesService } from "../../application/services/publication-import-authorities-service";
+import { PublicationImportAuditService } from "../../application/services/publication-import-audit-service";
 import { PublicationImportCommitPlanService } from "../../application/services/publication-import-commit-plan-service";
 import { PublicationImportCommitService } from "../../application/services/publication-import-commit-service";
 import { PublicationImportDiagnosisService } from "../../application/services/publication-import-diagnosis-service";
@@ -10,6 +11,7 @@ import { PublicationImportDryRunService } from "../../application/services/publi
 import { PublicationImportMappingPreviewService } from "../../application/services/publication-import-mapping-preview-service";
 import {
   CatalogPublicationImportDuplicateLookup,
+  FilePublicationImportAuditRepository,
   OmekaPublicationImportCommitWriter,
   PythonPublicationSpreadsheetDiagnosticsRunner,
   readOmekaImportWriterConfig,
@@ -71,6 +73,7 @@ export async function createPublicationImportCommitService(): Promise<Publicatio
     planService,
     new OmekaPublicationImportCommitWriter(writerConfig),
     options,
+    new FilePublicationImportAuditRepository(readPublicationImportAuditDirectory()),
   );
 }
 
@@ -87,6 +90,13 @@ export async function createPublicationImportAuthoritiesService(): Promise<Publi
   );
 }
 
+export function createPublicationImportAuditService(): PublicationImportAuditService {
+  return new PublicationImportAuditService(
+    new FilePublicationImportAuditRepository(readPublicationImportAuditDirectory()),
+    readPublicationImportOptions(),
+  );
+}
+
 function readPublicationImportOptions(): { readonly importRoot: string } {
   const importRoot = path.resolve(
     /* turbopackIgnore: true */ process.cwd(),
@@ -94,4 +104,12 @@ function readPublicationImportOptions(): { readonly importRoot: string } {
   );
 
   return { importRoot };
+}
+
+function readPublicationImportAuditDirectory(): string {
+  const configuredDirectory = process.env.PNPU_PUBLICATION_IMPORT_AUDIT_DIR ?? ".pnpu/import-audit";
+
+  return path.isAbsolute(configuredDirectory)
+    ? configuredDirectory
+    : path.resolve(/* turbopackIgnore: true */ process.cwd(), configuredDirectory);
 }
