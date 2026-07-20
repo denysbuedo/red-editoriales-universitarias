@@ -17,6 +17,9 @@ Configurar la autorizacion de endpoints administrativos del Portal PNPU.
 ```text
 PNPU_ADMIN_AUTH_MODE=token
 PNPU_ADMIN_REQUIRED_ROLE=pnpu-admin
+PNPU_ADMIN_IMPORT_READ_ROLE=pnpu-import-reader
+PNPU_ADMIN_IMPORT_WRITE_ROLE=pnpu-import-writer
+PNPU_ADMIN_IMPORT_ROLLBACK_ROLE=pnpu-import-rollback
 PNPU_OIDC_ISSUER=https://keycloak.example.edu/realms/pnpu
 PNPU_OIDC_AUDIENCE=pnpu-portal
 PNPU_OIDC_CLIENT_ID=pnpu-portal
@@ -34,7 +37,21 @@ PNPU_PUBLICATION_IMPORT_TOKEN=
 - El JWT debe estar firmado con `RS256`.
 - El `iss` debe coincidir con `PNPU_OIDC_ISSUER`.
 - El `aud` debe contener `PNPU_OIDC_AUDIENCE`.
-- El usuario debe tener `PNPU_ADMIN_REQUIRED_ROLE`.
+- El usuario debe tener `PNPU_ADMIN_REQUIRED_ROLE` o el rol granular requerido para la operacion.
+
+## Permisos administrativos
+
+| Rol | Alcance |
+| --- | --- |
+| `pnpu-admin` | Acceso total a la pantalla y a todos los endpoints administrativos. |
+| `pnpu-import-reader` | Diagnostico, preview, dry-run, autoridades, historial y planes no destructivos de lectura. |
+| `pnpu-import-writer` | Plan de commit y escritura controlada en Omeka S. |
+| `pnpu-import-rollback` | Plan de rollback y ejecucion de rollback controlado. |
+
+Los nombres pueden cambiarse con las variables `PNPU_ADMIN_IMPORT_READ_ROLE`,
+`PNPU_ADMIN_IMPORT_WRITE_ROLE` y `PNPU_ADMIN_IMPORT_ROLLBACK_ROLE`. La pantalla administrativa puede
+abrirse con cualquiera de esos roles, pero cada endpoint vuelve a validar el permiso especifico antes
+de ejecutar la operacion.
 
 ## Flujo web administrativo
 

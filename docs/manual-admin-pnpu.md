@@ -252,6 +252,9 @@ Variables principales:
 ```text
 PNPU_ADMIN_AUTH_MODE=oidc
 PNPU_ADMIN_REQUIRED_ROLE=pnpu-admin
+PNPU_ADMIN_IMPORT_READ_ROLE=pnpu-import-reader
+PNPU_ADMIN_IMPORT_WRITE_ROLE=pnpu-import-writer
+PNPU_ADMIN_IMPORT_ROLLBACK_ROLE=pnpu-import-rollback
 PNPU_OIDC_ISSUER=https://keycloak.example.edu/realms/pnpu
 PNPU_OIDC_AUDIENCE=pnpu-portal
 PNPU_OIDC_CLIENT_ID=pnpu-portal
@@ -261,6 +264,15 @@ PNPU_OIDC_SCOPES=openid profile email
 PNPU no almacena contrasenas de administradores. El usuario, la contrasena, el segundo factor y las
 politicas de acceso se administran en Keycloak o en el proveedor OIDC institucional. En produccion,
 el JWT OIDC debe incluir el rol requerido.
+
+Roles operativos:
+
+| Rol | Acciones |
+|---|---|
+| `pnpu-admin` | Todas las acciones administrativas |
+| `pnpu-import-reader` | Diagnosticar, previsualizar, dry-run, consultar autoridades, historial y planes |
+| `pnpu-import-writer` | Planificar commit y escribir en Omeka S |
+| `pnpu-import-rollback` | Planificar y ejecutar rollback |
 
 Para abrir la pantalla administrativa con OIDC:
 

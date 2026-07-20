@@ -29,6 +29,9 @@ pnpu_omeka_require_approved_mapping: "false"
 pnpu_catalog_refresh_token: ""
 pnpu_admin_auth_mode: token
 pnpu_admin_required_role: pnpu-admin
+pnpu_admin_import_read_role: pnpu-import-reader
+pnpu_admin_import_write_role: pnpu-import-writer
+pnpu_admin_import_rollback_role: pnpu-import-rollback
 pnpu_oidc_issuer: ""
 pnpu_oidc_audience: ""
 pnpu_oidc_client_id: ""

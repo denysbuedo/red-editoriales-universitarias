@@ -252,6 +252,132 @@ describe("publication import admin HTTP helpers", () => {
     }
   });
 
+  it("accepts an OIDC bearer token with the import reader role for read operations", async () => {
+    const previousValues = snapshotEnvironment([
+      "PNPU_ADMIN_AUTH_MODE",
+      "PNPU_ADMIN_IMPORT_READ_ROLE",
+      "PNPU_ADMIN_REQUIRED_ROLE",
+      "PNPU_OIDC_AUDIENCE",
+      "PNPU_OIDC_CLIENT_ID",
+      "PNPU_OIDC_ISSUER",
+    ]);
+    const issuer = "https://keycloak.example.edu/realms/pnpu";
+    const audience = "pnpu-portal";
+    const context = await buildSignedOidcTestContext({
+      audience,
+      issuer,
+      roles: ["pnpu-import-reader"],
+    });
+    vi.stubGlobal("fetch", context.fetchMock);
+    process.env.PNPU_ADMIN_AUTH_MODE = "oidc";
+    process.env.PNPU_ADMIN_REQUIRED_ROLE = "pnpu-admin";
+    process.env.PNPU_ADMIN_IMPORT_READ_ROLE = "pnpu-import-reader";
+    process.env.PNPU_OIDC_ISSUER = issuer;
+    process.env.PNPU_OIDC_AUDIENCE = audience;
+    process.env.PNPU_OIDC_CLIENT_ID = audience;
+
+    try {
+      await expect(
+        authorizePublicationImportAdminRequest(
+          new Request("https://pnpu.mes.gob.cu/api/admin/publication-imports/diagnose", {
+            headers: {
+              Authorization: `Bearer ${context.token}`,
+            },
+          }),
+          "diagnosis",
+        ),
+      ).resolves.toBeNull();
+    } finally {
+      restoreEnvironmentSnapshot(previousValues);
+    }
+  });
+
+  it("rejects an OIDC bearer token without the operation role", async () => {
+    const previousValues = snapshotEnvironment([
+      "PNPU_ADMIN_AUTH_MODE",
+      "PNPU_ADMIN_IMPORT_READ_ROLE",
+      "PNPU_ADMIN_IMPORT_WRITE_ROLE",
+      "PNPU_ADMIN_REQUIRED_ROLE",
+      "PNPU_OIDC_AUDIENCE",
+      "PNPU_OIDC_CLIENT_ID",
+      "PNPU_OIDC_ISSUER",
+    ]);
+    const issuer = "https://keycloak.example.edu/realms/pnpu";
+    const audience = "pnpu-portal";
+    const context = await buildSignedOidcTestContext({
+      audience,
+      issuer,
+      roles: ["pnpu-import-reader"],
+    });
+    vi.stubGlobal("fetch", context.fetchMock);
+    process.env.PNPU_ADMIN_AUTH_MODE = "oidc";
+    process.env.PNPU_ADMIN_REQUIRED_ROLE = "pnpu-admin";
+    process.env.PNPU_ADMIN_IMPORT_READ_ROLE = "pnpu-import-reader";
+    process.env.PNPU_ADMIN_IMPORT_WRITE_ROLE = "pnpu-import-writer";
+    process.env.PNPU_OIDC_ISSUER = issuer;
+    process.env.PNPU_OIDC_AUDIENCE = audience;
+    process.env.PNPU_OIDC_CLIENT_ID = audience;
+
+    try {
+      const response = await authorizePublicationImportAdminRequest(
+        new Request("https://pnpu.mes.gob.cu/api/admin/publication-imports/commit", {
+          headers: {
+            Authorization: `Bearer ${context.token}`,
+          },
+        }),
+        "commit",
+      );
+
+      expect(response?.status).toBe(403);
+      await expect(response?.json()).resolves.toEqual({
+        code: "PNPU-403",
+        message: "Publication import commit token is invalid.",
+      });
+    } finally {
+      restoreEnvironmentSnapshot(previousValues);
+    }
+  });
+
+  it("accepts an OIDC bearer token with the import writer role for commit operations", async () => {
+    const previousValues = snapshotEnvironment([
+      "PNPU_ADMIN_AUTH_MODE",
+      "PNPU_ADMIN_IMPORT_WRITE_ROLE",
+      "PNPU_ADMIN_REQUIRED_ROLE",
+      "PNPU_OIDC_AUDIENCE",
+      "PNPU_OIDC_CLIENT_ID",
+      "PNPU_OIDC_ISSUER",
+    ]);
+    const issuer = "https://keycloak.example.edu/realms/pnpu";
+    const audience = "pnpu-portal";
+    const context = await buildSignedOidcTestContext({
+      audience,
+      issuer,
+      roles: ["pnpu-import-writer"],
+    });
+    vi.stubGlobal("fetch", context.fetchMock);
+    process.env.PNPU_ADMIN_AUTH_MODE = "oidc";
+    process.env.PNPU_ADMIN_REQUIRED_ROLE = "pnpu-admin";
+    process.env.PNPU_ADMIN_IMPORT_WRITE_ROLE = "pnpu-import-writer";
+    process.env.PNPU_OIDC_ISSUER = issuer;
+    process.env.PNPU_OIDC_AUDIENCE = audience;
+    process.env.PNPU_OIDC_CLIENT_ID = audience;
+
+    try {
+      await expect(
+        authorizePublicationImportAdminRequest(
+          new Request("https://pnpu.mes.gob.cu/api/admin/publication-imports/commit", {
+            headers: {
+              Authorization: `Bearer ${context.token}`,
+            },
+          }),
+          "commit",
+        ),
+      ).resolves.toBeNull();
+    } finally {
+      restoreEnvironmentSnapshot(previousValues);
+    }
+  });
+
   it("builds an OIDC login redirect with PKCE cookies", async () => {
     const previousIssuer = process.env.PNPU_OIDC_ISSUER;
     const previousAudience = process.env.PNPU_OIDC_AUDIENCE;
@@ -457,6 +583,75 @@ function restoreEnvironmentValue(name: string, value: string | undefined): void 
   } else {
     process.env[name] = value;
   }
+}
+
+function snapshotEnvironment(names: readonly string[]): ReadonlyMap<string, string | undefined> {
+  return new Map(names.map((name) => [name, process.env[name]]));
+}
+
+function restoreEnvironmentSnapshot(values: ReadonlyMap<string, string | undefined>): void {
+  for (const [name, value] of values) {
+    restoreEnvironmentValue(name, value);
+  }
+}
+
+async function buildSignedOidcTestContext(command: {
+  readonly audience: string;
+  readonly issuer: string;
+  readonly roles: readonly string[];
+}): Promise<{
+  readonly fetchMock: ReturnType<typeof vi.fn>;
+  readonly token: string;
+}> {
+  const keyPair = await crypto.subtle.generateKey(
+    {
+      hash: "SHA-256",
+      modulusLength: 2048,
+      name: "RSASSA-PKCS1-v1_5",
+      publicExponent: new Uint8Array([1, 0, 1]),
+    },
+    true,
+    ["sign", "verify"],
+  );
+  const publicJwk = await crypto.subtle.exportKey("jwk", keyPair.publicKey);
+  const token = await signTestJwt(keyPair.privateKey, {
+    aud: command.audience,
+    exp: Math.floor(Date.now() / 1000) + 300,
+    iss: command.issuer,
+    realm_access: {
+      roles: command.roles,
+    },
+  });
+  const fetchMock = vi.fn((input: string | URL | Request) => {
+    const url = input instanceof Request ? input.url : input.toString();
+
+    if (url.endsWith("/.well-known/openid-configuration")) {
+      return Promise.resolve(
+        Response.json({
+          issuer: command.issuer,
+          jwks_uri: `${command.issuer}/protocol/openid-connect/certs`,
+        }),
+      );
+    }
+
+    return Promise.resolve(
+      Response.json({
+        keys: [
+          {
+            ...publicJwk,
+            alg: "RS256",
+            kid: "test-key",
+            use: "sig",
+          },
+        ],
+      }),
+    );
+  });
+
+  return {
+    fetchMock,
+    token,
+  };
 }
 
 function base64UrlEncode(value: string | ArrayBuffer): string {

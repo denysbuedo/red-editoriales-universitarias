@@ -6,10 +6,24 @@ import { getCorrelationIdHeaderName, resolveCorrelationId } from "@/shared/http/
 type FetchLike = (input: string | URL | Request, init?: RequestInit) => Promise<Response>;
 
 type AdminAuthMode = "hybrid" | "oidc" | "token";
+type PublicationImportAdminOperation =
+  | "admin page"
+  | "authorities"
+  | "commit"
+  | "commit-plan"
+  | "diagnosis"
+  | "dry-run"
+  | "history"
+  | "mapping preview"
+  | "rollback"
+  | "rollback-plan";
 
 interface AdminAuthEnvironment {
   readonly [key: string]: string | undefined;
   readonly PNPU_ADMIN_AUTH_MODE?: string;
+  readonly PNPU_ADMIN_IMPORT_READ_ROLE?: string;
+  readonly PNPU_ADMIN_IMPORT_ROLLBACK_ROLE?: string;
+  readonly PNPU_ADMIN_IMPORT_WRITE_ROLE?: string;
   readonly PNPU_ADMIN_REQUIRED_ROLE?: string;
   readonly PNPU_OIDC_AUDIENCE?: string;
   readonly PNPU_OIDC_CLIENT_ID?: string;
@@ -74,7 +88,7 @@ const OIDC_STATE_COOKIE = "pnpu_oidc_state";
 
 export async function authorizePublicationImportAdminRequest(
   request: Request,
-  operation: string,
+  operation: PublicationImportAdminOperation,
 ): Promise<NextResponse | null> {
   const mode = readAdminAuthMode(process.env);
 
@@ -236,7 +250,7 @@ export async function buildPublicationImportAdminCallbackResponse(
       throw new Error("OIDC ID token nonce is invalid.");
     }
 
-    if (!hasRequiredRole(payload, config.requiredRole, config.clientId)) {
+    if (!hasAnyRequiredRole(payload, readAllowedRoles(config, "admin page"), config.clientId)) {
       throw new Error("OIDC token does not include the required role.");
     }
 
@@ -281,7 +295,7 @@ export function buildPublicationImportAdminLogoutResponse(request: Request): Nex
 
 function authorizeWithStaticToken(
   request: Request,
-  operation: string,
+  operation: PublicationImportAdminOperation,
   environment: AdminAuthEnvironment,
   mode: AdminAuthMode,
 ): NextResponse | null {
@@ -322,7 +336,7 @@ function authorizeWithStaticToken(
 
 async function authorizeWithOidcBearer(
   request: Request,
-  operation: string,
+  operation: PublicationImportAdminOperation,
   environment: AdminAuthEnvironment,
   fetchFn: FetchLike,
 ): Promise<NextResponse | null> {
@@ -356,7 +370,7 @@ async function authorizeWithOidcBearer(
   try {
     const payload = await verifyOidcJwt(bearerToken, config, fetchFn);
 
-    if (!hasRequiredRole(payload, config.requiredRole, config.clientId)) {
+    if (!hasAnyRequiredRole(payload, readAllowedRoles(config, operation), config.clientId)) {
       return NextResponse.json(
         {
           code: "PNPU-403",
@@ -433,6 +447,9 @@ function readOidcAdminConfig(environment: AdminAuthEnvironment): {
   readonly audience: string;
   readonly clientId: string;
   readonly clientSecret?: string;
+  readonly importReadRole: string;
+  readonly importRollbackRole: string;
+  readonly importWriteRole: string;
   readonly issuer: string;
   readonly requiredRole: string;
   readonly scopes: string;
@@ -459,6 +476,12 @@ function readOidcAdminConfig(environment: AdminAuthEnvironment): {
     audience,
     clientId,
     clientSecret: environment.PNPU_OIDC_CLIENT_SECRET?.trim(),
+    importReadRole: readRole(environment.PNPU_ADMIN_IMPORT_READ_ROLE, "pnpu-import-reader"),
+    importRollbackRole: readRole(
+      environment.PNPU_ADMIN_IMPORT_ROLLBACK_ROLE,
+      "pnpu-import-rollback",
+    ),
+    importWriteRole: readRole(environment.PNPU_ADMIN_IMPORT_WRITE_ROLE, "pnpu-import-writer"),
     requiredRole,
     scopes: readOidcScopes(environment),
   };
@@ -482,6 +505,12 @@ function readOidcScopes(environment: AdminAuthEnvironment): string {
   const scopes = environment.PNPU_OIDC_SCOPES?.trim();
 
   return scopes !== undefined && scopes.length > 0 ? scopes : "openid profile email";
+}
+
+function readRole(value: string | undefined, fallback: string): string {
+  const role = value?.trim();
+
+  return role !== undefined && role.length > 0 ? role : fallback;
 }
 
 async function verifyOidcJwt(
@@ -578,15 +607,49 @@ function matchesAudience(
   return Array.isArray(audience) && audience.includes(expected);
 }
 
-function hasRequiredRole(payload: JwtPayload, requiredRole: string, clientId: string): boolean {
+function readAllowedRoles(
+  config: {
+    readonly importReadRole: string;
+    readonly importRollbackRole: string;
+    readonly importWriteRole: string;
+    readonly requiredRole: string;
+  },
+  operation: PublicationImportAdminOperation,
+): readonly string[] {
+  if (operation === "admin page") {
+    return [
+      config.requiredRole,
+      config.importReadRole,
+      config.importWriteRole,
+      config.importRollbackRole,
+    ];
+  }
+
+  if (operation === "commit" || operation === "commit-plan") {
+    return [config.requiredRole, config.importWriteRole];
+  }
+
+  if (operation === "rollback" || operation === "rollback-plan") {
+    return [config.requiredRole, config.importRollbackRole];
+  }
+
+  return [config.requiredRole, config.importReadRole];
+}
+
+function hasAnyRequiredRole(
+  payload: JwtPayload,
+  requiredRoles: readonly string[],
+  clientId: string,
+): boolean {
   const realmRoles = payload.realm_access?.roles ?? [];
   const clientRoles = payload.resource_access?.[clientId]?.roles ?? [];
   const groups = payload.groups ?? [];
 
-  return (
-    realmRoles.includes(requiredRole) ||
-    clientRoles.includes(requiredRole) ||
-    groups.includes(requiredRole)
+  return requiredRoles.some(
+    (requiredRole) =>
+      realmRoles.includes(requiredRole) ||
+      clientRoles.includes(requiredRole) ||
+      groups.includes(requiredRole),
   );
 }
 

@@ -412,6 +412,9 @@ paths:
       security:
         - PublicationImportToken: []
         - PublicationImportOidcBearer: []
+      x-required-roles:
+        - pnpu-admin
+        - pnpu-import-reader
       requestBody:
         required: true
         content:
@@ -456,6 +459,9 @@ paths:
       security:
         - PublicationImportToken: []
         - PublicationImportOidcBearer: []
+      x-required-roles:
+        - pnpu-admin
+        - pnpu-import-reader
       requestBody:
         required: true
         content:
@@ -499,6 +505,9 @@ paths:
       security:
         - PublicationImportToken: []
         - PublicationImportOidcBearer: []
+      x-required-roles:
+        - pnpu-admin
+        - pnpu-import-reader
       requestBody:
         required: true
         content:
@@ -543,6 +552,9 @@ paths:
       security:
         - PublicationImportToken: []
         - PublicationImportOidcBearer: []
+      x-required-roles:
+        - pnpu-admin
+        - pnpu-import-writer
       requestBody:
         required: true
         content:
@@ -586,6 +598,9 @@ paths:
       security:
         - PublicationImportToken: []
         - PublicationImportOidcBearer: []
+      x-required-roles:
+        - pnpu-admin
+        - pnpu-import-writer
       requestBody:
         required: true
         content:
@@ -630,6 +645,9 @@ paths:
       security:
         - PublicationImportToken: []
         - PublicationImportOidcBearer: []
+      x-required-roles:
+        - pnpu-admin
+        - pnpu-import-reader
       responses:
         "200":
           description: Autoridades disponibles para enriquecimiento.
@@ -661,6 +679,9 @@ paths:
       security:
         - PublicationImportToken: []
         - PublicationImportOidcBearer: []
+      x-required-roles:
+        - pnpu-admin
+        - pnpu-import-reader
       responses:
         "200":
           description: Historial de commits de importación.
@@ -692,6 +713,9 @@ paths:
       security:
         - PublicationImportToken: []
         - PublicationImportOidcBearer: []
+      x-required-roles:
+        - pnpu-admin
+        - pnpu-import-rollback
       requestBody:
         required: true
         content:
@@ -742,6 +766,9 @@ paths:
       security:
         - PublicationImportToken: []
         - PublicationImportOidcBearer: []
+      x-required-roles:
+        - pnpu-admin
+        - pnpu-import-rollback
       requestBody:
         required: true
         content:
