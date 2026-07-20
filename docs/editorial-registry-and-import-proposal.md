@@ -267,3 +267,14 @@ El preview clasifica las filas como:
 En el incremento actual, las filas completas de EDUNIV se clasifican como `needs_enrichment`,
 porque la tabla no trae idioma, materias controladas, licencia, recurso digital ni autoridad
 institucional de editorial. Este paso sigue sin escribir en Omeka S ni PostgreSQL.
+
+La vista administrativa permite exportar una plantilla CSV de enriquecimiento con las filas que
+requieren completar datos. La plantilla incluye columnas para:
+
+- autoridad institucional de editorial;
+- tipo o genero controlado;
+- URL del recurso digital;
+- idioma;
+- materias controladas;
+- licencia;
+- notas de correccion.

@@ -173,21 +173,34 @@ export function PublicationImportDiagnosisForm() {
 }
 
 function MappingPreview({ preview }: { readonly preview: PublicationImportMappingPreviewDto }) {
+  const enrichmentMatrix = buildEnrichmentMatrix(preview);
+
   return (
     <div className="mt-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm leading-6 text-neutral-700">
           Preview generado para revisión operativa. No se escribió en Omeka S ni PostgreSQL.
         </p>
-        <button
-          className="inline-flex h-10 items-center justify-center rounded-md border border-neutral-300 px-4 text-sm font-semibold text-neutral-800 hover:bg-neutral-50"
-          onClick={() => {
-            exportPreviewJson(preview);
-          }}
-          type="button"
-        >
-          Exportar JSON
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button
+            className="inline-flex h-10 items-center justify-center rounded-md border border-neutral-300 px-4 text-sm font-semibold text-neutral-800 hover:bg-neutral-50"
+            onClick={() => {
+              exportPreviewJson(preview);
+            }}
+            type="button"
+          >
+            Exportar JSON
+          </button>
+          <button
+            className="inline-flex h-10 items-center justify-center rounded-md border border-green-800 px-4 text-sm font-semibold text-green-900 hover:bg-green-50"
+            onClick={() => {
+              exportEnrichmentCsv(preview);
+            }}
+            type="button"
+          >
+            Exportar plantilla
+          </button>
+        </div>
       </div>
 
       <dl className="mt-5 grid gap-3 md:grid-cols-4">
@@ -205,6 +218,32 @@ function MappingPreview({ preview }: { readonly preview: PublicationImportMappin
         />
         <CompactList items={preview.formatsWithoutDigitalResource} title="Formatos sin recurso" />
       </div>
+
+      <section className="mt-6 rounded-md border border-neutral-200 bg-neutral-50 p-4">
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h3 className="text-base font-semibold text-neutral-950">Matriz de enriquecimiento</h3>
+            <p className="mt-1 text-sm leading-6 text-neutral-700">
+              Campos que deben completarse antes de preparar escritura en Omeka S.
+            </p>
+          </div>
+          <span className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-neutral-800">
+            {enrichmentMatrix.rows.length} fila
+            {enrichmentMatrix.rows.length === 1 ? "" : "s"}
+          </span>
+        </div>
+        <dl className="mt-4 grid gap-3 md:grid-cols-3">
+          <Metric label="Campos PNPU" value={enrichmentMatrix.missingPnpuFields.length} />
+          <Metric label="Editoriales" value={enrichmentMatrix.publishers.length} />
+          <Metric label="Géneros/tipos" value={enrichmentMatrix.genres.length} />
+        </dl>
+        <div className="mt-4 grid gap-4 xl:grid-cols-4">
+          <CompactList items={enrichmentMatrix.missingPnpuFields} title="Campos por completar" />
+          <CompactList items={enrichmentMatrix.publishers} title="Autoridad editorial" />
+          <CompactList items={enrichmentMatrix.genres} title="Vocabulario pendiente" />
+          <CompactList items={enrichmentMatrix.formats} title="Recurso digital requerido" />
+        </div>
+      </section>
 
       <section className="mt-6 rounded-md border border-neutral-200 bg-neutral-50 p-4">
         <h3 className="text-base font-semibold text-neutral-950">Filas evaluadas</h3>
@@ -479,6 +518,80 @@ function exportPreviewJson(preview: PublicationImportMappingPreviewDto): void {
   URL.revokeObjectURL(url);
 }
 
+function exportEnrichmentCsv(preview: PublicationImportMappingPreviewDto): void {
+  const matrix = buildEnrichmentMatrix(preview);
+  const header = [
+    "row",
+    "title",
+    "isbn",
+    "publisher",
+    "publisherAuthorityId",
+    "genreOrPublicationType",
+    "controlledTypeOrGenre",
+    "formats",
+    "digitalResourceUrl",
+    "language",
+    "subjects",
+    "license",
+    "notes",
+  ];
+  const rows = matrix.rows.map((row) => [
+    String(row.row),
+    row.title,
+    row.normalizedIsbn,
+    row.publisher,
+    "",
+    row.genreOrPublicationType,
+    "",
+    row.formats.join("|"),
+    "",
+    "",
+    "",
+    "",
+    row.reasons.join(" "),
+  ]);
+  const csv = [header, ...rows].map((row) => row.map(escapeCsvCell).join(",")).join("\r\n");
+  const blob = new Blob([`\uFEFF${csv}`], {
+    type: "text/csv;charset=utf-8",
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = buildEnrichmentFileName(preview);
+  document.body.append(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function buildEnrichmentMatrix(preview: PublicationImportMappingPreviewDto): {
+  readonly formats: readonly string[];
+  readonly genres: readonly string[];
+  readonly missingPnpuFields: readonly string[];
+  readonly publishers: readonly string[];
+  readonly rows: PublicationImportMappingPreviewDto["rows"];
+} {
+  const rows = preview.rows.filter((row) => row.decision === "needs_enrichment");
+
+  return {
+    formats: distinctValues(rows.flatMap((row) => row.formats)),
+    genres: distinctValues(rows.map((row) => row.genreOrPublicationType)),
+    missingPnpuFields: distinctValues(rows.flatMap((row) => row.missingPnpuFields)),
+    publishers: distinctValues(rows.map((row) => row.publisher)),
+    rows,
+  };
+}
+
+function distinctValues(values: readonly string[]): readonly string[] {
+  return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean))).sort((a, b) =>
+    a.localeCompare(b, "es"),
+  );
+}
+
+function escapeCsvCell(value: string): string {
+  return `"${value.replace(/"/gu, '""')}"`;
+}
+
 function buildPreviewFileName(preview: PublicationImportMappingPreviewDto): string {
   const source =
     preview.source
@@ -488,6 +601,17 @@ function buildPreviewFileName(preview: PublicationImportMappingPreviewDto): stri
   const timestamp = preview.generatedAt.replace(/[:.]/gu, "-");
 
   return `pnpu-preview-mapeo-${source}-${timestamp}.json`;
+}
+
+function buildEnrichmentFileName(preview: PublicationImportMappingPreviewDto): string {
+  const source =
+    preview.source
+      .split(/[\\/]/u)
+      .at(-1)
+      ?.replace(/\.xlsx$/iu, "") ?? "lote";
+  const timestamp = preview.generatedAt.replace(/[:.]/gu, "-");
+
+  return `pnpu-plantilla-enriquecimiento-${source}-${timestamp}.csv`;
 }
 
 function readApiResponse(payload: unknown): PublicationImportDiagnosisApiResponse {
