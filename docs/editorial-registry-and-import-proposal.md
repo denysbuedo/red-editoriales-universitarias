@@ -300,3 +300,20 @@ El cuerpo incluye `sourcePath`, `sheet` y `enrichmentCsv`. El servicio:
 
 Este resultado es la entrada natural para el importador Omeka futuro, cuando arquitectura apruebe la
 escritura controlada.
+
+## 15. Paquete final validado
+
+La vista administrativa permite exportar un paquete JSON con los candidatos `ready` del dry-run.
+
+El paquete contiene:
+
+- manifiesto del lote;
+- fuente XLSX;
+- hoja;
+- fecha de generacion;
+- conteos de filas listas, incompletas y rechazadas;
+- advertencia `validated_not_imported`;
+- candidatos listos para un importador futuro.
+
+Este paquete cierra la etapa actual. Aun no representa una importacion real; es un artefacto
+validado para decision operativa y para una futura escritura controlada en Omeka S.

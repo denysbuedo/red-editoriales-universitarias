@@ -208,11 +208,25 @@ export function PublicationImportDiagnosisForm() {
 }
 
 function DryRunResult({ dryRun }: { readonly dryRun: PublicationImportDryRunDto }) {
+  const readyCandidates = dryRun.candidates.filter((candidate) => candidate.decision === "ready");
+
   return (
     <div className="mt-5">
-      <p className="text-sm leading-6 text-neutral-700">
-        Validación en seco del CSV enriquecido. No se escribió en Omeka S ni PostgreSQL.
-      </p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm leading-6 text-neutral-700">
+          Validación en seco del CSV enriquecido. No se escribió en Omeka S ni PostgreSQL.
+        </p>
+        <button
+          className="inline-flex h-10 items-center justify-center rounded-md border border-green-800 px-4 text-sm font-semibold text-green-900 hover:bg-green-50 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:text-neutral-400"
+          disabled={readyCandidates.length === 0}
+          onClick={() => {
+            exportReadyImportPackage(dryRun);
+          }}
+          type="button"
+        >
+          Exportar candidatos
+        </button>
+      </div>
       <dl className="mt-5 grid gap-3 md:grid-cols-4">
         <Metric label="Filas" value={dryRun.summary.totalRows} />
         <Metric label="Listas" value={dryRun.summary.ready} />
@@ -691,6 +705,39 @@ function exportEnrichmentCsv(preview: PublicationImportMappingPreviewDto): void 
   URL.revokeObjectURL(url);
 }
 
+function exportReadyImportPackage(dryRun: PublicationImportDryRunDto): void {
+  const readyCandidates = dryRun.candidates.filter((candidate) => candidate.decision === "ready");
+  const payload = {
+    manifest: {
+      generatedAt: new Date().toISOString(),
+      source: dryRun.source,
+      sheet: dryRun.sheet,
+      status: "validated_not_imported",
+      warning: "Este paquete no ha sido importado en Omeka S ni PostgreSQL.",
+      counts: {
+        totalRows: dryRun.summary.totalRows,
+        ready: dryRun.summary.ready,
+        incomplete: dryRun.summary.incomplete,
+        rejected: dryRun.summary.rejected,
+        enrichmentRows: dryRun.summary.enrichmentRows,
+        exportedCandidates: readyCandidates.length,
+      },
+    },
+    candidates: readyCandidates,
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {
+    type: "application/json;charset=utf-8",
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = buildReadyPackageFileName(dryRun);
+  document.body.append(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
 function buildEnrichmentMatrix(preview: PublicationImportMappingPreviewDto): {
   readonly formats: readonly string[];
   readonly genres: readonly string[];
@@ -739,6 +786,17 @@ function buildEnrichmentFileName(preview: PublicationImportMappingPreviewDto): s
   const timestamp = preview.generatedAt.replace(/[:.]/gu, "-");
 
   return `pnpu-plantilla-enriquecimiento-${source}-${timestamp}.csv`;
+}
+
+function buildReadyPackageFileName(dryRun: PublicationImportDryRunDto): string {
+  const source =
+    dryRun.source
+      .split(/[\\/]/u)
+      .at(-1)
+      ?.replace(/\.xlsx$/iu, "") ?? "lote";
+  const timestamp = dryRun.generatedAt.replace(/[:.]/gu, "-");
+
+  return `pnpu-candidatos-importacion-${source}-${timestamp}.json`;
 }
 
 function readApiResponse(payload: unknown): PublicationImportDiagnosisApiResponse {
