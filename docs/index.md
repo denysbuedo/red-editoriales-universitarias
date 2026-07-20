@@ -10,6 +10,7 @@ Este sitio reúne la documentación técnica operativa de la PNPU.
 - Manual del administrador PNPU.
 - Manual para responsables de editoriales.
 - Propuesta de registro editorial e importacion.
+- Propuesta de importacion controlada hacia Omeka S.
 
 ## Versiones HTML para operación
 

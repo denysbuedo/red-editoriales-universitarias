@@ -21,6 +21,7 @@ nav:
   - Release 1 Dominio: release-1-domain-implementation-guide.md
   - Dominio de catálogo: catalog-domain.md
   - Propuesta Omeka S: omeka-pnpu-mapping-proposal.md
+  - Importación controlada Omeka: omeka-controlled-import-proposal.md
   - Omeka S local: omeka-local-runbook.md
   - Manual administrador PNPU: manual-admin-pnpu.md
   - Manual responsables editoriales: manual-responsables-editoriales.md
