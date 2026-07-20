@@ -278,3 +278,25 @@ requieren completar datos. La plantilla incluye columnas para:
 - materias controladas;
 - licencia;
 - notas de correccion.
+
+## 14. Dry-run de importacion enriquecida
+
+Cuando la plantilla CSV vuelve completada, PNPU puede ejecutar un dry-run:
+
+```http
+POST /api/admin/publication-imports/dry-run
+X-PNPU-Admin-Token: <token>
+Content-Type: application/json
+```
+
+El cuerpo incluye `sourcePath`, `sheet` y `enrichmentCsv`. El servicio:
+
+- vuelve a generar el preview desde el XLSX fuente;
+- cruza las filas por numero de fila;
+- valida los campos de enriquecimiento requeridos;
+- devuelve candidatos `ready`, `incomplete` o `rejected`;
+- no escribe en Omeka S;
+- no escribe en PostgreSQL.
+
+Este resultado es la entrada natural para el importador Omeka futuro, cuando arquitectura apruebe la
+escritura controlada.

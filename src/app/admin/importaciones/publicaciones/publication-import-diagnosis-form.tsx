@@ -4,6 +4,7 @@ import { SyntheticEvent, useState } from "react";
 
 import {
   PublicationImportBatchSnapshot,
+  PublicationImportDryRunDto,
   PublicationImportMappingPreviewDto,
 } from "@/modules/publication-import";
 
@@ -21,6 +22,13 @@ interface PublicationImportMappingPreviewApiResponse {
   };
 }
 
+interface PublicationImportDryRunApiResponse {
+  readonly data: PublicationImportDryRunDto;
+  readonly meta: {
+    readonly apiVersion: "v1";
+  };
+}
+
 interface PublicationImportDiagnosisApiError {
   readonly code: string;
   readonly message: string;
@@ -31,9 +39,11 @@ export function PublicationImportDiagnosisForm() {
   const [sourcePath, setSourcePath] = useState("Listado_Libro_Publicados_EDUNIV.xlsx");
   const [sheet, setSheet] = useState("EDUNIV");
   const [token, setToken] = useState("");
+  const [enrichmentCsv, setEnrichmentCsv] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [action, setAction] = useState<"diagnose" | "preview">("diagnose");
+  const [action, setAction] = useState<"diagnose" | "dryRun" | "preview">("diagnose");
   const [batch, setBatch] = useState<PublicationImportBatchSnapshot | null>(null);
+  const [dryRun, setDryRun] = useState<PublicationImportDryRunDto | null>(null);
   const [preview, setPreview] = useState<PublicationImportMappingPreviewDto | null>(null);
   const [error, setError] = useState<PublicationImportDiagnosisApiError | null>(null);
 
@@ -41,6 +51,7 @@ export function PublicationImportDiagnosisForm() {
     event.preventDefault();
     setIsSubmitting(true);
     setBatch(null);
+    setDryRun(null);
     setPreview(null);
     setError(null);
     const selectedAction = readSubmitAction(event);
@@ -56,6 +67,7 @@ export function PublicationImportDiagnosisForm() {
         body: JSON.stringify({
           sourcePath,
           sheet,
+          enrichmentCsv: selectedAction === "dryRun" ? enrichmentCsv : undefined,
           maxRows: selectedAction === "preview" ? 25 : undefined,
         }),
       });
@@ -66,7 +78,9 @@ export function PublicationImportDiagnosisForm() {
         return;
       }
 
-      if (selectedAction === "preview") {
+      if (selectedAction === "dryRun") {
+        setDryRun(readDryRunApiResponse(payload).data);
+      } else if (selectedAction === "preview") {
         setPreview(readPreviewApiResponse(payload).data);
       } else {
         setBatch(readApiResponse(payload).data);
@@ -150,6 +164,26 @@ export function PublicationImportDiagnosisForm() {
               {isSubmitting && action === "preview" ? "Preparando" : "Preview mapeo"}
             </button>
           </div>
+          <label className="grid gap-1 text-sm font-medium text-neutral-800">
+            CSV enriquecido
+            <textarea
+              className="min-h-36 rounded-md border border-neutral-300 px-3 py-2 text-sm font-normal text-neutral-950"
+              onChange={(event) => {
+                setEnrichmentCsv(event.target.value);
+              }}
+              placeholder="Pegue aqui la plantilla de enriquecimiento completada."
+              value={enrichmentCsv}
+            />
+          </label>
+          <button
+            className="h-10 rounded-md bg-neutral-900 px-4 text-sm font-semibold text-white hover:bg-black disabled:cursor-not-allowed disabled:bg-neutral-400"
+            disabled={isSubmitting}
+            name="intent"
+            type="submit"
+            value="dryRun"
+          >
+            {isSubmitting && action === "dryRun" ? "Validando" : "Dry-run enriquecido"}
+          </button>
         </div>
       </form>
 
@@ -160,13 +194,66 @@ export function PublicationImportDiagnosisForm() {
         <h2 className="text-xl font-semibold text-neutral-950">Resultado</h2>
         {error !== null ? <ErrorPanel error={error} /> : null}
         {batch !== null ? <BatchDiagnostics batch={batch} /> : null}
+        {dryRun !== null ? <DryRunResult dryRun={dryRun} /> : null}
         {preview !== null ? <MappingPreview preview={preview} /> : null}
-        {error === null && batch === null && preview === null ? (
+        {error === null && batch === null && dryRun === null && preview === null ? (
           <p className="mt-3 text-sm leading-6 text-neutral-700">
             Ejecute un diagnóstico para ver el estado del lote, errores de planilla y campos
             pendientes antes de cualquier mapeo.
           </p>
         ) : null}
+      </section>
+    </div>
+  );
+}
+
+function DryRunResult({ dryRun }: { readonly dryRun: PublicationImportDryRunDto }) {
+  return (
+    <div className="mt-5">
+      <p className="text-sm leading-6 text-neutral-700">
+        Validación en seco del CSV enriquecido. No se escribió en Omeka S ni PostgreSQL.
+      </p>
+      <dl className="mt-5 grid gap-3 md:grid-cols-4">
+        <Metric label="Filas" value={dryRun.summary.totalRows} />
+        <Metric label="Listas" value={dryRun.summary.ready} />
+        <Metric label="Incompletas" value={dryRun.summary.incomplete} />
+        <Metric label="Rechazadas" value={dryRun.summary.rejected} />
+      </dl>
+      <section className="mt-6 rounded-md border border-neutral-200 bg-neutral-50 p-4">
+        <h3 className="text-base font-semibold text-neutral-950">Candidatos evaluados</h3>
+        <div className="mt-3 overflow-x-auto">
+          <table className="min-w-full border-collapse text-sm">
+            <thead>
+              <tr className="border-b border-neutral-200 text-left text-neutral-600">
+                <th className="py-2 pr-4 font-semibold">Fila</th>
+                <th className="py-2 pr-4 font-semibold">Estado</th>
+                <th className="py-2 pr-4 font-semibold">Título</th>
+                <th className="py-2 pr-4 font-semibold">Idioma</th>
+                <th className="py-2 pr-4 font-semibold">Causa</th>
+              </tr>
+            </thead>
+            <tbody>
+              {dryRun.candidates.slice(0, 25).map((candidate) => (
+                <tr
+                  className="border-b border-neutral-100 align-top last:border-0"
+                  key={candidate.row}
+                >
+                  <td className="py-2 pr-4 font-semibold text-neutral-950">{candidate.row}</td>
+                  <td className="py-2 pr-4">
+                    <span className={dryRunDecisionClassName(candidate.decision)}>
+                      {formatDryRunDecision(candidate.decision)}
+                    </span>
+                  </td>
+                  <td className="py-2 pr-4 text-neutral-800">{candidate.title || "sin título"}</td>
+                  <td className="py-2 pr-4 text-neutral-700">
+                    {candidate.language || "pendiente"}
+                  </td>
+                  <td className="py-2 pr-4 text-neutral-700">{candidate.reasons.join(" ")}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
     </div>
   );
@@ -487,9 +574,15 @@ function decisionClassName(
   return `${baseClassName} bg-green-50 text-green-900`;
 }
 
-function readSubmitAction(event: SyntheticEvent<HTMLFormElement>): "diagnose" | "preview" {
+function readSubmitAction(
+  event: SyntheticEvent<HTMLFormElement>,
+): "diagnose" | "dryRun" | "preview" {
   const nativeEvent = event.nativeEvent as SubmitEvent;
   const submitter = nativeEvent.submitter;
+
+  if (submitter instanceof HTMLButtonElement && submitter.value === "dryRun") {
+    return "dryRun";
+  }
 
   if (submitter instanceof HTMLButtonElement && submitter.value === "preview") {
     return "preview";
@@ -498,10 +591,44 @@ function readSubmitAction(event: SyntheticEvent<HTMLFormElement>): "diagnose" | 
   return "diagnose";
 }
 
-function endpointForAction(action: "diagnose" | "preview"): string {
+function endpointForAction(action: "diagnose" | "dryRun" | "preview"): string {
+  if (action === "dryRun") {
+    return "/api/admin/publication-imports/dry-run";
+  }
+
   return action === "preview"
     ? "/api/admin/publication-imports/mapping-preview"
     : "/api/admin/publication-imports/diagnose";
+}
+
+function formatDryRunDecision(
+  decision: PublicationImportDryRunDto["candidates"][number]["decision"],
+): string {
+  if (decision === "ready") {
+    return "lista";
+  }
+
+  if (decision === "incomplete") {
+    return "incompleta";
+  }
+
+  return "rechazada";
+}
+
+function dryRunDecisionClassName(
+  decision: PublicationImportDryRunDto["candidates"][number]["decision"],
+): string {
+  const baseClassName = "rounded-md px-2 py-1 text-xs font-semibold";
+
+  if (decision === "ready") {
+    return `${baseClassName} bg-green-50 text-green-900`;
+  }
+
+  if (decision === "incomplete") {
+    return `${baseClassName} bg-amber-50 text-amber-900`;
+  }
+
+  return `${baseClassName} bg-red-50 text-red-800`;
 }
 
 function exportPreviewJson(preview: PublicationImportMappingPreviewDto): void {
@@ -628,6 +755,14 @@ function readPreviewApiResponse(payload: unknown): PublicationImportMappingPrevi
   }
 
   throw new Error("Invalid publication import mapping preview response.");
+}
+
+function readDryRunApiResponse(payload: unknown): PublicationImportDryRunApiResponse {
+  if (typeof payload === "object" && payload !== null && "data" in payload && "meta" in payload) {
+    return payload as PublicationImportDryRunApiResponse;
+  }
+
+  throw new Error("Invalid publication import dry-run response.");
 }
 
 function readApiError(payload: unknown): PublicationImportDiagnosisApiError {

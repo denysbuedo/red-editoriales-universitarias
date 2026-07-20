@@ -415,6 +415,48 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /api/admin/publication-imports/dry-run:
+    post:
+      operationId: dryRunPublicationImport
+      summary: Valida en seco una importación enriquecida de publicaciones.
+      description: >
+        Cruza una planilla XLSX con el CSV de enriquecimiento completado y devuelve candidatos de
+        importación listos, incompletos o rechazados. No escribe en Omeka S ni PostgreSQL.
+      tags:
+        - Admin
+      security:
+        - PublicationImportToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PublicationImportDryRunRequest"
+      responses:
+        "200":
+          description: Resultado del dry-run de importación.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicationImportDryRunResponse"
+        "403":
+          description: Token administrativo inválido.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: Solicitud inválida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Endpoint no configurado o dry-run no disponible.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /health/live:
     get:
       operationId: getLiveHealth
@@ -1500,6 +1542,132 @@ components:
       properties:
         data:
           $ref: "#/components/schemas/PublicationImportMappingPreview"
+        meta:
+          $ref: "#/components/schemas/ApiMeta"
+    PublicationImportDryRunRequest:
+      allOf:
+        - $ref: "#/components/schemas/PublicationImportDiagnoseRequest"
+        - type: object
+          additionalProperties: false
+          required:
+            - enrichmentCsv
+          properties:
+            enrichmentCsv:
+              type: string
+              minLength: 1
+    PublicationImportDryRun:
+      type: object
+      additionalProperties: false
+      required:
+        - source
+        - sheet
+        - generatedAt
+        - summary
+        - candidates
+        - preview
+      properties:
+        source:
+          type: string
+        sheet:
+          type: string
+        generatedAt:
+          type: string
+          format: date-time
+        summary:
+          type: object
+          additionalProperties: false
+          required:
+            - totalRows
+            - ready
+            - incomplete
+            - rejected
+            - enrichmentRows
+          properties:
+            totalRows:
+              type: integer
+              minimum: 0
+            ready:
+              type: integer
+              minimum: 0
+            incomplete:
+              type: integer
+              minimum: 0
+            rejected:
+              type: integer
+              minimum: 0
+            enrichmentRows:
+              type: integer
+              minimum: 0
+        candidates:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicationImportDryRunCandidate"
+        preview:
+          $ref: "#/components/schemas/PublicationImportMappingPreview"
+    PublicationImportDryRunCandidate:
+      type: object
+      additionalProperties: false
+      required:
+        - row
+        - title
+        - isbn
+        - publisher
+        - publisherAuthorityId
+        - typeOrGenre
+        - formats
+        - digitalResourceUrl
+        - language
+        - subjects
+        - license
+        - decision
+        - reasons
+      properties:
+        row:
+          type: integer
+          minimum: 1
+        title:
+          type: string
+        isbn:
+          type: string
+        publisher:
+          type: string
+        publisherAuthorityId:
+          type: string
+        typeOrGenre:
+          type: string
+        formats:
+          type: array
+          items:
+            type: string
+        digitalResourceUrl:
+          type: string
+        language:
+          type: string
+        subjects:
+          type: array
+          items:
+            type: string
+        license:
+          type: string
+        decision:
+          type: string
+          enum:
+            - ready
+            - incomplete
+            - rejected
+        reasons:
+          type: array
+          items:
+            type: string
+    PublicationImportDryRunResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          $ref: "#/components/schemas/PublicationImportDryRun"
         meta:
           $ref: "#/components/schemas/ApiMeta"
     PublicationImportBatchResponse:

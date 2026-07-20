@@ -1,6 +1,7 @@
 import path from "node:path";
 
 import { PublicationImportDiagnosisService } from "../../application/services/publication-import-diagnosis-service";
+import { PublicationImportDryRunService } from "../../application/services/publication-import-dry-run-service";
 import { PublicationImportMappingPreviewService } from "../../application/services/publication-import-mapping-preview-service";
 import { PythonPublicationSpreadsheetDiagnosticsRunner } from "../../infrastructure";
 
@@ -15,6 +16,17 @@ export function createPublicationImportMappingPreviewService(): PublicationImpor
   return new PublicationImportMappingPreviewService(
     new PythonPublicationSpreadsheetDiagnosticsRunner(),
     readPublicationImportOptions(),
+  );
+}
+
+export function createPublicationImportDryRunService(): PublicationImportDryRunService {
+  const options = readPublicationImportOptions();
+  return new PublicationImportDryRunService(
+    new PublicationImportMappingPreviewService(
+      new PythonPublicationSpreadsheetDiagnosticsRunner(),
+      options,
+    ),
+    options,
   );
 }
 
