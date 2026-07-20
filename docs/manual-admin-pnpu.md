@@ -260,6 +260,14 @@ PNPU_OIDC_CLIENT_ID=pnpu-portal
 El token local `PNPU_PUBLICATION_IMPORT_TOKEN` solo debe usarse en desarrollo o transicion
 controlada. En produccion, el JWT OIDC debe incluir el rol requerido.
 
+Para abrir la pantalla administrativa en desarrollo local:
+
+```text
+http://127.0.0.1:4310/admin/importaciones/publicaciones?adminToken=<token-local>
+```
+
+El portal limpia el token de la URL y conserva una cookie HTTP-only de corta duracion para esa ruta.
+
 ## Escalamiento
 
 Escalar a equipo tecnico cuando:

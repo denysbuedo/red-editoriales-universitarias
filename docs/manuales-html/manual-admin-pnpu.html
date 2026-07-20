@@ -262,6 +262,9 @@ PNPU_OIDC_ISSUER=https://keycloak.example.edu/realms/pnpu
 PNPU_OIDC_AUDIENCE=pnpu-portal
 PNPU_OIDC_CLIENT_ID=pnpu-portal</code></pre>
     <p>El token local <code>PNPU_PUBLICATION_IMPORT_TOKEN</code> solo debe usarse en desarrollo o transicion controlada. En produccion, el JWT OIDC debe incluir el rol requerido.</p>
+    <p>Para abrir la pantalla administrativa en desarrollo local:</p>
+    <pre><code>http://127.0.0.1:4310/admin/importaciones/publicaciones?adminToken=&lt;token-local&gt;</code></pre>
+    <p>El portal limpia el token de la URL y conserva una cookie HTTP-only de corta duracion para esa ruta.</p>
     <h2>Escalamiento</h2>
     <p>Escalar a equipo tecnico cuando:</p>
     <ul>

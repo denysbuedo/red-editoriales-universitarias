@@ -53,3 +53,16 @@ o, solo en modo `token`/`hybrid`:
 ```http
 X-PNPU-Admin-Token: <token-local>
 ```
+
+## Pantalla administrativa local
+
+La pantalla `/admin/importaciones/publicaciones` tambien queda protegida. En desarrollo local puede
+abrirse una sesion de 8 horas con:
+
+```text
+http://127.0.0.1:4310/admin/importaciones/publicaciones?adminToken=<token-local>
+```
+
+El portal valida el token, crea una cookie HTTP-only limitada a la ruta administrativa y redirige a
+la URL sin el token en el query string. En produccion debe usarse `PNPU_ADMIN_AUTH_MODE=oidc` y un
+flujo institucional delante del portal o peticiones con `Authorization: Bearer <jwt>`.
