@@ -5,6 +5,7 @@ Este sitio reúne la documentación técnica operativa de la PNPU.
 ## Documentos
 
 - Fundación técnica.
+- Readiness operativo v0.1.
 - Documento de diseño de producto.
 - Especificación técnica del portal.
 - Manual del administrador PNPU.
