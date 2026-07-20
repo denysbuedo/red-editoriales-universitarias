@@ -17,7 +17,7 @@ interface PublicationImportMappingPreviewRequestBody {
 }
 
 export async function POST(request: Request): Promise<NextResponse> {
-  const tokenResponse = authorizePublicationImportAdminRequest(request, "mapping preview");
+  const tokenResponse = await authorizePublicationImportAdminRequest(request, "mapping preview");
   if (tokenResponse !== null) {
     return tokenResponse;
   }

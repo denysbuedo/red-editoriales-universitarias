@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export async function GET(request: Request): Promise<NextResponse> {
-  const tokenResponse = authorizePublicationImportAdminRequest(request, "authorities");
+  const tokenResponse = await authorizePublicationImportAdminRequest(request, "authorities");
   if (tokenResponse !== null) {
     return tokenResponse;
   }

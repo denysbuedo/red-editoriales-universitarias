@@ -16,7 +16,7 @@ interface DiagnosePublicationImportRequestBody {
 }
 
 export async function POST(request: Request): Promise<NextResponse> {
-  const tokenResponse = authorizePublicationImportAdminRequest(request, "diagnosis");
+  const tokenResponse = await authorizePublicationImportAdminRequest(request, "diagnosis");
   if (tokenResponse !== null) {
     return tokenResponse;
   }

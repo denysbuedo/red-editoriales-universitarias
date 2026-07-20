@@ -18,3 +18,8 @@ pnpu_omeka_max_pages: 100
 pnpu_omeka_cache_ttl_seconds: 60
 pnpu_omeka_require_approved_mapping: "false"
 pnpu_catalog_refresh_token: ""
+pnpu_admin_auth_mode: token
+pnpu_admin_required_role: pnpu-admin
+pnpu_oidc_issuer: ""
+pnpu_oidc_audience: ""
+pnpu_oidc_client_id: ""

@@ -9,6 +9,7 @@ Este sitio reúne la documentación técnica operativa de la PNPU.
 - Especificación técnica del portal.
 - Manual del administrador PNPU.
 - Manual para responsables de editoriales.
+- Runbook de identidad administrativa.
 - Propuesta de registro editorial e importacion.
 - Propuesta de importacion controlada hacia Omeka S.
 

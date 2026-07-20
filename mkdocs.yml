@@ -29,5 +29,6 @@ nav:
   - Despliegue: deployment-runbook.md
   - Rollback: rollback-runbook.md
   - Observabilidad: observability-runbook.md
+  - Identidad administrativa: identity-admin-runbook.md
   - PDD: PDD_Plataforma_Nacional_Publicaciones_Universitarias_v0.1.md
   - Especificación técnica: Especificacion_Tecnica_Portal_RNEU.md

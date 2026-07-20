@@ -17,7 +17,7 @@ interface PublicationImportDryRunRequestBody {
 }
 
 export async function POST(request: Request): Promise<NextResponse> {
-  const tokenResponse = authorizePublicationImportAdminRequest(request, "dry-run");
+  const tokenResponse = await authorizePublicationImportAdminRequest(request, "dry-run");
   if (tokenResponse !== null) {
     return tokenResponse;
   }

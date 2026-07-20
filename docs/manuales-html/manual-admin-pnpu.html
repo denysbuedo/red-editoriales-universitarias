@@ -252,6 +252,16 @@ npm run omeka:seed-sample</code></pre>
     <li><code>/estado</code> muestra snapshot reciente.</li>
     <li>Las fichas publicas muestran datos completos.</li>
     </ul>
+    <h2>Identidad administrativa</h2>
+    <p>Los endpoints administrativos de importacion pueden operar en tres modos:</p>
+    <table><thead><tr><th>Modo</th><th>Uso</th></tr></thead><tbody><tr><td><code>token</code></td><td>Desarrollo local con <code>X-PNPU-Admin-Token</code></td></tr><tr><td><code>hybrid</code></td><td>Transicion entre token local y OIDC</td></tr><tr><td><code>oidc</code></td><td>Produccion con Keycloak/OIDC</td></tr></tbody></table>
+    <p>Variables principales:</p>
+    <pre><code>PNPU_ADMIN_AUTH_MODE=oidc
+PNPU_ADMIN_REQUIRED_ROLE=pnpu-admin
+PNPU_OIDC_ISSUER=https://keycloak.example.edu/realms/pnpu
+PNPU_OIDC_AUDIENCE=pnpu-portal
+PNPU_OIDC_CLIENT_ID=pnpu-portal</code></pre>
+    <p>El token local <code>PNPU_PUBLICATION_IMPORT_TOKEN</code> solo debe usarse en desarrollo o transicion controlada. En produccion, el JWT OIDC debe incluir el rol requerido.</p>
     <h2>Escalamiento</h2>
     <p>Escalar a equipo tecnico cuando:</p>
     <ul>

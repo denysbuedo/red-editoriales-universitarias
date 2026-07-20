@@ -15,7 +15,7 @@ interface PublicationImportRollbackPlanRequestBody {
 }
 
 export async function POST(request: Request): Promise<NextResponse> {
-  const tokenResponse = authorizePublicationImportAdminRequest(request, "rollback-plan");
+  const tokenResponse = await authorizePublicationImportAdminRequest(request, "rollback-plan");
   if (tokenResponse !== null) {
     return tokenResponse;
   }

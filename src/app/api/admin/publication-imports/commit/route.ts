@@ -15,7 +15,7 @@ interface PublicationImportCommitRequestBody {
 }
 
 export async function POST(request: Request): Promise<NextResponse> {
-  const tokenResponse = authorizePublicationImportAdminRequest(request, "commit");
+  const tokenResponse = await authorizePublicationImportAdminRequest(request, "commit");
   if (tokenResponse !== null) {
     return tokenResponse;
   }

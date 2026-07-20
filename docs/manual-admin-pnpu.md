@@ -237,6 +237,29 @@ Si falta alguno de estos elementos, PNPU puede excluir el registro del catalogo 
 - `/estado` muestra snapshot reciente.
 - Las fichas publicas muestran datos completos.
 
+## Identidad administrativa
+
+Los endpoints administrativos de importacion pueden operar en tres modos:
+
+| Modo | Uso |
+| --- | --- |
+| `token` | Desarrollo local con `X-PNPU-Admin-Token` |
+| `hybrid` | Transicion entre token local y OIDC |
+| `oidc` | Produccion con Keycloak/OIDC |
+
+Variables principales:
+
+```text
+PNPU_ADMIN_AUTH_MODE=oidc
+PNPU_ADMIN_REQUIRED_ROLE=pnpu-admin
+PNPU_OIDC_ISSUER=https://keycloak.example.edu/realms/pnpu
+PNPU_OIDC_AUDIENCE=pnpu-portal
+PNPU_OIDC_CLIENT_ID=pnpu-portal
+```
+
+El token local `PNPU_PUBLICATION_IMPORT_TOKEN` solo debe usarse en desarrollo o transicion
+controlada. En produccion, el JWT OIDC debe incluir el rol requerido.
+
 ## Escalamiento
 
 Escalar a equipo tecnico cuando:
@@ -247,4 +270,3 @@ Escalar a equipo tecnico cuando:
 - el build o despliegue falla;
 - hay errores repetidos en `/health/ready`;
 - se requiere cambiar plantillas, modelos, ADRs o reglas de dominio.
-
