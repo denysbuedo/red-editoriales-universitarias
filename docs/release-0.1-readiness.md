@@ -46,6 +46,9 @@ camino controlado para importar publicaciones.
 | `PNPU_COMMIT_SHA` | Recomendado | Trazabilidad de despliegue |
 | `PNPU_LOG_LEVEL` | Recomendado | Nivel de logs |
 | `PNPU_ENABLE_REQUEST_LOGS` | Recomendado | Activacion de logs HTTP |
+| `PNPU_ACCEPTANCE_BASE_URL` | Solo verificacion | URL base para pruebas de aceptacion v0.1 |
+| `PNPU_ACCEPTANCE_REQUIRE_OMEKA` | Solo verificacion | Exige repositorio Omeka en `/health/catalog` |
+| `PNPU_ACCEPTANCE_TIMEOUT_MS` | Solo verificacion | Timeout de pruebas de aceptacion |
 
 ### Catalogo Omeka S
 
@@ -131,6 +134,7 @@ camino controlado para importar publicaciones.
 - `/metrics` expone metricas Prometheus.
 - `/version` expone version `0.1.0`.
 - `npm run smoke` pasa contra servidor productivo local.
+- `npm run acceptance:v0.1` pasa contra el entorno objetivo.
 - El artefacto se genera con `npm run package:release`.
 - El artefacto se valida con `npm run package:validate`.
 - Ansible puede ejecutar syntax-check de provision, deploy, verify y rollback.
@@ -147,6 +151,24 @@ camino controlado para importar publicaciones.
 8. Probar login OIDC en entorno con Keycloak configurado.
 9. Ejecutar diagnostico de planilla sin escritura.
 10. Ejecutar preview, dry-run y plan de commit antes de cualquier escritura.
+
+## Verificacion ejecutable
+
+Con el portal levantado:
+
+```bash
+PNPU_ACCEPTANCE_BASE_URL=http://127.0.0.1:4310 npm run acceptance:v0.1
+```
+
+Para exigir que el catalogo activo sea Omeka S:
+
+```bash
+PNPU_ACCEPTANCE_BASE_URL=http://127.0.0.1:4310 \
+PNPU_ACCEPTANCE_REQUIRE_OMEKA=true \
+npm run acceptance:v0.1
+```
+
+Si `PNPU_CATALOG_REFRESH_TOKEN` esta configurado, el script tambien prueba el refresh autorizado.
 
 ## Decision de salida
 

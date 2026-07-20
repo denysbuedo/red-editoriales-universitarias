@@ -35,6 +35,7 @@ const requiredTerms = [
   "npm run quality",
   "npm run build",
   "npm run smoke",
+  "npm run acceptance:v0.1",
   "npm run package:release",
   "npm run package:validate",
   "/health/live",

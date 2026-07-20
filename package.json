@@ -7,6 +7,7 @@
     "dev": "next dev",
     "dev:local": "next dev -H 127.0.0.1 -p 4307",
     "build": "next build",
+    "acceptance:v0.1": "node scripts/acceptance-v0.1.mjs",
     "package:release": "node scripts/package-release.mjs",
     "package:validate": "node scripts/validate-release-artifact.mjs",
     "start": "next start",
