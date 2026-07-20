@@ -175,7 +175,22 @@ export function PublicationImportDiagnosisForm() {
 function MappingPreview({ preview }: { readonly preview: PublicationImportMappingPreviewDto }) {
   return (
     <div className="mt-5">
-      <dl className="grid gap-3 md:grid-cols-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm leading-6 text-neutral-700">
+          Preview generado para revisión operativa. No se escribió en Omeka S ni PostgreSQL.
+        </p>
+        <button
+          className="inline-flex h-10 items-center justify-center rounded-md border border-neutral-300 px-4 text-sm font-semibold text-neutral-800 hover:bg-neutral-50"
+          onClick={() => {
+            exportPreviewJson(preview);
+          }}
+          type="button"
+        >
+          Exportar JSON
+        </button>
+      </div>
+
+      <dl className="mt-5 grid gap-3 md:grid-cols-4">
         <Metric label="Filas" value={preview.summary.totalRows} />
         <Metric label="Mapeables" value={preview.summary.mappable} />
         <Metric label="Enriquecer" value={preview.summary.needsEnrichment} />
@@ -448,6 +463,31 @@ function endpointForAction(action: "diagnose" | "preview"): string {
   return action === "preview"
     ? "/api/admin/publication-imports/mapping-preview"
     : "/api/admin/publication-imports/diagnose";
+}
+
+function exportPreviewJson(preview: PublicationImportMappingPreviewDto): void {
+  const blob = new Blob([JSON.stringify(preview, null, 2)], {
+    type: "application/json;charset=utf-8",
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = buildPreviewFileName(preview);
+  document.body.append(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function buildPreviewFileName(preview: PublicationImportMappingPreviewDto): string {
+  const source =
+    preview.source
+      .split(/[\\/]/u)
+      .at(-1)
+      ?.replace(/\.xlsx$/iu, "") ?? "lote";
+  const timestamp = preview.generatedAt.replace(/[:.]/gu, "-");
+
+  return `pnpu-preview-mapeo-${source}-${timestamp}.json`;
 }
 
 function readApiResponse(payload: unknown): PublicationImportDiagnosisApiResponse {
