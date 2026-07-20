@@ -112,9 +112,9 @@ describe("PublicationImportDryRunService", () => {
     const dryRun = await service.dryRun({
       sourcePath: "Listado.xlsx",
       enrichmentCsv: [
-        "row,title,isbn,publisher,publisherAuthorityId,genreOrPublicationType,controlledTypeOrGenre,formats,digitalResourceUrl,language,subjects,license,notes",
-        "2,Libro listo,9789590000003,Editorial Universitaria,publisher-1,Libro,book,pdf,https://example.edu/libro.pdf,es,unesco:1203|unesco:5802,CC BY,",
-        "3,Libro incompleto,9789590000010,Editorial Universitaria,publisher-1,Libro,book,pdf,,es,unesco:1203,CC BY,",
+        "row,title,isbn,doi,publisher,publisherAuthorityId,genreOrPublicationType,controlledTypeOrGenre,formats,digitalResourceUrl,language,subjects,license,notes",
+        "2,Libro listo,9789590000003,10.1234/example,Editorial Universitaria,publisher-1,Libro,book,pdf,https://example.edu/libro.pdf,es,unesco:1203|unesco:5802,CC BY,",
+        "3,Libro incompleto,9789590000010,,Editorial Universitaria,publisher-1,Libro,book,pdf,,es,unesco:1203,CC BY,",
       ].join("\n"),
     });
 
@@ -127,6 +127,7 @@ describe("PublicationImportDryRunService", () => {
     });
     expect(dryRun.candidates[0]).toMatchObject({
       decision: "ready",
+      doi: "10.1234/example",
       language: "es",
       subjects: ["unesco:1203", "unesco:5802"],
     });

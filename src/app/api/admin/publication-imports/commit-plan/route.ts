@@ -24,8 +24,8 @@ export async function POST(request: Request): Promise<NextResponse> {
       throw ApplicationError.validation("Publication import packageJson is required.");
     }
 
-    const service = createPublicationImportCommitPlanService();
-    const commitPlan = service.plan({
+    const service = await createPublicationImportCommitPlanService();
+    const commitPlan = await service.plan({
       packageJson: body.packageJson,
     });
 

@@ -328,14 +328,14 @@ Razon:
 - las editoriales ya existen antes de la plataforma;
 - cada editorial posee informacion bibliografica anterior que debe subirse;
 - la carga manual registro a registro no escala para el arranque nacional;
-- el flujo actual ya permite diagnostico, enriquecimiento, dry-run, paquete validado y plan de
-  commit no ejecutado.
+- el flujo actual ya permite diagnostico, enriquecimiento, dry-run, paquete validado, plan de
+  commit no ejecutado y deteccion de ISBN/DOI existentes contra el catalogo activo.
 
 Pendiente para una etapa posterior:
 
 - aprobar una ADR de escritura controlada hacia Omeka S;
 - definir el mapeo final de candidatos `ready` a resource templates PNPU en Omeka S;
-- definir reglas de deduplicacion contra items existentes;
+- ampliar reglas de deduplicacion contra items existentes para otros identificadores institucionales;
 - definir rollback operativo de importacion;
 - definir auditoria de lote importado;
 - reemplazar el token operativo temporal por autenticacion/autorizacion institucional.

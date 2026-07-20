@@ -4,6 +4,7 @@ import {
   PublicationImportCommitPlanRiskDto,
   PublicationImportDryRunCandidateDto,
 } from "../dtos";
+import { PublicationImportDuplicateLookup } from "../ports/publication-import-duplicate-lookup";
 import { PublicationImportDiagnosisServiceOptions } from "./publication-import-diagnosis-service";
 
 import { ApplicationError } from "@/modules/catalog/application";
@@ -22,11 +23,19 @@ interface ReadyImportPackage {
 }
 
 export class PublicationImportCommitPlanService {
-  public constructor(private readonly options: PublicationImportDiagnosisServiceOptions) {}
+  public constructor(
+    private readonly options: PublicationImportDiagnosisServiceOptions,
+    private readonly duplicateLookup?: PublicationImportDuplicateLookup,
+  ) {}
 
-  public plan(command: PublicationImportCommitPlanCommand): PublicationImportCommitPlanDto {
+  public async plan(
+    command: PublicationImportCommitPlanCommand,
+  ): Promise<PublicationImportCommitPlanDto> {
     const importPackage = readReadyImportPackage(command.packageJson);
-    const risks = buildPackageRisks(importPackage);
+    const risks = [
+      ...buildPackageRisks(importPackage),
+      ...(await this.buildExistingPublicationRisks(importPackage)),
+    ];
     const operations = buildOperations(importPackage, risks);
 
     return {
@@ -43,6 +52,57 @@ export class PublicationImportCommitPlanService {
       risks,
     };
   }
+
+  private async buildExistingPublicationRisks(
+    importPackage: ReadyImportPackage,
+  ): Promise<readonly PublicationImportCommitPlanRiskDto[]> {
+    if (this.duplicateLookup === undefined) {
+      return [];
+    }
+
+    const matches = await this.duplicateLookup.findMatches(
+      importPackage.candidates.flatMap((candidate) => [
+        ...(candidate.isbn.trim().length > 0
+          ? [{ type: "isbn" as const, value: candidate.isbn }]
+          : []),
+        ...(candidate.doi !== undefined && candidate.doi.trim().length > 0
+          ? [{ type: "doi" as const, value: candidate.doi }]
+          : []),
+      ]),
+    );
+    const matchesByIdentifier = new Map(
+      matches.map((match) => [
+        buildIdentifierKey(match.identifierType, match.identifierValue),
+        match,
+      ]),
+    );
+
+    return importPackage.candidates
+      .map((candidate): PublicationImportCommitPlanRiskDto | null => {
+        const match =
+          matchesByIdentifier.get(buildIdentifierKey("isbn", candidate.isbn)) ??
+          (candidate.doi === undefined
+            ? undefined
+            : matchesByIdentifier.get(buildIdentifierKey("doi", candidate.doi)));
+
+        if (match === undefined) {
+          return null;
+        }
+
+        return {
+          row: candidate.row,
+          code: "existing_identifier_match",
+          message: `Ya existe una publicacion en Omeka con ${match.identifierType.toUpperCase()} ${match.identifierValue}: ${match.title} (${match.publicationId}).`,
+        };
+      })
+      .filter(isCommitPlanRisk);
+  }
+}
+
+function isCommitPlanRisk(
+  risk: PublicationImportCommitPlanRiskDto | null,
+): risk is PublicationImportCommitPlanRiskDto {
+  return risk !== null;
 }
 
 function readReadyImportPackage(packageJson: string): ReadyImportPackage {
@@ -98,6 +158,7 @@ function readReadyCandidate(candidate: unknown): PublicationImportDryRunCandidat
     row: readPositiveInteger(candidate.row),
     title: readString(candidate.title),
     isbn: readString(candidate.isbn),
+    doi: readOptionalString(candidate.doi),
     publisher: readString(candidate.publisher),
     publisherAuthorityId: readString(candidate.publisherAuthorityId),
     typeOrGenre: readString(candidate.typeOrGenre),
@@ -241,6 +302,7 @@ function buildCandidateOperations(
       payload: {
         title: candidate.title,
         isbn: candidate.isbn,
+        doi: candidate.doi ?? "",
         language: candidate.language,
         license: candidate.license,
         typeOrGenre: candidate.typeOrGenre,
@@ -283,6 +345,12 @@ function readString(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
+function readOptionalString(value: unknown): string | undefined {
+  const normalizedValue = readString(value);
+
+  return normalizedValue.length === 0 ? undefined : normalizedValue;
+}
+
 function readStringArray(value: unknown): readonly string[] {
   if (!Array.isArray(value)) {
     return [];
@@ -298,4 +366,8 @@ function readPositiveInteger(value: unknown): number {
   }
 
   return numberValue;
+}
+
+function buildIdentifierKey(type: string, value: string): string {
+  return `${type}:${value.trim().toLowerCase()}`;
 }

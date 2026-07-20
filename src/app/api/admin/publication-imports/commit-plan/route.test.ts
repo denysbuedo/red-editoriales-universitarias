@@ -111,7 +111,7 @@ function buildReadyPackage(): unknown {
       {
         row: 2,
         title: "Libro listo",
-        isbn: "9789590000003",
+        isbn: "9789590000997",
         publisher: "Editorial Universitaria",
         publisherAuthorityId: "publisher-1",
         typeOrGenre: "book",

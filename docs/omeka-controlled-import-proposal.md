@@ -191,6 +191,7 @@ El servicio:
 - rechaza paquetes que no tengan manifiesto `validated_not_imported`;
 - rechaza candidatos que no esten en decision `ready`;
 - detecta ISBN duplicados dentro del paquete;
+- consulta el catalogo activo para detectar publicaciones existentes por ISBN o DOI;
 - detecta campos requeridos faltantes;
 - devuelve operaciones proyectadas:
   - `createPublicationItem`;
@@ -203,6 +204,9 @@ El servicio:
 
 Si existen riesgos, el plan queda en estado `blocked`. Si no existen riesgos, queda en
 `planned_not_executed`.
+
+El DOI es opcional en el CSV de enriquecimiento. Cuando se informa, el plan de commit lo conserva
+en el paquete y lo usa como identificador de deduplicacion contra el catalogo activo.
 
 ## 14. Siguiente incremento futuro
 

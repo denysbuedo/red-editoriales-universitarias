@@ -462,7 +462,8 @@ paths:
       operationId: planPublicationImportCommit
       summary: Genera un plan operativo de escritura para un paquete validado.
       description: >
-        Valida un paquete JSON exportado por el dry-run y devuelve operaciones proyectadas y riesgos
+        Valida un paquete JSON exportado por el dry-run, consulta el catálogo activo para detectar
+        duplicados existentes por ISBN o DOI y devuelve operaciones proyectadas y riesgos
         bloqueantes. No escribe en Omeka S ni PostgreSQL.
       tags:
         - Admin
@@ -1670,6 +1671,8 @@ components:
         title:
           type: string
         isbn:
+          type: string
+        doi:
           type: string
         publisher:
           type: string

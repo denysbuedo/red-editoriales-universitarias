@@ -17,6 +17,7 @@ export interface PublicationImportDryRunCommand extends DiagnosePublicationImpor
 
 interface EnrichmentRow {
   readonly row: number;
+  readonly doi: string;
   readonly publisherAuthorityId: string;
   readonly controlledTypeOrGenre: string;
   readonly digitalResourceUrl: string;
@@ -69,6 +70,7 @@ function buildCandidate(
       row: row.row,
       title: row.title,
       isbn: row.normalizedIsbn,
+      doi: enrichment?.doi,
       publisher: row.publisher,
       publisherAuthorityId: enrichment?.publisherAuthorityId ?? "",
       typeOrGenre: enrichment?.controlledTypeOrGenre ?? "",
@@ -88,6 +90,7 @@ function buildCandidate(
     row: row.row,
     title: row.title,
     isbn: row.normalizedIsbn,
+    doi: enrichment?.doi,
     publisher: row.publisher,
     publisherAuthorityId: enrichment?.publisherAuthorityId ?? "",
     typeOrGenre: enrichment?.controlledTypeOrGenre ?? "",
@@ -160,6 +163,7 @@ function parseEnrichmentCsv(csv: string): readonly EnrichmentRow[] {
 
       return {
         row: rowNumber,
+        doi: readCsvCell(row, columnByName, "doi"),
         publisherAuthorityId: readCsvCell(row, columnByName, "publisherAuthorityId"),
         controlledTypeOrGenre: readCsvCell(row, columnByName, "controlledTypeOrGenre"),
         digitalResourceUrl: readCsvCell(row, columnByName, "digitalResourceUrl"),

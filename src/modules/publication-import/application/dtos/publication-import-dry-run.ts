@@ -6,6 +6,7 @@ export interface PublicationImportDryRunCandidateDto {
   readonly row: number;
   readonly title: string;
   readonly isbn: string;
+  readonly doi?: string;
   readonly publisher: string;
   readonly publisherAuthorityId: string;
   readonly typeOrGenre: string;
