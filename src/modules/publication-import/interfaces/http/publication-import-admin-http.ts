@@ -13,7 +13,9 @@ interface AdminAuthEnvironment {
   readonly PNPU_ADMIN_REQUIRED_ROLE?: string;
   readonly PNPU_OIDC_AUDIENCE?: string;
   readonly PNPU_OIDC_CLIENT_ID?: string;
+  readonly PNPU_OIDC_CLIENT_SECRET?: string;
   readonly PNPU_OIDC_ISSUER?: string;
+  readonly PNPU_OIDC_SCOPES?: string;
   readonly PNPU_PUBLICATION_IMPORT_TOKEN?: string;
 }
 
@@ -29,6 +31,7 @@ interface JwtPayload {
   readonly groups?: readonly string[];
   readonly iss?: string;
   readonly nbf?: number;
+  readonly nonce?: string;
   readonly realm_access?: {
     readonly roles?: readonly string[];
   };
@@ -49,12 +52,25 @@ interface OidcJsonWebKey extends JsonWebKey {
 }
 
 interface OidcDiscoveryDocument {
+  readonly authorization_endpoint?: string;
   readonly jwks_uri?: string;
   readonly issuer?: string;
+  readonly token_endpoint?: string;
+}
+
+interface OidcTokenResponse {
+  readonly access_token?: string;
+  readonly id_token?: string;
+  readonly token_type?: string;
 }
 
 const oidcDiscoveryCache = new Map<string, OidcDiscoveryDocument>();
 const jwksCache = new Map<string, JwksDocument>();
+const ADMIN_SESSION_COOKIE = "pnpu_admin_session";
+const OIDC_CODE_VERIFIER_COOKIE = "pnpu_oidc_code_verifier";
+const OIDC_NONCE_COOKIE = "pnpu_oidc_nonce";
+const OIDC_RETURN_TO_COOKIE = "pnpu_oidc_return_to";
+const OIDC_STATE_COOKIE = "pnpu_oidc_state";
 
 export async function authorizePublicationImportAdminRequest(
   request: Request,
@@ -94,6 +110,173 @@ export async function authorizePublicationImportAdminRequest(
 export function resetPublicationImportAdminAuthCachesForTests(): void {
   oidcDiscoveryCache.clear();
   jwksCache.clear();
+}
+
+export async function buildPublicationImportAdminLoginResponse(
+  request: Request,
+): Promise<NextResponse> {
+  const config = readOidcAdminConfig(process.env);
+
+  if (config === null) {
+    return NextResponse.json(
+      {
+        code: "PNPU-503",
+        message: "Publication import admin login endpoint is not configured.",
+      },
+      { status: 503 },
+    );
+  }
+
+  const discovery = await readOidcDiscovery(config.issuer, fetch);
+
+  if (discovery.authorization_endpoint === undefined) {
+    return NextResponse.json(
+      {
+        code: "PNPU-503",
+        message: "Publication import admin login endpoint is not configured.",
+      },
+      { status: 503 },
+    );
+  }
+
+  const requestUrl = new URL(request.url);
+  const state = randomBase64Url(32);
+  const nonce = randomBase64Url(32);
+  const codeVerifier = randomBase64Url(64);
+  const codeChallenge = await sha256Base64Url(codeVerifier);
+  const authorizationUrl = new URL(discovery.authorization_endpoint);
+
+  authorizationUrl.searchParams.set("client_id", config.clientId);
+  authorizationUrl.searchParams.set("code_challenge", codeChallenge);
+  authorizationUrl.searchParams.set("code_challenge_method", "S256");
+  authorizationUrl.searchParams.set("nonce", nonce);
+  authorizationUrl.searchParams.set("redirect_uri", `${requestUrl.origin}/api/admin/auth/callback`);
+  authorizationUrl.searchParams.set("response_type", "code");
+  authorizationUrl.searchParams.set("scope", config.scopes);
+  authorizationUrl.searchParams.set("state", state);
+
+  const response = NextResponse.redirect(authorizationUrl);
+  const cookieOptions = {
+    httpOnly: true,
+    maxAge: 600,
+    path: "/api/admin/auth",
+    sameSite: "lax" as const,
+    secure: requestUrl.protocol === "https:",
+  };
+
+  response.cookies.set(OIDC_CODE_VERIFIER_COOKIE, codeVerifier, cookieOptions);
+  response.cookies.set(OIDC_NONCE_COOKIE, nonce, cookieOptions);
+  response.cookies.set(OIDC_RETURN_TO_COOKIE, readSafeReturnTo(requestUrl), cookieOptions);
+  response.cookies.set(OIDC_STATE_COOKIE, state, cookieOptions);
+
+  return response;
+}
+
+export async function buildPublicationImportAdminCallbackResponse(
+  request: Request,
+): Promise<NextResponse> {
+  const config = readOidcAdminConfig(process.env);
+  const requestUrl = new URL(request.url);
+  const code = requestUrl.searchParams.get("code");
+  const state = requestUrl.searchParams.get("state");
+  const cookies = readCookieMap(request.headers.get("Cookie"));
+  const expectedState = cookies.get(OIDC_STATE_COOKIE);
+  const codeVerifier = cookies.get(OIDC_CODE_VERIFIER_COOKIE);
+  const nonce = cookies.get(OIDC_NONCE_COOKIE);
+  const returnTo = cookies.get(OIDC_RETURN_TO_COOKIE) ?? "/admin/importaciones/publicaciones";
+
+  if (
+    config === null ||
+    code === null ||
+    state === null ||
+    expectedState === undefined ||
+    codeVerifier === undefined ||
+    nonce === undefined ||
+    state !== expectedState
+  ) {
+    return NextResponse.json(
+      {
+        code: "PNPU-403",
+        message: "Publication import admin login callback is invalid.",
+      },
+      { status: 403 },
+    );
+  }
+
+  const discovery = await readOidcDiscovery(config.issuer, fetch);
+
+  if (discovery.token_endpoint === undefined) {
+    return NextResponse.json(
+      {
+        code: "PNPU-503",
+        message: "Publication import admin login endpoint is not configured.",
+      },
+      { status: 503 },
+    );
+  }
+
+  try {
+    const tokenResponse = await exchangeAuthorizationCode({
+      clientId: config.clientId,
+      clientSecret: config.clientSecret,
+      code,
+      codeVerifier,
+      redirectUri: `${requestUrl.origin}/api/admin/auth/callback`,
+      tokenEndpoint: discovery.token_endpoint,
+    });
+    const sessionToken = tokenResponse.access_token ?? tokenResponse.id_token;
+
+    if (sessionToken === undefined) {
+      throw new Error("OIDC token response does not include a session token.");
+    }
+
+    const payload = await verifyOidcJwt(sessionToken, config, fetch);
+
+    if (sessionToken === tokenResponse.id_token && payload.nonce !== nonce) {
+      throw new Error("OIDC ID token nonce is invalid.");
+    }
+
+    if (!hasRequiredRole(payload, config.requiredRole, config.clientId)) {
+      throw new Error("OIDC token does not include the required role.");
+    }
+
+    const response = NextResponse.redirect(new URL(readSafeReturnToValue(returnTo), requestUrl));
+
+    response.cookies.set(ADMIN_SESSION_COOKIE, sessionToken, {
+      httpOnly: true,
+      maxAge: 60 * 60 * 8,
+      path: "/",
+      sameSite: "lax",
+      secure: requestUrl.protocol === "https:",
+    });
+    clearOidcTemporaryCookies(response);
+
+    return response;
+  } catch {
+    return NextResponse.json(
+      {
+        code: "PNPU-403",
+        message: "Publication import admin login callback is invalid.",
+      },
+      { status: 403 },
+    );
+  }
+}
+
+export function buildPublicationImportAdminLogoutResponse(request: Request): NextResponse {
+  const requestUrl = new URL(request.url);
+  const response = NextResponse.redirect(new URL("/", requestUrl));
+
+  response.cookies.set(ADMIN_SESSION_COOKIE, "", {
+    httpOnly: true,
+    maxAge: 0,
+    path: "/",
+    sameSite: "lax",
+    secure: requestUrl.protocol === "https:",
+  });
+  clearOidcTemporaryCookies(response);
+
+  return response;
 }
 
 function authorizeWithStaticToken(
@@ -143,7 +326,10 @@ async function authorizeWithOidcBearer(
   environment: AdminAuthEnvironment,
   fetchFn: FetchLike,
 ): Promise<NextResponse | null> {
-  const bearerToken = readBearerToken(request);
+  const bearerToken =
+    readBearerToken(request) ??
+    readCookieMap(request.headers.get("Cookie")).get(ADMIN_SESSION_COOKIE) ??
+    null;
 
   if (bearerToken === null) {
     return NextResponse.json(
@@ -246,8 +432,10 @@ function readAdminAuthMode(environment: AdminAuthEnvironment): AdminAuthMode {
 function readOidcAdminConfig(environment: AdminAuthEnvironment): {
   readonly audience: string;
   readonly clientId: string;
+  readonly clientSecret?: string;
   readonly issuer: string;
   readonly requiredRole: string;
+  readonly scopes: string;
 } | null {
   const issuer = environment.PNPU_OIDC_ISSUER?.trim();
   const audience = environment.PNPU_OIDC_AUDIENCE?.trim();
@@ -270,7 +458,9 @@ function readOidcAdminConfig(environment: AdminAuthEnvironment): {
     issuer: new URL(issuer).toString().replace(/\/$/, ""),
     audience,
     clientId,
+    clientSecret: environment.PNPU_OIDC_CLIENT_SECRET?.trim(),
     requiredRole,
+    scopes: readOidcScopes(environment),
   };
 }
 
@@ -286,6 +476,12 @@ function readBearerToken(request: Request): string | null {
   const token = parts[1] ?? "";
 
   return scheme.toLowerCase() === "bearer" && token.length > 0 ? token : null;
+}
+
+function readOidcScopes(environment: AdminAuthEnvironment): string {
+  const scopes = environment.PNPU_OIDC_SCOPES?.trim();
+
+  return scopes !== undefined && scopes.length > 0 ? scopes : "openid profile email";
 }
 
 async function verifyOidcJwt(
@@ -428,6 +624,48 @@ async function readJwks(issuer: string, fetchFn: FetchLike): Promise<JwksDocumen
   return payload;
 }
 
+async function exchangeAuthorizationCode(command: {
+  readonly clientId: string;
+  readonly clientSecret?: string;
+  readonly code: string;
+  readonly codeVerifier: string;
+  readonly redirectUri: string;
+  readonly tokenEndpoint: string;
+}): Promise<OidcTokenResponse> {
+  const body = new URLSearchParams({
+    client_id: command.clientId,
+    code: command.code,
+    code_verifier: command.codeVerifier,
+    grant_type: "authorization_code",
+    redirect_uri: command.redirectUri,
+  });
+
+  if (command.clientSecret !== undefined && command.clientSecret.length > 0) {
+    body.set("client_secret", command.clientSecret);
+  }
+
+  const response = await fetch(command.tokenEndpoint, {
+    body,
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    method: "POST",
+  });
+
+  if (!response.ok) {
+    throw new Error("OIDC token exchange failed.");
+  }
+
+  const payload = (await response.json()) as unknown;
+
+  if (!isOidcTokenResponse(payload)) {
+    throw new Error("OIDC token response is invalid.");
+  }
+
+  return payload;
+}
+
 async function readOidcDiscovery(
   issuer: string,
   fetchFn: FetchLike,
@@ -479,6 +717,75 @@ function base64UrlToBytes(value: string): Uint8Array {
   return bytes;
 }
 
+function base64UrlEncode(bytes: Uint8Array): string {
+  let binary = "";
+
+  for (const byte of bytes) {
+    binary += String.fromCharCode(byte);
+  }
+
+  return btoa(binary).replace(/\+/gu, "-").replace(/\//gu, "_").replace(/=+$/u, "");
+}
+
+function randomBase64Url(byteLength: number): string {
+  const bytes = new Uint8Array(byteLength);
+  crypto.getRandomValues(bytes);
+
+  return base64UrlEncode(bytes);
+}
+
+async function sha256Base64Url(value: string): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+
+  return base64UrlEncode(new Uint8Array(digest));
+}
+
+function readCookieMap(header: string | null): ReadonlyMap<string, string> {
+  const values = new Map<string, string>();
+
+  if (header === null || header.trim().length === 0) {
+    return values;
+  }
+
+  for (const part of header.split(";")) {
+    const [name, ...rawValue] = part.trim().split("=");
+
+    if (name.length > 0) {
+      values.set(name, decodeURIComponent(rawValue.join("=")));
+    }
+  }
+
+  return values;
+}
+
+function readSafeReturnTo(requestUrl: URL): string {
+  return readSafeReturnToValue(
+    requestUrl.searchParams.get("returnTo") ?? "/admin/importaciones/publicaciones",
+  );
+}
+
+function readSafeReturnToValue(value: string): string {
+  return value.startsWith("/admin/") && !value.startsWith("//")
+    ? value
+    : "/admin/importaciones/publicaciones";
+}
+
+function clearOidcTemporaryCookies(response: NextResponse): void {
+  for (const name of [
+    OIDC_CODE_VERIFIER_COOKIE,
+    OIDC_NONCE_COOKIE,
+    OIDC_RETURN_TO_COOKIE,
+    OIDC_STATE_COOKIE,
+  ]) {
+    response.cookies.set(name, "", {
+      httpOnly: true,
+      maxAge: 0,
+      path: "/api/admin/auth",
+      sameSite: "lax",
+    });
+  }
+}
+
 function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
   const buffer = new ArrayBuffer(bytes.byteLength);
   new Uint8Array(buffer).set(bytes);
@@ -498,4 +805,8 @@ function isJwksDocument(value: unknown): value is JwksDocument {
     "keys" in value &&
     Array.isArray(value.keys)
   );
+}
+
+function isOidcTokenResponse(value: unknown): value is OidcTokenResponse {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }

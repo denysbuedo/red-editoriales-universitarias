@@ -4,6 +4,9 @@ import { ApplicationError } from "@/modules/catalog/application";
 
 import {
   authorizePublicationImportAdminRequest,
+  buildPublicationImportAdminCallbackResponse,
+  buildPublicationImportAdminLoginResponse,
+  buildPublicationImportAdminLogoutResponse,
   publicationImportAdminErrorResponse,
   resetPublicationImportAdminAuthCachesForTests,
 } from "./publication-import-admin-http";
@@ -249,6 +252,163 @@ describe("publication import admin HTTP helpers", () => {
     }
   });
 
+  it("builds an OIDC login redirect with PKCE cookies", async () => {
+    const previousIssuer = process.env.PNPU_OIDC_ISSUER;
+    const previousAudience = process.env.PNPU_OIDC_AUDIENCE;
+    const previousClientId = process.env.PNPU_OIDC_CLIENT_ID;
+    const issuer = "https://keycloak.example.edu/realms/pnpu";
+    process.env.PNPU_OIDC_ISSUER = issuer;
+    process.env.PNPU_OIDC_AUDIENCE = "pnpu-portal";
+    process.env.PNPU_OIDC_CLIENT_ID = "pnpu-portal";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() =>
+        Promise.resolve(
+          Response.json({
+            authorization_endpoint: `${issuer}/protocol/openid-connect/auth`,
+            issuer,
+            jwks_uri: `${issuer}/protocol/openid-connect/certs`,
+            token_endpoint: `${issuer}/protocol/openid-connect/token`,
+          }),
+        ),
+      ),
+    );
+
+    try {
+      const response = await buildPublicationImportAdminLoginResponse(
+        new Request(
+          "https://pnpu.mes.gob.cu/api/admin/auth/login?returnTo=/admin/importaciones/publicaciones",
+        ),
+      );
+      const location = response.headers.get("Location");
+      const cookies = response.headers.get("Set-Cookie") ?? "";
+
+      expect(response.status).toBe(307);
+      expect(location).not.toBeNull();
+      expect(new URL(location ?? "").origin).toBe("https://keycloak.example.edu");
+      expect(new URL(location ?? "").searchParams.get("client_id")).toBe("pnpu-portal");
+      expect(new URL(location ?? "").searchParams.get("code_challenge_method")).toBe("S256");
+      expect(new URL(location ?? "").searchParams.get("redirect_uri")).toBe(
+        "https://pnpu.mes.gob.cu/api/admin/auth/callback",
+      );
+      expect(cookies).toContain("pnpu_oidc_code_verifier=");
+      expect(cookies).toContain("pnpu_oidc_nonce=");
+      expect(cookies).toContain("pnpu_oidc_return_to=%2Fadmin%2Fimportaciones%2Fpublicaciones");
+      expect(cookies).toContain("pnpu_oidc_state=");
+    } finally {
+      restoreEnvironmentValue("PNPU_OIDC_ISSUER", previousIssuer);
+      restoreEnvironmentValue("PNPU_OIDC_AUDIENCE", previousAudience);
+      restoreEnvironmentValue("PNPU_OIDC_CLIENT_ID", previousClientId);
+    }
+  });
+
+  it("exchanges an OIDC callback for an admin session cookie", async () => {
+    const previousIssuer = process.env.PNPU_OIDC_ISSUER;
+    const previousAudience = process.env.PNPU_OIDC_AUDIENCE;
+    const previousClientId = process.env.PNPU_OIDC_CLIENT_ID;
+    const previousRequiredRole = process.env.PNPU_ADMIN_REQUIRED_ROLE;
+    const issuer = "https://keycloak.example.edu/realms/pnpu";
+    const audience = "pnpu-portal";
+    const nonce = "expected-nonce";
+    const keyPair = await crypto.subtle.generateKey(
+      {
+        hash: "SHA-256",
+        modulusLength: 2048,
+        name: "RSASSA-PKCS1-v1_5",
+        publicExponent: new Uint8Array([1, 0, 1]),
+      },
+      true,
+      ["sign", "verify"],
+    );
+    const publicJwk = await crypto.subtle.exportKey("jwk", keyPair.publicKey);
+    const idToken = await signTestJwt(keyPair.privateKey, {
+      aud: audience,
+      exp: Math.floor(Date.now() / 1000) + 300,
+      iss: issuer,
+      nonce,
+      realm_access: {
+        roles: ["pnpu-admin"],
+      },
+    });
+    const fetchMock = vi.fn((input: string | URL | Request) => {
+      const url = input instanceof Request ? input.url : input.toString();
+
+      if (url.endsWith("/.well-known/openid-configuration")) {
+        return Promise.resolve(
+          Response.json({
+            authorization_endpoint: `${issuer}/protocol/openid-connect/auth`,
+            issuer,
+            jwks_uri: `${issuer}/protocol/openid-connect/certs`,
+            token_endpoint: `${issuer}/protocol/openid-connect/token`,
+          }),
+        );
+      }
+
+      if (url.endsWith("/protocol/openid-connect/token")) {
+        return Promise.resolve(
+          Response.json({
+            id_token: idToken,
+            token_type: "Bearer",
+          }),
+        );
+      }
+
+      return Promise.resolve(
+        Response.json({
+          keys: [
+            {
+              ...publicJwk,
+              alg: "RS256",
+              kid: "test-key",
+              use: "sig",
+            },
+          ],
+        }),
+      );
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    process.env.PNPU_OIDC_ISSUER = issuer;
+    process.env.PNPU_OIDC_AUDIENCE = audience;
+    process.env.PNPU_OIDC_CLIENT_ID = audience;
+    process.env.PNPU_ADMIN_REQUIRED_ROLE = "pnpu-admin";
+
+    try {
+      const response = await buildPublicationImportAdminCallbackResponse(
+        new Request("https://pnpu.mes.gob.cu/api/admin/auth/callback?code=abc&state=state-1", {
+          headers: {
+            Cookie:
+              "pnpu_oidc_code_verifier=verifier-1; pnpu_oidc_nonce=expected-nonce; pnpu_oidc_return_to=%2Fadmin%2Fimportaciones%2Fpublicaciones; pnpu_oidc_state=state-1",
+          },
+        }),
+      );
+      const cookies = response.headers.get("Set-Cookie") ?? "";
+
+      expect(response.status).toBe(307);
+      expect(response.headers.get("Location")).toBe(
+        "https://pnpu.mes.gob.cu/admin/importaciones/publicaciones",
+      );
+      expect(cookies).toContain("pnpu_admin_session=");
+      expect(cookies).toContain("HttpOnly");
+    } finally {
+      restoreEnvironmentValue("PNPU_OIDC_ISSUER", previousIssuer);
+      restoreEnvironmentValue("PNPU_OIDC_AUDIENCE", previousAudience);
+      restoreEnvironmentValue("PNPU_OIDC_CLIENT_ID", previousClientId);
+      restoreEnvironmentValue("PNPU_ADMIN_REQUIRED_ROLE", previousRequiredRole);
+    }
+  });
+
+  it("clears the OIDC admin session on logout", () => {
+    const response = buildPublicationImportAdminLogoutResponse(
+      new Request("https://pnpu.mes.gob.cu/api/admin/auth/logout"),
+    );
+    const cookies = response.headers.get("Set-Cookie") ?? "";
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("Location")).toBe("https://pnpu.mes.gob.cu/");
+    expect(cookies).toContain("pnpu_admin_session=");
+    expect(cookies).toContain("Max-Age=0");
+  });
+
   it("maps application errors to HTTP status codes with correlation ids", async () => {
     const response = publicationImportAdminErrorResponse(
       new Request("https://pnpu.mes.gob.cu/api/admin/publication-imports/rollback-plan", {
@@ -289,6 +449,14 @@ async function signTestJwt(
   );
 
   return `${signingInput}.${base64UrlEncode(signature)}`;
+}
+
+function restoreEnvironmentValue(name: string, value: string | undefined): void {
+  if (value === undefined) {
+    Reflect.deleteProperty(process.env, name);
+  } else {
+    process.env[name] = value;
+  }
 }
 
 function base64UrlEncode(value: string | ArrayBuffer): string {

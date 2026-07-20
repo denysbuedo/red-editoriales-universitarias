@@ -120,12 +120,17 @@ export function PublicationImportDiagnosisForm() {
     setAction(selectedAction);
 
     try {
+      const headers = new Headers({
+        "Content-Type": "application/json",
+      });
+
+      if (token.trim().length > 0) {
+        headers.set("X-PNPU-Admin-Token", token.trim());
+      }
+
       const response = await fetch(endpointForAction(selectedAction), {
         method: selectedAction === "authorities" || selectedAction === "history" ? "GET" : "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-PNPU-Admin-Token": token,
-        },
+        headers,
         body:
           selectedAction === "authorities" || selectedAction === "history"
             ? undefined
@@ -189,6 +194,20 @@ export function PublicationImportDiagnosisForm() {
         }}
       >
         <h2 className="text-xl font-semibold text-neutral-950">Ejecutar revisión</h2>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <a
+            className="inline-flex h-9 items-center rounded-md border border-green-800 px-3 text-sm font-semibold text-green-900 hover:bg-green-50"
+            href="/api/admin/auth/login?returnTo=/admin/importaciones/publicaciones"
+          >
+            Iniciar sesión
+          </a>
+          <a
+            className="inline-flex h-9 items-center rounded-md border border-neutral-500 px-3 text-sm font-semibold text-neutral-800 hover:bg-neutral-50"
+            href="/api/admin/auth/logout"
+          >
+            Cerrar sesión
+          </a>
+        </div>
         <div className="mt-5 grid gap-4">
           <label className="grid gap-1 text-sm font-medium text-neutral-800">
             Archivo XLSX
@@ -217,14 +236,13 @@ export function PublicationImportDiagnosisForm() {
             />
           </label>
           <label className="grid gap-1 text-sm font-medium text-neutral-800">
-            Token administrativo
+            Token administrativo local
             <input
               autoComplete="off"
               className="h-10 rounded-md border border-neutral-300 px-3 text-sm font-normal text-neutral-950"
               onChange={(event) => {
                 setToken(event.target.value);
               }}
-              required
               type="password"
               value={token}
             />

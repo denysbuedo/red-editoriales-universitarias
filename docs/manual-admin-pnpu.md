@@ -245,7 +245,7 @@ Los endpoints administrativos de importacion pueden operar en tres modos:
 | --- | --- |
 | `token` | Desarrollo local con `X-PNPU-Admin-Token` |
 | `hybrid` | Transicion entre token local y OIDC |
-| `oidc` | Produccion con Keycloak/OIDC |
+| `oidc` | Produccion con Keycloak/OIDC y segundo factor institucional |
 
 Variables principales:
 
@@ -255,10 +255,27 @@ PNPU_ADMIN_REQUIRED_ROLE=pnpu-admin
 PNPU_OIDC_ISSUER=https://keycloak.example.edu/realms/pnpu
 PNPU_OIDC_AUDIENCE=pnpu-portal
 PNPU_OIDC_CLIENT_ID=pnpu-portal
+PNPU_OIDC_SCOPES=openid profile email
+```
+
+PNPU no almacena contrasenas de administradores. El usuario, la contrasena, el segundo factor y las
+politicas de acceso se administran en Keycloak o en el proveedor OIDC institucional. En produccion,
+el JWT OIDC debe incluir el rol requerido.
+
+Para abrir la pantalla administrativa con OIDC:
+
+```text
+https://<dominio-pnpu>/api/admin/auth/login?returnTo=/admin/importaciones/publicaciones
+```
+
+Para salir de la sesion PNPU:
+
+```text
+https://<dominio-pnpu>/api/admin/auth/logout
 ```
 
 El token local `PNPU_PUBLICATION_IMPORT_TOKEN` solo debe usarse en desarrollo o transicion
-controlada. En produccion, el JWT OIDC debe incluir el rol requerido.
+controlada.
 
 Para abrir la pantalla administrativa en desarrollo local:
 

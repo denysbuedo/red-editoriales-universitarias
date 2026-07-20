@@ -330,6 +330,76 @@ paths:
             application/yaml:
               schema:
                 type: string
+  /api/admin/auth/login:
+    get:
+      operationId: startAdminOidcLogin
+      summary: Inicia el login OIDC administrativo.
+      description: >
+        Redirige al proveedor OIDC institucional usando Authorization Code con PKCE. PNPU no
+        almacena usuarios ni contraseñas.
+      tags:
+        - Admin
+      parameters:
+        - name: returnTo
+          in: query
+          required: false
+          description: Ruta administrativa relativa a la que se vuelve despues del login.
+          schema:
+            type: string
+            default: /admin/importaciones/publicaciones
+      responses:
+        "307":
+          description: Redirección al authorization endpoint OIDC.
+        "503":
+          description: Login OIDC no configurado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/admin/auth/callback:
+    get:
+      operationId: completeAdminOidcLogin
+      summary: Completa el callback OIDC administrativo.
+      description: >
+        Intercambia el código OIDC, valida el JWT y emite una cookie HTTP-only de sesión
+        administrativa.
+      tags:
+        - Admin
+      parameters:
+        - name: code
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: state
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "307":
+          description: Redirección a la pantalla administrativa solicitada.
+        "403":
+          description: Callback inválido o token OIDC sin rol administrativo.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Login OIDC no configurado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/admin/auth/logout:
+    get:
+      operationId: logoutAdminOidcSession
+      summary: Cierra la sesión administrativa local de PNPU.
+      tags:
+        - Admin
+      responses:
+        "307":
+          description: Redirección al inicio despues de limpiar la cookie administrativa.
   /api/admin/publication-imports/diagnose:
     post:
       operationId: diagnosePublicationImport

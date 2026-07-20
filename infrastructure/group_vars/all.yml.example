@@ -32,3 +32,5 @@ pnpu_admin_required_role: pnpu-admin
 pnpu_oidc_issuer: ""
 pnpu_oidc_audience: ""
 pnpu_oidc_client_id: ""
+pnpu_oidc_client_secret: ""
+pnpu_oidc_scopes: openid profile email
