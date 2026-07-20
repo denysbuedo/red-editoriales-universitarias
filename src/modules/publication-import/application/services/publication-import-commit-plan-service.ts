@@ -13,7 +13,7 @@ export interface PublicationImportCommitPlanCommand {
   readonly packageJson: string;
 }
 
-interface ReadyImportPackage {
+export interface ReadyPublicationImportPackage {
   readonly manifest: {
     readonly source: string;
     readonly sheet: string;
@@ -31,7 +31,7 @@ export class PublicationImportCommitPlanService {
   public async plan(
     command: PublicationImportCommitPlanCommand,
   ): Promise<PublicationImportCommitPlanDto> {
-    const importPackage = readReadyImportPackage(command.packageJson);
+    const importPackage = readReadyPublicationImportPackage(command.packageJson);
     const risks = [
       ...buildPackageRisks(importPackage),
       ...(await this.buildExistingPublicationRisks(importPackage)),
@@ -54,7 +54,7 @@ export class PublicationImportCommitPlanService {
   }
 
   private async buildExistingPublicationRisks(
-    importPackage: ReadyImportPackage,
+    importPackage: ReadyPublicationImportPackage,
   ): Promise<readonly PublicationImportCommitPlanRiskDto[]> {
     if (this.duplicateLookup === undefined) {
       return [];
@@ -105,7 +105,9 @@ function isCommitPlanRisk(
   return risk !== null;
 }
 
-function readReadyImportPackage(packageJson: string): ReadyImportPackage {
+export function readReadyPublicationImportPackage(
+  packageJson: string,
+): ReadyPublicationImportPackage {
   if (packageJson.trim().length === 0) {
     throw ApplicationError.validation("Publication import packageJson is required.");
   }
@@ -156,6 +158,7 @@ function readReadyCandidate(candidate: unknown): PublicationImportDryRunCandidat
 
   return {
     row: readPositiveInteger(candidate.row),
+    pnpuUuid: readString(candidate.pnpuUuid),
     title: readString(candidate.title),
     isbn: readString(candidate.isbn),
     doi: readOptionalString(candidate.doi),
@@ -175,7 +178,7 @@ function readReadyCandidate(candidate: unknown): PublicationImportDryRunCandidat
 }
 
 function buildPackageRisks(
-  importPackage: ReadyImportPackage,
+  importPackage: ReadyPublicationImportPackage,
 ): readonly PublicationImportCommitPlanRiskDto[] {
   const risks: PublicationImportCommitPlanRiskDto[] = [];
   const isbnRows = new Map<string, number[]>();
@@ -207,6 +210,13 @@ function appendCandidateRisks(
   candidate: PublicationImportDryRunCandidateDto,
 ): void {
   appendMissingRisk(risks, candidate.row, "missing_title", "Titulo requerido.", candidate.title);
+  appendMissingRisk(
+    risks,
+    candidate.row,
+    "missing_pnpu_uuid",
+    "PNPU UUID requerido.",
+    candidate.pnpuUuid,
+  );
   appendMissingRisk(risks, candidate.row, "missing_isbn", "ISBN requerido.", candidate.isbn);
   appendMissingRisk(
     risks,
@@ -288,7 +298,7 @@ function appendMissingRisk(
 }
 
 function buildOperations(
-  importPackage: ReadyImportPackage,
+  importPackage: ReadyPublicationImportPackage,
   risks: readonly PublicationImportCommitPlanRiskDto[],
 ): readonly PublicationImportCommitPlanOperationDto[] {
   const riskyRows = new Set(
@@ -325,6 +335,7 @@ function buildCandidateOperations(
       target,
       payload: {
         title: candidate.title,
+        pnpuUuid: candidate.pnpuUuid,
         isbn: candidate.isbn,
         doi: candidate.doi ?? "",
         publicationDate: candidate.publicationDate,

@@ -500,6 +500,48 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /api/admin/publication-imports/commit:
+    post:
+      operationId: commitPublicationImport
+      summary: Ejecuta escritura controlada de un paquete validado hacia Omeka S.
+      description: >
+        Ejecuta el plan de commit y crea Items/Media en Omeka S solo si no existen riesgos
+        bloqueantes y `PNPU_OMEKA_IMPORT_ENABLED=true`.
+      tags:
+        - Admin
+      security:
+        - PublicationImportToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PublicationImportCommitPlanRequest"
+      responses:
+        "200":
+          description: Resultado de escritura en Omeka S.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicationImportCommitResponse"
+        "403":
+          description: Token administrativo inválido.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: Paquete inválido o plan bloqueado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Escritura no configurada o Omeka no disponible.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /api/admin/publication-imports/authorities:
     get:
       operationId: listPublicationImportAuthorities
@@ -1555,6 +1597,7 @@ components:
       additionalProperties: false
       required:
         - row
+        - pnpuUuid
         - title
         - isbn
         - normalizedIsbn
@@ -1571,6 +1614,8 @@ components:
         row:
           type: integer
           minimum: 1
+        pnpuUuid:
+          type: string
         title:
           type: string
         isbn:
@@ -1865,6 +1910,79 @@ components:
       properties:
         data:
           $ref: "#/components/schemas/PublicationImportCommitPlan"
+        meta:
+          $ref: "#/components/schemas/ApiMeta"
+    PublicationImportCommit:
+      type: object
+      additionalProperties: false
+      required:
+        - generatedAt
+        - source
+        - sheet
+        - status
+        - summary
+        - created
+      properties:
+        generatedAt:
+          type: string
+          format: date-time
+        source:
+          type: string
+        sheet:
+          type: string
+        status:
+          type: string
+          enum:
+            - committed
+        summary:
+          type: object
+          additionalProperties: false
+          required:
+            - candidates
+            - createdItems
+            - createdMedia
+          properties:
+            candidates:
+              type: integer
+              minimum: 0
+            createdItems:
+              type: integer
+              minimum: 0
+            createdMedia:
+              type: integer
+              minimum: 0
+        created:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicationImportCommitCreatedResource"
+    PublicationImportCommitCreatedResource:
+      type: object
+      additionalProperties: false
+      required:
+        - row
+        - pnpuUuid
+        - omekaItemId
+      properties:
+        row:
+          type: integer
+          minimum: 1
+        pnpuUuid:
+          type: string
+        omekaItemId:
+          type: integer
+          minimum: 1
+        omekaMediaId:
+          type: integer
+          minimum: 1
+    PublicationImportCommitResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          $ref: "#/components/schemas/PublicationImportCommit"
         meta:
           $ref: "#/components/schemas/ApiMeta"
     PublicationImportAuthorities:

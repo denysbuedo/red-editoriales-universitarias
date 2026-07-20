@@ -5,6 +5,7 @@ import { SyntheticEvent, useState } from "react";
 import {
   PublicationImportBatchSnapshot,
   PublicationImportAuthoritiesDto,
+  PublicationImportCommitDto,
   PublicationImportCommitPlanDto,
   PublicationImportDryRunDto,
   PublicationImportMappingPreviewDto,
@@ -38,6 +39,13 @@ interface PublicationImportCommitPlanApiResponse {
   };
 }
 
+interface PublicationImportCommitApiResponse {
+  readonly data: PublicationImportCommitDto;
+  readonly meta: {
+    readonly apiVersion: "v1";
+  };
+}
+
 interface PublicationImportAuthoritiesApiResponse {
   readonly data: PublicationImportAuthoritiesDto;
   readonly meta: {
@@ -61,6 +69,7 @@ export function PublicationImportDiagnosisForm() {
   const [action, setAction] = useState<PublicationImportAction>("diagnose");
   const [authorities, setAuthorities] = useState<PublicationImportAuthoritiesDto | null>(null);
   const [batch, setBatch] = useState<PublicationImportBatchSnapshot | null>(null);
+  const [commit, setCommit] = useState<PublicationImportCommitDto | null>(null);
   const [commitPlan, setCommitPlan] = useState<PublicationImportCommitPlanDto | null>(null);
   const [dryRun, setDryRun] = useState<PublicationImportDryRunDto | null>(null);
   const [preview, setPreview] = useState<PublicationImportMappingPreviewDto | null>(null);
@@ -71,6 +80,7 @@ export function PublicationImportDiagnosisForm() {
     setIsSubmitting(true);
     setAuthorities(null);
     setBatch(null);
+    setCommit(null);
     setCommitPlan(null);
     setDryRun(null);
     setPreview(null);
@@ -91,7 +101,10 @@ export function PublicationImportDiagnosisForm() {
             : JSON.stringify({
                 sourcePath,
                 sheet,
-                packageJson: selectedAction === "commitPlan" ? packageJson : undefined,
+                packageJson:
+                  selectedAction === "commitPlan" || selectedAction === "commit"
+                    ? packageJson
+                    : undefined,
                 enrichmentCsv: selectedAction === "dryRun" ? enrichmentCsv : undefined,
                 maxRows: selectedAction === "preview" ? 25 : undefined,
               }),
@@ -105,6 +118,8 @@ export function PublicationImportDiagnosisForm() {
 
       if (selectedAction === "authorities") {
         setAuthorities(readAuthoritiesApiResponse(payload).data);
+      } else if (selectedAction === "commit") {
+        setCommit(readCommitApiResponse(payload).data);
       } else if (selectedAction === "dryRun") {
         setDryRun(readDryRunApiResponse(payload).data);
       } else if (selectedAction === "commitPlan") {
@@ -242,6 +257,15 @@ export function PublicationImportDiagnosisForm() {
           >
             {isSubmitting && action === "commitPlan" ? "Planificando" : "Plan de commit"}
           </button>
+          <button
+            className="h-10 rounded-md bg-red-900 px-4 text-sm font-semibold text-white hover:bg-red-950 disabled:cursor-not-allowed disabled:bg-neutral-400"
+            disabled={isSubmitting}
+            name="intent"
+            type="submit"
+            value="commit"
+          >
+            {isSubmitting && action === "commit" ? "Escribiendo" : "Escribir en Omeka"}
+          </button>
         </div>
       </form>
 
@@ -253,12 +277,14 @@ export function PublicationImportDiagnosisForm() {
         {error !== null ? <ErrorPanel error={error} /> : null}
         {authorities !== null ? <AuthoritiesResult authorities={authorities} /> : null}
         {batch !== null ? <BatchDiagnostics batch={batch} /> : null}
+        {commit !== null ? <CommitResult commit={commit} /> : null}
         {commitPlan !== null ? <CommitPlanResult commitPlan={commitPlan} /> : null}
         {dryRun !== null ? <DryRunResult dryRun={dryRun} /> : null}
         {preview !== null ? <MappingPreview preview={preview} /> : null}
         {error === null &&
         authorities === null &&
         batch === null &&
+        commit === null &&
         commitPlan === null &&
         dryRun === null &&
         preview === null ? (
@@ -327,6 +353,35 @@ function AuthoritiesResult({
           title="Materias"
         />
       </div>
+    </div>
+  );
+}
+
+function CommitResult({ commit }: { readonly commit: PublicationImportCommitDto }) {
+  return (
+    <div className="mt-5">
+      <p className="text-sm leading-6 text-neutral-700">
+        Escritura completada en Omeka S. Refresque el catálogo para ver los registros publicados.
+      </p>
+      <dl className="mt-5 grid gap-3 md:grid-cols-3">
+        <Metric label="Candidatos" value={commit.summary.candidates} />
+        <Metric label="Items Omeka" value={commit.summary.createdItems} />
+        <Metric label="Media Omeka" value={commit.summary.createdMedia} />
+      </dl>
+      <section className="mt-6 rounded-md border border-neutral-200 bg-neutral-50 p-4">
+        <h3 className="text-base font-semibold text-neutral-950">Recursos creados</h3>
+        <ul className="mt-3 space-y-2 text-sm text-neutral-700">
+          {commit.created.map((resource) => (
+            <li className="rounded-md bg-white px-3 py-2" key={resource.pnpuUuid}>
+              <span className="font-semibold text-neutral-950">Fila {resource.row}: </span>
+              item {resource.omekaItemId}
+              {resource.omekaMediaId === undefined
+                ? ""
+                : `, media ${String(resource.omekaMediaId)}`}
+            </li>
+          ))}
+        </ul>
+      </section>
     </div>
   );
 }
@@ -805,7 +860,8 @@ function decisionClassName(
   return `${baseClassName} bg-green-50 text-green-900`;
 }
 
-type PublicationImportAction = "authorities" | "commitPlan" | "diagnose" | "dryRun" | "preview";
+type PublicationImportAction =
+  "authorities" | "commit" | "commitPlan" | "diagnose" | "dryRun" | "preview";
 
 function readSubmitAction(event: SyntheticEvent<HTMLFormElement>): PublicationImportAction {
   const nativeEvent = event.nativeEvent as SubmitEvent;
@@ -813,6 +869,10 @@ function readSubmitAction(event: SyntheticEvent<HTMLFormElement>): PublicationIm
 
   if (submitter instanceof HTMLButtonElement && submitter.value === "authorities") {
     return "authorities";
+  }
+
+  if (submitter instanceof HTMLButtonElement && submitter.value === "commit") {
+    return "commit";
   }
 
   if (submitter instanceof HTMLButtonElement && submitter.value === "commitPlan") {
@@ -833,6 +893,10 @@ function readSubmitAction(event: SyntheticEvent<HTMLFormElement>): PublicationIm
 function endpointForAction(action: PublicationImportAction): string {
   if (action === "authorities") {
     return "/api/admin/publication-imports/authorities";
+  }
+
+  if (action === "commit") {
+    return "/api/admin/publication-imports/commit";
   }
 
   if (action === "commitPlan") {
@@ -896,6 +960,7 @@ function exportEnrichmentCsv(preview: PublicationImportMappingPreviewDto): void 
   const matrix = buildEnrichmentMatrix(preview);
   const header = [
     "row",
+    "pnpuUuid",
     "title",
     "isbn",
     "doi",
@@ -915,6 +980,7 @@ function exportEnrichmentCsv(preview: PublicationImportMappingPreviewDto): void 
   ];
   const rows = matrix.rows.map((row) => [
     String(row.row),
+    "",
     row.title,
     row.normalizedIsbn,
     "",
@@ -1126,6 +1192,14 @@ function readCommitPlanApiResponse(payload: unknown): PublicationImportCommitPla
   }
 
   throw new Error("Invalid publication import commit-plan response.");
+}
+
+function readCommitApiResponse(payload: unknown): PublicationImportCommitApiResponse {
+  if (typeof payload === "object" && payload !== null && "data" in payload && "meta" in payload) {
+    return payload as PublicationImportCommitApiResponse;
+  }
+
+  throw new Error("Invalid publication import commit response.");
 }
 
 function readAuthoritiesApiResponse(payload: unknown): PublicationImportAuthoritiesApiResponse {

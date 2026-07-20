@@ -17,6 +17,7 @@ export interface PublicationImportDryRunCommand extends DiagnosePublicationImpor
 
 interface EnrichmentRow {
   readonly row: number;
+  readonly pnpuUuid: string;
   readonly doi: string;
   readonly publicationDate: string;
   readonly contributorAuthorityIds: readonly string[];
@@ -70,6 +71,7 @@ function buildCandidate(
   if (row.decision === "rejected") {
     return {
       row: row.row,
+      pnpuUuid: enrichment?.pnpuUuid ?? "",
       title: row.title,
       isbn: row.normalizedIsbn,
       doi: enrichment?.doi,
@@ -92,6 +94,7 @@ function buildCandidate(
 
   return {
     row: row.row,
+    pnpuUuid: enrichment?.pnpuUuid ?? "",
     title: row.title,
     isbn: row.normalizedIsbn,
     doi: enrichment?.doi,
@@ -116,6 +119,7 @@ function missingEnrichmentReasons(enrichment: EnrichmentRow | undefined): readon
   }
 
   const reasons: string[] = [];
+  appendMissing(reasons, "pnpuUuid", enrichment.pnpuUuid);
   appendMissing(reasons, "publisherAuthorityId", enrichment.publisherAuthorityId);
   appendMissing(reasons, "publicationDate", enrichment.publicationDate);
   appendMissing(reasons, "contributorAuthorityIds", enrichment.contributorAuthorityIds.join("|"));
@@ -143,6 +147,7 @@ function parseEnrichmentCsv(csv: string): readonly EnrichmentRow[] {
   const columnByName = new Map(header.map((name, index) => [name.trim(), index]));
   const requiredColumns = [
     "row",
+    "pnpuUuid",
     "publisherAuthorityId",
     "publicationDate",
     "contributorAuthorityIds",
@@ -173,6 +178,7 @@ function parseEnrichmentCsv(csv: string): readonly EnrichmentRow[] {
 
       return {
         row: rowNumber,
+        pnpuUuid: readCsvCell(row, columnByName, "pnpuUuid"),
         doi: readCsvCell(row, columnByName, "doi"),
         publicationDate: readCsvCell(row, columnByName, "publicationDate"),
         contributorAuthorityIds: readCsvCell(row, columnByName, "contributorAuthorityIds")

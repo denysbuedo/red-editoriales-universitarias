@@ -49,6 +49,7 @@ Condiciones minimas:
 
 - manifiesto con estado `validated_not_imported`;
 - candidatos con decision `ready`;
+- `pnpuUuid` presente para `pnpu:uuid`;
 - `publisherAuthorityId` presente;
 - `contributorAuthorityIds` presentes para resolver `dcterms:creator`;
 - `publicationDate` presente en formato `YYYY-MM-DD`;
@@ -228,14 +229,37 @@ Este endpoint devuelve editoriales, contribuyentes y materias del catalogo activ
 `publisherAuthorityId`, `contributorAuthorityIds` y `subjects` en el CSV de enriquecimiento. Tambien
 permite exportar un CSV auxiliar desde la interfaz.
 
-## 14. Siguiente incremento futuro
+## 14. Commit controlado implementado
+
+La escritura real queda disponible en un endpoint separado:
+
+```http
+POST /api/admin/publication-imports/commit
+X-PNPU-Admin-Token: <token>
+Content-Type: application/json
+```
+
+Candados iniciales:
+
+- requiere `PNPU_OMEKA_IMPORT_ENABLED=true`;
+- requiere `PNPU_OMEKA_BASE_URL`;
+- requiere `PNPU_OMEKA_KEY_IDENTITY`;
+- requiere `PNPU_OMEKA_KEY_CREDENTIAL`;
+- ejecuta primero el plan de commit;
+- no escribe si el plan queda `blocked`;
+- resuelve `publisherAuthorityId` y `contributorAuthorityIds` contra `pnpu:uuid` en Omeka;
+- resuelve `subjects` contra `skos:notation` en Omeka;
+- crea Item `PNPU Publication`;
+- crea Media `PNPU Digital Resource`.
+
+Esta primera version no implementa rollback automatico. Para revertir un lote debe usarse el
+resultado del commit, que contiene los IDs Omeka creados.
+
+## 15. Siguiente incremento futuro
 
 Cuando se apruebe la decision, el siguiente incremento debe ser:
 
-- ADR de escritura controlada hacia Omeka S;
-- deduplicacion contra Omeka antes de crear items;
-- manifiesto de auditoria persistente;
+- manifiesto de auditoria persistente en PostgreSQL;
 - rollback por lote;
-- pruebas de integracion contra fixtures Omeka.
-
-Despues de ese plan se implementaria el commit real.
+- UI de historial de importaciones;
+- permisos institucionales con Keycloak/OIDC.

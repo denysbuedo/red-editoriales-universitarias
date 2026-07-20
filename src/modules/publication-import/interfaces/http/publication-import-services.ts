@@ -4,12 +4,15 @@ import { createCatalogRepositoriesAsync } from "@/modules/catalog/infrastructure
 
 import { PublicationImportAuthoritiesService } from "../../application/services/publication-import-authorities-service";
 import { PublicationImportCommitPlanService } from "../../application/services/publication-import-commit-plan-service";
+import { PublicationImportCommitService } from "../../application/services/publication-import-commit-service";
 import { PublicationImportDiagnosisService } from "../../application/services/publication-import-diagnosis-service";
 import { PublicationImportDryRunService } from "../../application/services/publication-import-dry-run-service";
 import { PublicationImportMappingPreviewService } from "../../application/services/publication-import-mapping-preview-service";
 import {
   CatalogPublicationImportDuplicateLookup,
+  OmekaPublicationImportCommitWriter,
   PythonPublicationSpreadsheetDiagnosticsRunner,
+  readOmekaImportWriterConfig,
 } from "../../infrastructure";
 
 export function createPublicationImportDiagnosisService(): PublicationImportDiagnosisService {
@@ -43,6 +46,31 @@ export async function createPublicationImportCommitPlanService(): Promise<Public
   return new PublicationImportCommitPlanService(
     readPublicationImportOptions(),
     new CatalogPublicationImportDuplicateLookup(repositories.publicationRepository),
+  );
+}
+
+export async function createPublicationImportCommitService(): Promise<PublicationImportCommitService> {
+  if (process.env.PNPU_OMEKA_IMPORT_ENABLED !== "true") {
+    throw new Error("PNPU_OMEKA_IMPORT_ENABLED must be true to commit imports.");
+  }
+
+  const writerConfig = readOmekaImportWriterConfig();
+
+  if (writerConfig === null) {
+    throw new Error("Omeka import writer is not configured.");
+  }
+
+  const repositories = await createCatalogRepositoriesAsync();
+  const options = readPublicationImportOptions();
+  const planService = new PublicationImportCommitPlanService(
+    options,
+    new CatalogPublicationImportDuplicateLookup(repositories.publicationRepository),
+  );
+
+  return new PublicationImportCommitService(
+    planService,
+    new OmekaPublicationImportCommitWriter(writerConfig),
+    options,
   );
 }
 

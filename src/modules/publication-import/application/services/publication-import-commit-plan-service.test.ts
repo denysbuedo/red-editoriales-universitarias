@@ -163,6 +163,7 @@ function buildPackage(): {
     candidates: [
       {
         row: 2,
+        pnpuUuid: "01990f5a-0000-7000-8000-000000000901",
         title: "Libro listo",
         isbn: "9789590000003",
         doi: "",

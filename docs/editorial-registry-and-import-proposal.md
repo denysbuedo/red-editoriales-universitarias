@@ -314,6 +314,7 @@ El paquete contiene:
 - conteos de filas listas, incompletas y rechazadas;
 - advertencia `validated_not_imported`;
 - candidatos listos para un importador futuro.
+- `pnpuUuid` para crear `pnpu:uuid` en Omeka S;
 - fecha de publicacion completa `YYYY-MM-DD`;
 - autoridades de contribuyentes para resolver `dcterms:creator`.
 
@@ -323,6 +324,10 @@ la plantilla de enriquecimiento:
 - editoriales para `publisherAuthorityId`;
 - contribuyentes para `contributorAuthorityIds`;
 - materias para `subjects`.
+
+Cuando el paquete validado no tiene riesgos, la vista puede ejecutar escritura controlada hacia
+Omeka S mediante un endpoint separado. La accion requiere habilitacion explicita con
+`PNPU_OMEKA_IMPORT_ENABLED=true` y claves API de Omeka en variables de entorno.
 
 Este paquete cierra la etapa actual. Aun no representa una importacion real; es un artefacto
 validado para decision operativa y para una futura escritura controlada en Omeka S.

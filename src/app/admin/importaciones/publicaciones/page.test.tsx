@@ -26,5 +26,6 @@ describe("PublicationImportDiagnosisForm", () => {
     expect(html).toContain("Dry-run enriquecido");
     expect(html).toContain("Paquete validado");
     expect(html).toContain("Plan de commit");
+    expect(html).toContain("Escribir en Omeka");
   });
 });

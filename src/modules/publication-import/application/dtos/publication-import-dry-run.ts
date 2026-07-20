@@ -4,6 +4,7 @@ export type PublicationImportDryRunDecisionDto = "ready" | "incomplete" | "rejec
 
 export interface PublicationImportDryRunCandidateDto {
   readonly row: number;
+  readonly pnpuUuid: string;
   readonly title: string;
   readonly isbn: string;
   readonly doi?: string;

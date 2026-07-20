@@ -112,9 +112,9 @@ describe("PublicationImportDryRunService", () => {
     const dryRun = await service.dryRun({
       sourcePath: "Listado.xlsx",
       enrichmentCsv: [
-        "row,title,isbn,doi,publicationDate,publisher,primaryContributor,contributorAuthorityIds,publisherAuthorityId,genreOrPublicationType,controlledTypeOrGenre,formats,digitalResourceUrl,language,subjects,license,notes",
-        "2,Libro listo,9789590000003,10.1234/example,2026-07-19,Editorial Universitaria,Ana Perez,contributor-1,publisher-1,Libro,book,pdf,https://example.edu/libro.pdf,es,unesco:1203|unesco:5802,CC BY,",
-        "3,Libro incompleto,9789590000010,,2026-07-19,Editorial Universitaria,Ana Perez,contributor-1,publisher-1,Libro,book,pdf,,es,unesco:1203,CC BY,",
+        "row,pnpuUuid,title,isbn,doi,publicationDate,publisher,primaryContributor,contributorAuthorityIds,publisherAuthorityId,genreOrPublicationType,controlledTypeOrGenre,formats,digitalResourceUrl,language,subjects,license,notes",
+        "2,01990f5a-0000-7000-8000-000000000901,Libro listo,9789590000003,10.1234/example,2026-07-19,Editorial Universitaria,Ana Perez,contributor-1,publisher-1,Libro,book,pdf,https://example.edu/libro.pdf,es,unesco:1203|unesco:5802,CC BY,",
+        "3,01990f5a-0000-7000-8000-000000000902,Libro incompleto,9789590000010,,2026-07-19,Editorial Universitaria,Ana Perez,contributor-1,publisher-1,Libro,book,pdf,,es,unesco:1203,CC BY,",
       ].join("\n"),
     });
 
@@ -127,6 +127,7 @@ describe("PublicationImportDryRunService", () => {
     });
     expect(dryRun.candidates[0]).toMatchObject({
       decision: "ready",
+      pnpuUuid: "01990f5a-0000-7000-8000-000000000901",
       doi: "10.1234/example",
       publicationDate: "2026-07-19",
       contributorAuthorityIds: ["contributor-1"],
