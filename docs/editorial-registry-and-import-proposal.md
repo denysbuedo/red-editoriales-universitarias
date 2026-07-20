@@ -238,3 +238,12 @@ Restricciones:
 - no escribe datos en Omeka S;
 - no escribe datos en PostgreSQL;
 - devuelve un lote con estado `diagnosed`, `needs_correction`, `ready_for_mapping` o `rejected`.
+
+La vista operativa inicial esta disponible en:
+
+```text
+/admin/importaciones/publicaciones
+```
+
+La vista solicita el archivo XLSX, la hoja y el token administrativo. No almacena el token en el
+codigo ni en configuracion del cliente; lo usa solamente para invocar el endpoint protegido.
