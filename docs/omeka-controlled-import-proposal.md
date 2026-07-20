@@ -252,8 +252,9 @@ Candados iniciales:
 - crea Item `PNPU Publication`;
 - crea Media `PNPU Digital Resource`.
 
-Esta primera version no implementa rollback automatico. Para revertir un lote debe usarse el
-resultado del commit, que contiene los IDs Omeka creados.
+Esta primera version no implementa rollback automatico. Para revertir un lote debe usarse primero
+el plan de rollback no destructivo, que verifica los IDs Omeka creados antes de aprobar cualquier
+eliminacion futura.
 
 ## 15. Historial operativo implementado
 
@@ -277,15 +278,49 @@ El manifiesto conserva:
 - fecha/hora del commit;
 - archivo fuente y hoja;
 - conteos de candidatos, Items y Media creados;
-- filas, UUID PNPU e IDs Omeka creados.
+- filas, UUID PNPU e IDs Omeka creados;
+- fecha `o:modified` de Items y Media cuando Omeka S la entrega en el commit.
+
+Los manifiestos anteriores a esta version no tienen linea base de modificacion. Para ellos, el plan
+de rollback queda bloqueado con `missingModificationBaseline`.
+
+## 16. Plan de rollback implementado
+
+El rollback real sigue sin ejecutar eliminaciones. El incremento implementado genera un plan
+operativo:
+
+```http
+POST /api/admin/publication-imports/rollback-plan
+X-PNPU-Admin-Token: <token>
+Content-Type: application/json
+```
+
+El cuerpo recibe:
+
+```json
+{
+  "auditId": "<identificador de auditoria>"
+}
+```
+
+El servicio:
+
+- lee el manifiesto de auditoria local;
+- verifica que el Item Omeka exista;
+- verifica que `pnpu:uuid` coincida con el manifiesto;
+- bloquea si falta la linea base `o:modified`;
+- bloquea si el Item fue modificado despues del commit;
+- verifica que la Media exista cuando fue creada;
+- devuelve operaciones proyectadas para eliminar primero Media y despues Item;
+- no elimina recursos en Omeka S.
 
 Este registro local es una traza operativa temprana. No sustituye la auditoria empresarial futura en
 PostgreSQL ni habilita rollback automatico.
 
-## 16. Siguiente incremento futuro
+## 17. Siguiente incremento futuro
 
 Cuando se apruebe la decision, el siguiente incremento debe ser:
 
 - manifiesto de auditoria persistente en PostgreSQL;
-- rollback por lote;
+- rollback por lote con eliminacion controlada;
 - permisos institucionales con Keycloak/OIDC.

@@ -2,7 +2,9 @@ export interface PublicationImportCommitCreatedResourceDto {
   readonly row: number;
   readonly pnpuUuid: string;
   readonly omekaItemId: number;
+  readonly omekaItemModified?: string;
   readonly omekaMediaId?: number;
+  readonly omekaMediaModified?: string;
 }
 
 export interface PublicationImportCommitDto {

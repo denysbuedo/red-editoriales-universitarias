@@ -56,7 +56,9 @@ export class OmekaPublicationImportCommitWriter implements PublicationImportComm
         row: candidate.row,
         pnpuUuid: candidate.pnpuUuid,
         omekaItemId: itemId,
+        omekaItemModified: readOptionalTopLevelString(item, "o:modified"),
         omekaMediaId: readOmekaId(media),
+        omekaMediaModified: readOptionalTopLevelString(media, "o:modified"),
       });
     }
 
@@ -391,6 +393,12 @@ function readOmekaId(resource: OmekaJsonObject): number {
   }
 
   return id;
+}
+
+function readOptionalTopLevelString(resource: OmekaJsonObject, field: string): string | undefined {
+  const value = resource[field];
+
+  return typeof value === "string" && value.trim().length > 0 ? value : undefined;
 }
 
 function buildPublicationIdentifier(publicBaseUrl: string, pnpuUuid: string): string {

@@ -9,10 +9,12 @@ import { PublicationImportCommitService } from "../../application/services/publi
 import { PublicationImportDiagnosisService } from "../../application/services/publication-import-diagnosis-service";
 import { PublicationImportDryRunService } from "../../application/services/publication-import-dry-run-service";
 import { PublicationImportMappingPreviewService } from "../../application/services/publication-import-mapping-preview-service";
+import { PublicationImportRollbackPlanService } from "../../application/services/publication-import-rollback-plan-service";
 import {
   CatalogPublicationImportDuplicateLookup,
   FilePublicationImportAuditRepository,
   OmekaPublicationImportCommitWriter,
+  OmekaPublicationImportRollbackVerifier,
   PythonPublicationSpreadsheetDiagnosticsRunner,
   readOmekaImportWriterConfig,
 } from "../../infrastructure";
@@ -93,6 +95,20 @@ export async function createPublicationImportAuthoritiesService(): Promise<Publi
 export function createPublicationImportAuditService(): PublicationImportAuditService {
   return new PublicationImportAuditService(
     new FilePublicationImportAuditRepository(readPublicationImportAuditDirectory()),
+    readPublicationImportOptions(),
+  );
+}
+
+export function createPublicationImportRollbackPlanService(): PublicationImportRollbackPlanService {
+  const writerConfig = readOmekaImportWriterConfig();
+
+  if (writerConfig === null) {
+    throw new Error("Omeka rollback verifier is not configured.");
+  }
+
+  return new PublicationImportRollbackPlanService(
+    new FilePublicationImportAuditRepository(readPublicationImportAuditDirectory()),
+    new OmekaPublicationImportRollbackVerifier(writerConfig),
     readPublicationImportOptions(),
   );
 }

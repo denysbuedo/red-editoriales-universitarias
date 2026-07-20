@@ -56,6 +56,7 @@ describe("FilePublicationImportAuditRepository", () => {
         { id: "audit-2" },
         { id: "audit-1" },
       ]);
+      await expect(repository.get("audit-1")).resolves.toMatchObject({ id: "audit-1" });
     } finally {
       await rm(directory, { force: true, recursive: true });
     }
@@ -67,5 +68,6 @@ describe("FilePublicationImportAuditRepository", () => {
     );
 
     await expect(repository.list()).resolves.toEqual([]);
+    await expect(repository.get("missing")).resolves.toBeNull();
   });
 });

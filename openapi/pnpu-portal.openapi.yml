@@ -603,6 +603,54 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /api/admin/publication-imports/rollback-plan:
+    post:
+      operationId: planPublicationImportRollback
+      summary: Genera un plan no destructivo de rollback para un commit importado.
+      description: >
+        Lee un manifiesto de auditoría, verifica los recursos creados contra Omeka S y devuelve
+        operaciones proyectadas o riesgos bloqueantes. No elimina Items ni Media.
+      tags:
+        - Admin
+      security:
+        - PublicationImportToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PublicationImportRollbackPlanRequest"
+      responses:
+        "200":
+          description: Plan de rollback no ejecutado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicationImportRollbackPlanResponse"
+        "403":
+          description: Token administrativo inválido.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Manifiesto de auditoría no encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: Solicitud inválida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Endpoint no configurado u Omeka no disponible.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /health/live:
     get:
       operationId: getLiveHealth
@@ -2004,9 +2052,15 @@ components:
         omekaItemId:
           type: integer
           minimum: 1
+        omekaItemModified:
+          type: string
+          format: date-time
         omekaMediaId:
           type: integer
           minimum: 1
+        omekaMediaModified:
+          type: string
+          format: date-time
     PublicationImportCommitResponse:
       type: object
       additionalProperties: false
@@ -2105,6 +2159,121 @@ components:
       properties:
         data:
           $ref: "#/components/schemas/PublicationImportAuditLog"
+        meta:
+          $ref: "#/components/schemas/ApiMeta"
+    PublicationImportRollbackPlanRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - auditId
+      properties:
+        auditId:
+          type: string
+          minLength: 1
+    PublicationImportRollbackPlan:
+      type: object
+      additionalProperties: false
+      required:
+        - generatedAt
+        - auditId
+        - status
+        - summary
+        - operations
+        - risks
+      properties:
+        generatedAt:
+          type: string
+          format: date-time
+        auditId:
+          type: string
+        status:
+          type: string
+          enum:
+            - blocked
+            - planned_not_executed
+        summary:
+          type: object
+          additionalProperties: false
+          required:
+            - items
+            - media
+            - operations
+            - risks
+          properties:
+            items:
+              type: integer
+              minimum: 0
+            media:
+              type: integer
+              minimum: 0
+            operations:
+              type: integer
+              minimum: 0
+            risks:
+              type: integer
+              minimum: 0
+        operations:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicationImportRollbackPlanOperation"
+        risks:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicationImportRollbackPlanRisk"
+    PublicationImportRollbackPlanOperation:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - target
+        - omekaId
+        - pnpuUuid
+      properties:
+        type:
+          type: string
+          enum:
+            - deleteDigitalResourceMedia
+            - deletePublicationItem
+        target:
+          type: string
+        omekaId:
+          type: integer
+          minimum: 1
+        pnpuUuid:
+          type: string
+    PublicationImportRollbackPlanRisk:
+      type: object
+      additionalProperties: false
+      required:
+        - code
+        - message
+        - omekaId
+        - pnpuUuid
+      properties:
+        code:
+          type: string
+          enum:
+            - missingModificationBaseline
+            - omekaItemMissing
+            - omekaMediaMissing
+            - pnpuUuidMismatch
+            - resourceModifiedAfterImport
+        message:
+          type: string
+        omekaId:
+          type: integer
+          minimum: 1
+        pnpuUuid:
+          type: string
+    PublicationImportRollbackPlanResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          $ref: "#/components/schemas/PublicationImportRollbackPlan"
         meta:
           $ref: "#/components/schemas/ApiMeta"
     PublicationImportAuthorities:

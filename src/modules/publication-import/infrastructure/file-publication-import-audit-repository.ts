@@ -16,6 +16,24 @@ export class FilePublicationImportAuditRepository implements PublicationImportAu
     );
   }
 
+  public async get(id: string): Promise<PublicationImportAuditEntryDto | null> {
+    const fileName = `${id.trim()}.json`;
+
+    if (!/^[\w-]+\.json$/u.test(fileName)) {
+      return null;
+    }
+
+    try {
+      return await readAuditEntry(path.join(this.directory, fileName));
+    } catch (error) {
+      if (isNodeError(error) && error.code === "ENOENT") {
+        return null;
+      }
+
+      throw error;
+    }
+  }
+
   public async list(): Promise<readonly PublicationImportAuditEntryDto[]> {
     let fileNames: readonly string[];
 

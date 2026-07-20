@@ -10,6 +10,7 @@ import {
   PublicationImportCommitPlanDto,
   PublicationImportDryRunDto,
   PublicationImportMappingPreviewDto,
+  PublicationImportRollbackPlanDto,
 } from "@/modules/publication-import";
 
 interface PublicationImportDiagnosisApiResponse {
@@ -61,6 +62,13 @@ interface PublicationImportHistoryApiResponse {
   };
 }
 
+interface PublicationImportRollbackPlanApiResponse {
+  readonly data: PublicationImportRollbackPlanDto;
+  readonly meta: {
+    readonly apiVersion: "v1";
+  };
+}
+
 interface PublicationImportDiagnosisApiError {
   readonly code: string;
   readonly message: string;
@@ -71,6 +79,7 @@ export function PublicationImportDiagnosisForm() {
   const [sourcePath, setSourcePath] = useState("Listado_Libro_Publicados_EDUNIV.xlsx");
   const [sheet, setSheet] = useState("EDUNIV");
   const [token, setToken] = useState("");
+  const [rollbackAuditId, setRollbackAuditId] = useState("");
   const [enrichmentCsv, setEnrichmentCsv] = useState("");
   const [packageJson, setPackageJson] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -82,6 +91,7 @@ export function PublicationImportDiagnosisForm() {
   const [dryRun, setDryRun] = useState<PublicationImportDryRunDto | null>(null);
   const [history, setHistory] = useState<PublicationImportAuditLogDto | null>(null);
   const [preview, setPreview] = useState<PublicationImportMappingPreviewDto | null>(null);
+  const [rollbackPlan, setRollbackPlan] = useState<PublicationImportRollbackPlanDto | null>(null);
   const [error, setError] = useState<PublicationImportDiagnosisApiError | null>(null);
 
   async function submitImportAction(event: SyntheticEvent<HTMLFormElement>): Promise<void> {
@@ -94,6 +104,7 @@ export function PublicationImportDiagnosisForm() {
     setDryRun(null);
     setHistory(null);
     setPreview(null);
+    setRollbackPlan(null);
     setError(null);
     const selectedAction = readSubmitAction(event);
     setAction(selectedAction);
@@ -116,6 +127,7 @@ export function PublicationImportDiagnosisForm() {
                     ? packageJson
                     : undefined,
                 enrichmentCsv: selectedAction === "dryRun" ? enrichmentCsv : undefined,
+                auditId: selectedAction === "rollbackPlan" ? rollbackAuditId : undefined,
                 maxRows: selectedAction === "preview" ? 25 : undefined,
               }),
       });
@@ -138,6 +150,8 @@ export function PublicationImportDiagnosisForm() {
         setPreview(readPreviewApiResponse(payload).data);
       } else if (selectedAction === "history") {
         setHistory(readHistoryApiResponse(payload).data);
+      } else if (selectedAction === "rollbackPlan") {
+        setRollbackPlan(readRollbackPlanApiResponse(payload).data);
       } else {
         setBatch(readApiResponse(payload).data);
       }
@@ -239,6 +253,28 @@ export function PublicationImportDiagnosisForm() {
             {isSubmitting && action === "history" ? "Cargando" : "Historial de commits"}
           </button>
           <label className="grid gap-1 text-sm font-medium text-neutral-800">
+            Audit ID
+            <input
+              className="h-10 rounded-md border border-neutral-300 px-3 text-sm font-normal text-neutral-950"
+              maxLength={80}
+              onChange={(event) => {
+                setRollbackAuditId(event.target.value);
+              }}
+              placeholder="Identificador de auditoria"
+              type="text"
+              value={rollbackAuditId}
+            />
+          </label>
+          <button
+            className="h-10 rounded-md border border-red-800 px-4 text-sm font-semibold text-red-900 hover:bg-red-50 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:text-neutral-400"
+            disabled={isSubmitting}
+            name="intent"
+            type="submit"
+            value="rollbackPlan"
+          >
+            {isSubmitting && action === "rollbackPlan" ? "Planificando" : "Plan de rollback"}
+          </button>
+          <label className="grid gap-1 text-sm font-medium text-neutral-800">
             CSV enriquecido
             <textarea
               className="min-h-36 rounded-md border border-neutral-300 px-3 py-2 text-sm font-normal text-neutral-950"
@@ -303,6 +339,7 @@ export function PublicationImportDiagnosisForm() {
         {dryRun !== null ? <DryRunResult dryRun={dryRun} /> : null}
         {history !== null ? <HistoryResult history={history} /> : null}
         {preview !== null ? <MappingPreview preview={preview} /> : null}
+        {rollbackPlan !== null ? <RollbackPlanResult rollbackPlan={rollbackPlan} /> : null}
         {error === null &&
         authorities === null &&
         batch === null &&
@@ -310,7 +347,8 @@ export function PublicationImportDiagnosisForm() {
         commitPlan === null &&
         dryRun === null &&
         history === null &&
-        preview === null ? (
+        preview === null &&
+        rollbackPlan === null ? (
           <p className="mt-3 text-sm leading-6 text-neutral-700">
             Ejecute un diagnóstico para ver el estado del lote, errores de planilla y campos
             pendientes antes de cualquier mapeo.
@@ -356,6 +394,65 @@ function HistoryResult({ history }: { readonly history: PublicationImportAuditLo
                     )
                     .join("; ")}
                 </p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    </div>
+  );
+}
+
+function RollbackPlanResult({
+  rollbackPlan,
+}: {
+  readonly rollbackPlan: PublicationImportRollbackPlanDto;
+}) {
+  return (
+    <div className="mt-5">
+      <p className="text-sm leading-6 text-neutral-700">
+        Plan no destructivo de rollback. No se eliminó ningún recurso en Omeka S.
+      </p>
+      <dl className="mt-5 grid gap-3 md:grid-cols-4">
+        <Metric
+          label="Estado"
+          value={rollbackPlan.status === "planned_not_executed" ? "planificado" : "bloqueado"}
+        />
+        <Metric label="Items" value={rollbackPlan.summary.items} />
+        <Metric label="Operaciones" value={rollbackPlan.summary.operations} />
+        <Metric label="Riesgos" value={rollbackPlan.summary.risks} />
+      </dl>
+      <section className="mt-6 rounded-md border border-neutral-200 bg-neutral-50 p-4">
+        <h3 className="text-base font-semibold text-neutral-950">Riesgos</h3>
+        {rollbackPlan.risks.length === 0 ? (
+          <p className="mt-3 text-sm text-neutral-700">Sin riesgos bloqueantes.</p>
+        ) : (
+          <ul className="mt-3 space-y-2">
+            {rollbackPlan.risks.map((risk) => (
+              <li
+                className="rounded-md bg-white px-3 py-2 text-sm text-neutral-800"
+                key={`${risk.code}-${String(risk.omekaId)}`}
+              >
+                <span className="font-semibold text-neutral-950">{risk.code}: </span>
+                item/media {risk.omekaId}. {risk.message}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+      <section className="mt-6 rounded-md border border-neutral-200 bg-neutral-50 p-4">
+        <h3 className="text-base font-semibold text-neutral-950">Operaciones proyectadas</h3>
+        {rollbackPlan.operations.length === 0 ? (
+          <p className="mt-3 text-sm text-neutral-700">Sin operaciones ejecutables.</p>
+        ) : (
+          <ul className="mt-3 space-y-2">
+            {rollbackPlan.operations.map((operation) => (
+              <li
+                className="rounded-md bg-white px-3 py-2 text-sm text-neutral-800"
+                key={`${operation.type}-${String(operation.omekaId)}`}
+              >
+                <span className="font-semibold text-neutral-950">{operation.type}: </span>
+                {operation.target} {operation.omekaId}
               </li>
             ))}
           </ul>
@@ -928,7 +1025,14 @@ function decisionClassName(
 }
 
 type PublicationImportAction =
-  "authorities" | "commit" | "commitPlan" | "diagnose" | "dryRun" | "history" | "preview";
+  | "authorities"
+  | "commit"
+  | "commitPlan"
+  | "diagnose"
+  | "dryRun"
+  | "history"
+  | "preview"
+  | "rollbackPlan";
 
 function readSubmitAction(event: SyntheticEvent<HTMLFormElement>): PublicationImportAction {
   const nativeEvent = event.nativeEvent as SubmitEvent;
@@ -958,6 +1062,10 @@ function readSubmitAction(event: SyntheticEvent<HTMLFormElement>): PublicationIm
     return "preview";
   }
 
+  if (submitter instanceof HTMLButtonElement && submitter.value === "rollbackPlan") {
+    return "rollbackPlan";
+  }
+
   return "diagnose";
 }
 
@@ -980,6 +1088,10 @@ function endpointForAction(action: PublicationImportAction): string {
 
   if (action === "history") {
     return "/api/admin/publication-imports/history";
+  }
+
+  if (action === "rollbackPlan") {
+    return "/api/admin/publication-imports/rollback-plan";
   }
 
   return action === "preview"
@@ -1283,6 +1395,14 @@ function readHistoryApiResponse(payload: unknown): PublicationImportHistoryApiRe
   }
 
   throw new Error("Invalid publication import history response.");
+}
+
+function readRollbackPlanApiResponse(payload: unknown): PublicationImportRollbackPlanApiResponse {
+  if (typeof payload === "object" && payload !== null && "data" in payload && "meta" in payload) {
+    return payload as PublicationImportRollbackPlanApiResponse;
+  }
+
+  throw new Error("Invalid publication import rollback-plan response.");
 }
 
 function readAuthoritiesApiResponse(payload: unknown): PublicationImportAuthoritiesApiResponse {
