@@ -314,6 +314,8 @@ El paquete contiene:
 - conteos de filas listas, incompletas y rechazadas;
 - advertencia `validated_not_imported`;
 - candidatos listos para un importador futuro.
+- fecha de publicacion completa `YYYY-MM-DD`;
+- autoridades de contribuyentes para resolver `dcterms:creator`.
 
 Este paquete cierra la etapa actual. Aun no representa una importacion real; es un artefacto
 validado para decision operativa y para una futura escritura controlada en Omeka S.

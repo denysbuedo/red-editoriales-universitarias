@@ -20,13 +20,14 @@ describe("PublicationImportCommitPlanService", () => {
       status: "planned_not_executed",
       summary: {
         candidates: 1,
-        operations: 5,
+        operations: 6,
         risks: 0,
       },
     });
     expect(plan.operations.map((operation) => operation.type)).toEqual([
       "createPublicationItem",
       "linkPublisher",
+      "linkContributors",
       "linkSubjects",
       "attachDigitalResource",
       "recordBatchAudit",
@@ -165,7 +166,9 @@ function buildPackage(): {
         title: "Libro listo",
         isbn: "9789590000003",
         doi: "",
+        publicationDate: "2026-07-19",
         publisher: "Editorial Universitaria",
+        contributorAuthorityIds: ["contributor-1"],
         publisherAuthorityId: "publisher-1",
         typeOrGenre: "book",
         formats: ["pdf"],

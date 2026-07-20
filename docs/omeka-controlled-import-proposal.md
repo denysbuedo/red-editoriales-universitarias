@@ -50,6 +50,8 @@ Condiciones minimas:
 - manifiesto con estado `validated_not_imported`;
 - candidatos con decision `ready`;
 - `publisherAuthorityId` presente;
+- `contributorAuthorityIds` presentes para resolver `dcterms:creator`;
+- `publicationDate` presente en formato `YYYY-MM-DD`;
 - `language` presente;
 - `subjects` presentes;
 - `license` presente;
@@ -196,6 +198,7 @@ El servicio:
 - devuelve operaciones proyectadas:
   - `createPublicationItem`;
   - `linkPublisher`;
+  - `linkContributors`;
   - `linkSubjects`;
   - `attachDigitalResource`;
   - `recordBatchAudit`;
@@ -207,6 +210,12 @@ Si existen riesgos, el plan queda en estado `blocked`. Si no existen riesgos, qu
 
 El DOI es opcional en el CSV de enriquecimiento. Cuando se informa, el plan de commit lo conserva
 en el paquete y lo usa como identificador de deduplicacion contra el catalogo activo.
+
+El intento de habilitar escritura real queda bloqueado si el paquete no contiene todos los campos
+necesarios para crear un `PNPU Publication` valido en Omeka S. En particular, la arquitectura de
+metadatos exige `dcterms:creator` y `dcterms:issued` completo. Por tanto, la plantilla de
+enriquecimiento debe incluir `contributorAuthorityIds` y `publicationDate` antes de cualquier
+escritura.
 
 ## 14. Siguiente incremento futuro
 

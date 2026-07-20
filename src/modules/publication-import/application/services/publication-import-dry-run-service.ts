@@ -18,6 +18,8 @@ export interface PublicationImportDryRunCommand extends DiagnosePublicationImpor
 interface EnrichmentRow {
   readonly row: number;
   readonly doi: string;
+  readonly publicationDate: string;
+  readonly contributorAuthorityIds: readonly string[];
   readonly publisherAuthorityId: string;
   readonly controlledTypeOrGenre: string;
   readonly digitalResourceUrl: string;
@@ -72,6 +74,8 @@ function buildCandidate(
       isbn: row.normalizedIsbn,
       doi: enrichment?.doi,
       publisher: row.publisher,
+      publicationDate: enrichment?.publicationDate ?? "",
+      contributorAuthorityIds: enrichment?.contributorAuthorityIds ?? [],
       publisherAuthorityId: enrichment?.publisherAuthorityId ?? "",
       typeOrGenre: enrichment?.controlledTypeOrGenre ?? "",
       formats: row.formats,
@@ -92,6 +96,8 @@ function buildCandidate(
     isbn: row.normalizedIsbn,
     doi: enrichment?.doi,
     publisher: row.publisher,
+    publicationDate: enrichment?.publicationDate ?? "",
+    contributorAuthorityIds: enrichment?.contributorAuthorityIds ?? [],
     publisherAuthorityId: enrichment?.publisherAuthorityId ?? "",
     typeOrGenre: enrichment?.controlledTypeOrGenre ?? "",
     formats: row.formats,
@@ -111,6 +117,8 @@ function missingEnrichmentReasons(enrichment: EnrichmentRow | undefined): readon
 
   const reasons: string[] = [];
   appendMissing(reasons, "publisherAuthorityId", enrichment.publisherAuthorityId);
+  appendMissing(reasons, "publicationDate", enrichment.publicationDate);
+  appendMissing(reasons, "contributorAuthorityIds", enrichment.contributorAuthorityIds.join("|"));
   appendMissing(reasons, "controlledTypeOrGenre", enrichment.controlledTypeOrGenre);
   appendMissing(reasons, "digitalResourceUrl", enrichment.digitalResourceUrl);
   appendMissing(reasons, "language", enrichment.language);
@@ -136,6 +144,8 @@ function parseEnrichmentCsv(csv: string): readonly EnrichmentRow[] {
   const requiredColumns = [
     "row",
     "publisherAuthorityId",
+    "publicationDate",
+    "contributorAuthorityIds",
     "controlledTypeOrGenre",
     "digitalResourceUrl",
     "language",
@@ -164,6 +174,11 @@ function parseEnrichmentCsv(csv: string): readonly EnrichmentRow[] {
       return {
         row: rowNumber,
         doi: readCsvCell(row, columnByName, "doi"),
+        publicationDate: readCsvCell(row, columnByName, "publicationDate"),
+        contributorAuthorityIds: readCsvCell(row, columnByName, "contributorAuthorityIds")
+          .split("|")
+          .map((contributor) => contributor.trim())
+          .filter(Boolean),
         publisherAuthorityId: readCsvCell(row, columnByName, "publisherAuthorityId"),
         controlledTypeOrGenre: readCsvCell(row, columnByName, "controlledTypeOrGenre"),
         digitalResourceUrl: readCsvCell(row, columnByName, "digitalResourceUrl"),

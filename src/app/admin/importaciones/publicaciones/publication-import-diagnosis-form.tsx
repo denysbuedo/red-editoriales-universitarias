@@ -777,7 +777,10 @@ function exportEnrichmentCsv(preview: PublicationImportMappingPreviewDto): void 
     "title",
     "isbn",
     "doi",
+    "publicationDate",
     "publisher",
+    "primaryContributor",
+    "contributorAuthorityIds",
     "publisherAuthorityId",
     "genreOrPublicationType",
     "controlledTypeOrGenre",
@@ -793,7 +796,10 @@ function exportEnrichmentCsv(preview: PublicationImportMappingPreviewDto): void 
     row.title,
     row.normalizedIsbn,
     "",
+    formatTemplatePublicationDate(row.normalizedPublicationDate),
     row.publisher,
+    row.primaryContributor,
+    "",
     "",
     row.genreOrPublicationType,
     "",
@@ -867,6 +873,10 @@ function buildEnrichmentMatrix(preview: PublicationImportMappingPreviewDto): {
     publishers: distinctValues(rows.map((row) => row.publisher)),
     rows,
   };
+}
+
+function formatTemplatePublicationDate(value: string | null): string {
+  return value !== null && /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : "";
 }
 
 function distinctValues(values: readonly string[]): readonly string[] {

@@ -160,6 +160,8 @@ function readReadyCandidate(candidate: unknown): PublicationImportDryRunCandidat
     isbn: readString(candidate.isbn),
     doi: readOptionalString(candidate.doi),
     publisher: readString(candidate.publisher),
+    publicationDate: readString(candidate.publicationDate),
+    contributorAuthorityIds: readStringArray(candidate.contributorAuthorityIds),
     publisherAuthorityId: readString(candidate.publisherAuthorityId),
     typeOrGenre: readString(candidate.typeOrGenre),
     formats: readStringArray(candidate.formats),
@@ -209,6 +211,20 @@ function appendCandidateRisks(
   appendMissingRisk(
     risks,
     candidate.row,
+    "missing_publication_date",
+    "Fecha de publicacion ISO completa requerida.",
+    candidate.publicationDate,
+  );
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(candidate.publicationDate)) {
+    risks.push({
+      row: candidate.row,
+      code: "invalid_publication_date",
+      message: "Fecha de publicacion debe usar formato YYYY-MM-DD.",
+    });
+  }
+  appendMissingRisk(
+    risks,
+    candidate.row,
     "missing_publisher_authority",
     "Editorial no resuelta contra autoridad.",
     candidate.publisherAuthorityId,
@@ -247,6 +263,14 @@ function appendCandidateRisks(
       row: candidate.row,
       code: "missing_subjects",
       message: "Materias controladas requeridas.",
+    });
+  }
+
+  if (candidate.contributorAuthorityIds.length === 0) {
+    risks.push({
+      row: candidate.row,
+      code: "missing_contributor_authority",
+      message: "Autoridad de contribuyente requerida para dcterms:creator.",
     });
   }
 }
@@ -303,6 +327,7 @@ function buildCandidateOperations(
         title: candidate.title,
         isbn: candidate.isbn,
         doi: candidate.doi ?? "",
+        publicationDate: candidate.publicationDate,
         language: candidate.language,
         license: candidate.license,
         typeOrGenre: candidate.typeOrGenre,
@@ -315,6 +340,14 @@ function buildCandidateOperations(
       payload: {
         publisherAuthorityId: candidate.publisherAuthorityId,
         publisherLabel: candidate.publisher,
+      },
+    },
+    {
+      type: "linkContributors",
+      row: candidate.row,
+      target,
+      payload: {
+        contributorAuthorityIds: candidate.contributorAuthorityIds,
       },
     },
     {

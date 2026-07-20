@@ -87,7 +87,7 @@ describe("POST /api/admin/publication-imports/commit-plan", () => {
       expect(payload.data.status).toBe("planned_not_executed");
       expect(payload.data.summary).toEqual({
         candidates: 1,
-        operations: 5,
+        operations: 6,
         risks: 0,
       });
     } finally {
@@ -112,7 +112,10 @@ function buildReadyPackage(): unknown {
         row: 2,
         title: "Libro listo",
         isbn: "9789590000997",
+        doi: "",
+        publicationDate: "2026-07-19",
         publisher: "Editorial Universitaria",
+        contributorAuthorityIds: ["contributor-1"],
         publisherAuthorityId: "publisher-1",
         typeOrGenre: "book",
         formats: ["pdf"],

@@ -1655,6 +1655,8 @@ components:
         - title
         - isbn
         - publisher
+        - publicationDate
+        - contributorAuthorityIds
         - publisherAuthorityId
         - typeOrGenre
         - formats
@@ -1676,6 +1678,12 @@ components:
           type: string
         publisher:
           type: string
+        publicationDate:
+          type: string
+        contributorAuthorityIds:
+          type: array
+          items:
+            type: string
         publisherAuthorityId:
           type: string
         typeOrGenre:
@@ -1785,6 +1793,7 @@ components:
           type: string
           enum:
             - createPublicationItem
+            - linkContributors
             - linkPublisher
             - linkSubjects
             - attachDigitalResource

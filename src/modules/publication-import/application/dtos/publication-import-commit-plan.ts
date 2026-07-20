@@ -1,5 +1,6 @@
 export type PublicationImportCommitPlanOperationTypeDto =
   | "createPublicationItem"
+  | "linkContributors"
   | "linkPublisher"
   | "linkSubjects"
   | "attachDigitalResource"

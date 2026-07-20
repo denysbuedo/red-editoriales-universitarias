@@ -8,6 +8,8 @@ export interface PublicationImportDryRunCandidateDto {
   readonly isbn: string;
   readonly doi?: string;
   readonly publisher: string;
+  readonly publicationDate: string;
+  readonly contributorAuthorityIds: readonly string[];
   readonly publisherAuthorityId: string;
   readonly typeOrGenre: string;
   readonly formats: readonly string[];
