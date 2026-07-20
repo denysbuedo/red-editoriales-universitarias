@@ -457,6 +457,48 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /api/admin/publication-imports/commit-plan:
+    post:
+      operationId: planPublicationImportCommit
+      summary: Genera un plan operativo de escritura para un paquete validado.
+      description: >
+        Valida un paquete JSON exportado por el dry-run y devuelve operaciones proyectadas y riesgos
+        bloqueantes. No escribe en Omeka S ni PostgreSQL.
+      tags:
+        - Admin
+      security:
+        - PublicationImportToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PublicationImportCommitPlanRequest"
+      responses:
+        "200":
+          description: Plan operativo no ejecutado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicationImportCommitPlanResponse"
+        "403":
+          description: Token administrativo inválido.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: Solicitud inválida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Endpoint no configurado o plan no disponible.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /health/live:
     get:
       operationId: getLiveHealth
@@ -1668,6 +1710,118 @@ components:
       properties:
         data:
           $ref: "#/components/schemas/PublicationImportDryRun"
+        meta:
+          $ref: "#/components/schemas/ApiMeta"
+    PublicationImportCommitPlanRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - packageJson
+      properties:
+        packageJson:
+          type: string
+          minLength: 1
+    PublicationImportCommitPlan:
+      type: object
+      additionalProperties: false
+      required:
+        - generatedAt
+        - source
+        - sheet
+        - status
+        - summary
+        - operations
+        - risks
+      properties:
+        generatedAt:
+          type: string
+          format: date-time
+        source:
+          type: string
+        sheet:
+          type: string
+        status:
+          type: string
+          enum:
+            - planned_not_executed
+            - blocked
+        summary:
+          type: object
+          additionalProperties: false
+          required:
+            - candidates
+            - operations
+            - risks
+          properties:
+            candidates:
+              type: integer
+              minimum: 0
+            operations:
+              type: integer
+              minimum: 0
+            risks:
+              type: integer
+              minimum: 0
+        operations:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicationImportCommitPlanOperation"
+        risks:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicationImportCommitPlanRisk"
+    PublicationImportCommitPlanOperation:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - target
+        - payload
+      properties:
+        type:
+          type: string
+          enum:
+            - createPublicationItem
+            - linkPublisher
+            - linkSubjects
+            - attachDigitalResource
+            - recordBatchAudit
+        row:
+          type: integer
+          minimum: 1
+        target:
+          type: string
+        payload:
+          type: object
+          additionalProperties:
+            oneOf:
+              - type: string
+              - type: array
+                items:
+                  type: string
+    PublicationImportCommitPlanRisk:
+      type: object
+      additionalProperties: false
+      required:
+        - code
+        - message
+      properties:
+        row:
+          type: integer
+          minimum: 1
+        code:
+          type: string
+        message:
+          type: string
+    PublicationImportCommitPlanResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          $ref: "#/components/schemas/PublicationImportCommitPlan"
         meta:
           $ref: "#/components/schemas/ApiMeta"
     PublicationImportBatchResponse:

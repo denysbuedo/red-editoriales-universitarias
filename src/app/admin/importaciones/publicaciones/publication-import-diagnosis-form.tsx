@@ -4,6 +4,7 @@ import { SyntheticEvent, useState } from "react";
 
 import {
   PublicationImportBatchSnapshot,
+  PublicationImportCommitPlanDto,
   PublicationImportDryRunDto,
   PublicationImportMappingPreviewDto,
 } from "@/modules/publication-import";
@@ -29,6 +30,13 @@ interface PublicationImportDryRunApiResponse {
   };
 }
 
+interface PublicationImportCommitPlanApiResponse {
+  readonly data: PublicationImportCommitPlanDto;
+  readonly meta: {
+    readonly apiVersion: "v1";
+  };
+}
+
 interface PublicationImportDiagnosisApiError {
   readonly code: string;
   readonly message: string;
@@ -40,9 +48,11 @@ export function PublicationImportDiagnosisForm() {
   const [sheet, setSheet] = useState("EDUNIV");
   const [token, setToken] = useState("");
   const [enrichmentCsv, setEnrichmentCsv] = useState("");
+  const [packageJson, setPackageJson] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [action, setAction] = useState<"diagnose" | "dryRun" | "preview">("diagnose");
+  const [action, setAction] = useState<PublicationImportAction>("diagnose");
   const [batch, setBatch] = useState<PublicationImportBatchSnapshot | null>(null);
+  const [commitPlan, setCommitPlan] = useState<PublicationImportCommitPlanDto | null>(null);
   const [dryRun, setDryRun] = useState<PublicationImportDryRunDto | null>(null);
   const [preview, setPreview] = useState<PublicationImportMappingPreviewDto | null>(null);
   const [error, setError] = useState<PublicationImportDiagnosisApiError | null>(null);
@@ -51,6 +61,7 @@ export function PublicationImportDiagnosisForm() {
     event.preventDefault();
     setIsSubmitting(true);
     setBatch(null);
+    setCommitPlan(null);
     setDryRun(null);
     setPreview(null);
     setError(null);
@@ -67,6 +78,7 @@ export function PublicationImportDiagnosisForm() {
         body: JSON.stringify({
           sourcePath,
           sheet,
+          packageJson: selectedAction === "commitPlan" ? packageJson : undefined,
           enrichmentCsv: selectedAction === "dryRun" ? enrichmentCsv : undefined,
           maxRows: selectedAction === "preview" ? 25 : undefined,
         }),
@@ -80,6 +92,8 @@ export function PublicationImportDiagnosisForm() {
 
       if (selectedAction === "dryRun") {
         setDryRun(readDryRunApiResponse(payload).data);
+      } else if (selectedAction === "commitPlan") {
+        setCommitPlan(readCommitPlanApiResponse(payload).data);
       } else if (selectedAction === "preview") {
         setPreview(readPreviewApiResponse(payload).data);
       } else {
@@ -184,6 +198,26 @@ export function PublicationImportDiagnosisForm() {
           >
             {isSubmitting && action === "dryRun" ? "Validando" : "Dry-run enriquecido"}
           </button>
+          <label className="grid gap-1 text-sm font-medium text-neutral-800">
+            Paquete validado
+            <textarea
+              className="min-h-36 rounded-md border border-neutral-300 px-3 py-2 text-sm font-normal text-neutral-950"
+              onChange={(event) => {
+                setPackageJson(event.target.value);
+              }}
+              placeholder="Pegue aqui el JSON exportado con candidatos listos."
+              value={packageJson}
+            />
+          </label>
+          <button
+            className="h-10 rounded-md border border-neutral-800 px-4 text-sm font-semibold text-neutral-900 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:text-neutral-400"
+            disabled={isSubmitting}
+            name="intent"
+            type="submit"
+            value="commitPlan"
+          >
+            {isSubmitting && action === "commitPlan" ? "Planificando" : "Plan de commit"}
+          </button>
         </div>
       </form>
 
@@ -194,14 +228,83 @@ export function PublicationImportDiagnosisForm() {
         <h2 className="text-xl font-semibold text-neutral-950">Resultado</h2>
         {error !== null ? <ErrorPanel error={error} /> : null}
         {batch !== null ? <BatchDiagnostics batch={batch} /> : null}
+        {commitPlan !== null ? <CommitPlanResult commitPlan={commitPlan} /> : null}
         {dryRun !== null ? <DryRunResult dryRun={dryRun} /> : null}
         {preview !== null ? <MappingPreview preview={preview} /> : null}
-        {error === null && batch === null && dryRun === null && preview === null ? (
+        {error === null &&
+        batch === null &&
+        commitPlan === null &&
+        dryRun === null &&
+        preview === null ? (
           <p className="mt-3 text-sm leading-6 text-neutral-700">
             Ejecute un diagnóstico para ver el estado del lote, errores de planilla y campos
             pendientes antes de cualquier mapeo.
           </p>
         ) : null}
+      </section>
+    </div>
+  );
+}
+
+function CommitPlanResult({ commitPlan }: { readonly commitPlan: PublicationImportCommitPlanDto }) {
+  return (
+    <div className="mt-5">
+      <p className="text-sm leading-6 text-neutral-700">
+        Plan operativo generado. No se escribió en Omeka S ni PostgreSQL.
+      </p>
+      <dl className="mt-5 grid gap-3 md:grid-cols-4">
+        <Metric label="Estado" value={formatCommitPlanStatus(commitPlan.status)} />
+        <Metric label="Candidatos" value={commitPlan.summary.candidates} />
+        <Metric label="Operaciones" value={commitPlan.summary.operations} />
+        <Metric label="Riesgos" value={commitPlan.summary.risks} />
+      </dl>
+      <section className="mt-6 rounded-md border border-neutral-200 bg-neutral-50 p-4">
+        <h3 className="text-base font-semibold text-neutral-950">Riesgos bloqueantes</h3>
+        {commitPlan.risks.length === 0 ? (
+          <p className="mt-3 text-sm text-neutral-700">Sin riesgos detectados en el paquete.</p>
+        ) : (
+          <ul className="mt-3 space-y-2">
+            {commitPlan.risks.slice(0, 12).map((risk) => (
+              <li
+                className="rounded-md bg-white px-3 py-2 text-sm text-neutral-800"
+                key={`${risk.code}-${String(risk.row ?? 0)}-${risk.message}`}
+              >
+                <span className="font-semibold text-neutral-950">{risk.code}: </span>
+                {risk.row === undefined ? "" : `Fila ${String(risk.row)}. `}
+                {risk.message}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+      <section className="mt-6 rounded-md border border-neutral-200 bg-neutral-50 p-4">
+        <h3 className="text-base font-semibold text-neutral-950">Operaciones proyectadas</h3>
+        <div className="mt-3 overflow-x-auto">
+          <table className="min-w-full border-collapse text-sm">
+            <thead>
+              <tr className="border-b border-neutral-200 text-left text-neutral-600">
+                <th className="py-2 pr-4 font-semibold">Fila</th>
+                <th className="py-2 pr-4 font-semibold">Operación</th>
+                <th className="py-2 pr-4 font-semibold">Destino</th>
+                <th className="py-2 pr-4 font-semibold">Datos</th>
+              </tr>
+            </thead>
+            <tbody>
+              {commitPlan.operations.slice(0, 30).map((operation, index) => (
+                <tr className="border-b border-neutral-100 align-top last:border-0" key={index}>
+                  <td className="py-2 pr-4 font-semibold text-neutral-950">
+                    {operation.row ?? "lote"}
+                  </td>
+                  <td className="py-2 pr-4 text-neutral-800">{operation.type}</td>
+                  <td className="py-2 pr-4 text-neutral-700">{operation.target}</td>
+                  <td className="py-2 pr-4 text-neutral-700">
+                    {formatOperationPayload(operation.payload)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
     </div>
   );
@@ -588,11 +691,15 @@ function decisionClassName(
   return `${baseClassName} bg-green-50 text-green-900`;
 }
 
-function readSubmitAction(
-  event: SyntheticEvent<HTMLFormElement>,
-): "diagnose" | "dryRun" | "preview" {
+type PublicationImportAction = "commitPlan" | "diagnose" | "dryRun" | "preview";
+
+function readSubmitAction(event: SyntheticEvent<HTMLFormElement>): PublicationImportAction {
   const nativeEvent = event.nativeEvent as SubmitEvent;
   const submitter = nativeEvent.submitter;
+
+  if (submitter instanceof HTMLButtonElement && submitter.value === "commitPlan") {
+    return "commitPlan";
+  }
 
   if (submitter instanceof HTMLButtonElement && submitter.value === "dryRun") {
     return "dryRun";
@@ -605,7 +712,11 @@ function readSubmitAction(
   return "diagnose";
 }
 
-function endpointForAction(action: "diagnose" | "dryRun" | "preview"): string {
+function endpointForAction(action: PublicationImportAction): string {
+  if (action === "commitPlan") {
+    return "/api/admin/publication-imports/commit-plan";
+  }
+
   if (action === "dryRun") {
     return "/api/admin/publication-imports/dry-run";
   }
@@ -799,6 +910,22 @@ function buildReadyPackageFileName(dryRun: PublicationImportDryRunDto): string {
   return `pnpu-candidatos-importacion-${source}-${timestamp}.json`;
 }
 
+function formatCommitPlanStatus(status: PublicationImportCommitPlanDto["status"]): string {
+  return status === "planned_not_executed" ? "planificado" : "bloqueado";
+}
+
+function formatOperationPayload(
+  payload: Readonly<Record<string, string | readonly string[]>>,
+): string {
+  return Object.entries(payload)
+    .map(([key, value]) => {
+      const formattedValue = typeof value === "string" ? value : value.join("|");
+
+      return `${key}: ${formattedValue}`;
+    })
+    .join("; ");
+}
+
 function readApiResponse(payload: unknown): PublicationImportDiagnosisApiResponse {
   if (typeof payload === "object" && payload !== null && "data" in payload && "meta" in payload) {
     return payload as PublicationImportDiagnosisApiResponse;
@@ -821,6 +948,14 @@ function readDryRunApiResponse(payload: unknown): PublicationImportDryRunApiResp
   }
 
   throw new Error("Invalid publication import dry-run response.");
+}
+
+function readCommitPlanApiResponse(payload: unknown): PublicationImportCommitPlanApiResponse {
+  if (typeof payload === "object" && payload !== null && "data" in payload && "meta" in payload) {
+    return payload as PublicationImportCommitPlanApiResponse;
+  }
+
+  throw new Error("Invalid publication import commit-plan response.");
 }
 
 function readApiError(payload: unknown): PublicationImportDiagnosisApiError {

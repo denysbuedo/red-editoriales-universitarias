@@ -23,5 +23,7 @@ describe("PublicationImportDiagnosisForm", () => {
     expect(html).toContain("Preview mapeo");
     expect(html).toContain("CSV enriquecido");
     expect(html).toContain("Dry-run enriquecido");
+    expect(html).toContain("Paquete validado");
+    expect(html).toContain("Plan de commit");
   });
 });

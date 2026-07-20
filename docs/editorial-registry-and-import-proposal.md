@@ -328,7 +328,8 @@ Razon:
 - las editoriales ya existen antes de la plataforma;
 - cada editorial posee informacion bibliografica anterior que debe subirse;
 - la carga manual registro a registro no escala para el arranque nacional;
-- el flujo actual ya permite diagnostico, enriquecimiento, dry-run y paquete validado.
+- el flujo actual ya permite diagnostico, enriquecimiento, dry-run, paquete validado y plan de
+  commit no ejecutado.
 
 Pendiente para una etapa posterior:
 
@@ -339,4 +340,4 @@ Pendiente para una etapa posterior:
 - definir auditoria de lote importado;
 - reemplazar el token operativo temporal por autenticacion/autorizacion institucional.
 
-Hasta completar esas decisiones, esta etapa queda cerrada en modo `validated_not_imported`.
+Hasta completar esas decisiones, esta etapa queda cerrada en modo `planned_not_executed`.

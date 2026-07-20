@@ -26,6 +26,7 @@ La etapa actual ya produce:
 - dry-run de CSV enriquecido;
 - paquete JSON con candidatos `ready`;
 - manifiesto `validated_not_imported`.
+- plan de commit no ejecutado con operaciones proyectadas y riesgos bloqueantes.
 
 ## 3. Principio de arquitectura
 
@@ -65,9 +66,11 @@ Condiciones minimas:
 5. La editorial o el equipo nacional completa datos faltantes.
 6. PNPU ejecuta dry-run.
 7. PNPU exporta paquete de candidatos `ready`.
-8. Un operador autorizado ejecuta importacion controlada hacia Omeka S.
-9. PNPU registra manifiesto de lote importado.
-10. PNPU refresca snapshot/catalogo desde Omeka S.
+8. PNPU genera plan de commit sin escritura.
+9. Un operador autorizado revisa operaciones y riesgos.
+10. Un operador autorizado ejecuta importacion controlada hacia Omeka S cuando exista ADR.
+11. PNPU registra manifiesto de lote importado.
+12. PNPU refresca snapshot/catalogo desde Omeka S.
 
 ## 6. Deduplicacion requerida
 
@@ -169,14 +172,46 @@ No iniciar escritura real hasta cumplir:
 - ejecucion de `npm run quality` y `npm run build`;
 - runbook operativo actualizado.
 
-## 13. Primer incremento futuro
+## 13. Plan de commit implementado
 
-Cuando se apruebe la decision, el primer incremento debe ser:
+El primer incremento ya implementado es deliberadamente no destructivo:
 
-- servicio `PublicationImportCommitPlanService`;
-- endpoint de plan de escritura que no escriba aun;
-- reporte de operaciones Omeka proyectadas;
-- fixtures de candidatos `ready`;
-- pruebas de deduplicacion.
+```http
+POST /api/admin/publication-imports/commit-plan
+X-PNPU-Admin-Token: <token>
+Content-Type: application/json
+```
+
+El cuerpo recibe `packageJson`, que debe ser un paquete exportado por el dry-run con manifiesto
+`validated_not_imported`.
+
+El servicio:
+
+- rechaza paquetes con estructura invalida;
+- rechaza paquetes que no tengan manifiesto `validated_not_imported`;
+- rechaza candidatos que no esten en decision `ready`;
+- detecta ISBN duplicados dentro del paquete;
+- detecta campos requeridos faltantes;
+- devuelve operaciones proyectadas:
+  - `createPublicationItem`;
+  - `linkPublisher`;
+  - `linkSubjects`;
+  - `attachDigitalResource`;
+  - `recordBatchAudit`;
+- no escribe en Omeka S;
+- no escribe en PostgreSQL.
+
+Si existen riesgos, el plan queda en estado `blocked`. Si no existen riesgos, queda en
+`planned_not_executed`.
+
+## 14. Siguiente incremento futuro
+
+Cuando se apruebe la decision, el siguiente incremento debe ser:
+
+- ADR de escritura controlada hacia Omeka S;
+- deduplicacion contra Omeka antes de crear items;
+- manifiesto de auditoria persistente;
+- rollback por lote;
+- pruebas de integracion contra fixtures Omeka.
 
 Despues de ese plan se implementaria el commit real.
