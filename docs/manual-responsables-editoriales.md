@@ -24,6 +24,24 @@ Cada editorial debe:
 
 La editorial no debe modificar plantillas PNPU, vocabularios ni configuraciones globales de Omeka.
 
+## Acceso a la plataforma
+
+El acceso de responsables editoriales se gestiona mediante el proveedor institucional OIDC
+(Keycloak u otro equivalente). PNPU no almacena usuarios ni contrasenas.
+
+Cada responsable debe tener un rol editorial y una editorial asignada:
+
+| Rol | Uso previsto |
+|---|---|
+| `pnpu-editorial-coordinator` | Responsable principal de la editorial |
+| `pnpu-editorial-metadata-editor` | Preparacion y correccion de metadatos |
+| `pnpu-editorial-reviewer` | Revision de diagnosticos y observaciones |
+| `pnpu-editorial-viewer` | Consulta de estado y resultados |
+
+La asignacion de editorial debe viajar en una claim OIDC como `pnpu_editorial_ids`. Un responsable
+solo debe operar registros de su propia editorial. La aprobacion final de escritura en Omeka S sigue
+siendo una responsabilidad administrativa nacional hasta que se active el flujo editorial completo.
+
 ## Conceptos basicos
 
 | Concepto en Omeka | Uso en PNPU |
@@ -271,4 +289,3 @@ PNPU o si requiere correcciones.
 - No usar textos temporales como resumen definitivo.
 - No borrar recursos compartidos sin coordinacion.
 - No guardar claves API o contrasenas dentro de metadatos.
-

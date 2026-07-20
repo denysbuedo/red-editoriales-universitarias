@@ -20,6 +20,10 @@ PNPU_ADMIN_REQUIRED_ROLE=pnpu-admin
 PNPU_ADMIN_IMPORT_READ_ROLE=pnpu-import-reader
 PNPU_ADMIN_IMPORT_WRITE_ROLE=pnpu-import-writer
 PNPU_ADMIN_IMPORT_ROLLBACK_ROLE=pnpu-import-rollback
+PNPU_EDITORIAL_COORDINATOR_ROLE=pnpu-editorial-coordinator
+PNPU_EDITORIAL_METADATA_EDITOR_ROLE=pnpu-editorial-metadata-editor
+PNPU_EDITORIAL_REVIEWER_ROLE=pnpu-editorial-reviewer
+PNPU_EDITORIAL_VIEWER_ROLE=pnpu-editorial-viewer
 PNPU_OIDC_ISSUER=https://keycloak.example.edu/realms/pnpu
 PNPU_OIDC_AUDIENCE=pnpu-portal
 PNPU_OIDC_CLIENT_ID=pnpu-portal
@@ -52,6 +56,30 @@ Los nombres pueden cambiarse con las variables `PNPU_ADMIN_IMPORT_READ_ROLE`,
 `PNPU_ADMIN_IMPORT_WRITE_ROLE` y `PNPU_ADMIN_IMPORT_ROLLBACK_ROLE`. La pantalla administrativa puede
 abrirse con cualquiera de esos roles, pero cada endpoint vuelve a validar el permiso especifico antes
 de ejecutar la operacion.
+
+## Permisos editoriales
+
+Los responsables de editoriales no usan los permisos nacionales de importacion. Deben autenticarse
+con roles editoriales y con un alcance explicito de editorial.
+
+| Rol | Alcance previsto |
+| --- | --- |
+| `pnpu-editorial-coordinator` | Responsable principal. Puede preparar, revisar y enviar cargas de su editorial. |
+| `pnpu-editorial-metadata-editor` | Puede preparar o corregir metadatos de su editorial. |
+| `pnpu-editorial-reviewer` | Puede revisar diagnosticos y observaciones de su editorial. |
+| `pnpu-editorial-viewer` | Puede consultar estado y resultados de su editorial. |
+
+El token OIDC debe incluir al menos un identificador de editorial asignada. PNPU reconoce estas
+claims:
+
+```json
+{
+  "pnpu_editorial_ids": ["018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c03"]
+}
+```
+
+Tambien se aceptan `pnpu_editorial_id`, `publisher_id` y `publisher_ids`. El valor debe mapearse al
+UUID PNPU de la editorial. `pnpu-admin` conserva alcance nacional y no requiere claim editorial.
 
 ## Flujo web administrativo
 

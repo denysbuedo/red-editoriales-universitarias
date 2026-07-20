@@ -255,6 +255,10 @@ PNPU_ADMIN_REQUIRED_ROLE=pnpu-admin
 PNPU_ADMIN_IMPORT_READ_ROLE=pnpu-import-reader
 PNPU_ADMIN_IMPORT_WRITE_ROLE=pnpu-import-writer
 PNPU_ADMIN_IMPORT_ROLLBACK_ROLE=pnpu-import-rollback
+PNPU_EDITORIAL_COORDINATOR_ROLE=pnpu-editorial-coordinator
+PNPU_EDITORIAL_METADATA_EDITOR_ROLE=pnpu-editorial-metadata-editor
+PNPU_EDITORIAL_REVIEWER_ROLE=pnpu-editorial-reviewer
+PNPU_EDITORIAL_VIEWER_ROLE=pnpu-editorial-viewer
 PNPU_OIDC_ISSUER=https://keycloak.example.edu/realms/pnpu
 PNPU_OIDC_AUDIENCE=pnpu-portal
 PNPU_OIDC_CLIENT_ID=pnpu-portal
@@ -273,6 +277,19 @@ Roles operativos:
 | `pnpu-import-reader` | Diagnosticar, previsualizar, dry-run, consultar autoridades, historial y planes |
 | `pnpu-import-writer` | Planificar commit y escribir en Omeka S |
 | `pnpu-import-rollback` | Planificar y ejecutar rollback |
+
+Roles editoriales:
+
+| Rol | Acciones futuras previstas |
+|---|---|
+| `pnpu-editorial-coordinator` | Coordinar cargas y envios de su editorial |
+| `pnpu-editorial-metadata-editor` | Preparar o corregir metadatos de su editorial |
+| `pnpu-editorial-reviewer` | Revisar diagnosticos de su editorial |
+| `pnpu-editorial-viewer` | Consultar estado de su editorial |
+
+Estos roles deben venir acompanados por una claim OIDC como `pnpu_editorial_ids`, con los UUID PNPU
+de las editoriales autorizadas. La escritura final en Omeka S sigue controlada por permisos
+nacionales hasta cerrar el flujo de aprobacion editorial.
 
 Para abrir la pantalla administrativa con OIDC:
 

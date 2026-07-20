@@ -124,6 +124,11 @@
     <li>mantener actualizados contactos, enlaces y datos editoriales cuando corresponda.</li>
     </ul>
     <p>La editorial no debe modificar plantillas PNPU, vocabularios ni configuraciones globales de Omeka.</p>
+    <h2>Acceso a la plataforma</h2>
+    <p>El acceso de responsables editoriales se gestiona mediante el proveedor institucional OIDC (Keycloak u otro equivalente). PNPU no almacena usuarios ni contrasenas.</p>
+    <p>Cada responsable debe tener un rol editorial y una editorial asignada:</p>
+    <table><thead><tr><th>Rol</th><th>Uso previsto</th></tr></thead><tbody><tr><td><code>pnpu-editorial-coordinator</code></td><td>Responsable principal de la editorial</td></tr><tr><td><code>pnpu-editorial-metadata-editor</code></td><td>Preparacion y correccion de metadatos</td></tr><tr><td><code>pnpu-editorial-reviewer</code></td><td>Revision de diagnosticos y observaciones</td></tr><tr><td><code>pnpu-editorial-viewer</code></td><td>Consulta de estado y resultados</td></tr></tbody></table>
+    <p>La asignacion de editorial debe viajar en una claim OIDC como <code>pnpu_editorial_ids</code>. Un responsable solo debe operar registros de su propia editorial. La aprobacion final de escritura en Omeka S sigue siendo una responsabilidad administrativa nacional hasta que se active el flujo editorial completo.</p>
     <h2>Conceptos basicos</h2>
     <table><thead><tr><th>Concepto en Omeka</th><th>Uso en PNPU</th></tr></thead><tbody><tr><td>Item <code>PNPU Publication</code></td><td>Publicacion del catalogo</td></tr><tr><td>Item <code>PNPU Contributor</code></td><td>Autor, editor, revisor u otra persona/entidad participante</td></tr><tr><td>Item <code>PNPU Publisher</code></td><td>Editorial universitaria</td></tr><tr><td>Item <code>PNPU University</code></td><td>Universidad asociada</td></tr><tr><td>Item <code>PNPU Subject</code></td><td>Materia o termino controlado</td></tr><tr><td>Item Set <code>PNPU Collection</code></td><td>Coleccion editorial</td></tr><tr><td>Media</td><td>PDF, EPUB, enlace, cubierta u otro recurso digital</td></tr></tbody></table>
     <h2>Orden recomendado de carga</h2>

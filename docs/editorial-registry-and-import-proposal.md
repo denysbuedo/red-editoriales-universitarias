@@ -78,6 +78,28 @@ Ese flujo podria vivir en un bounded context futuro, por ejemplo:
 
 Hasta que arquitectura lo apruebe, PNPU no debe publicar esos registros en el catalogo publico.
 
+## 4.1 Base de autorizacion editorial
+
+La plataforma ya puede modelar permisos editoriales a partir de OIDC sin habilitar todavia el flujo
+de edicion. La regla base es:
+
+- el rol define que puede hacer el usuario;
+- la claim `pnpu_editorial_ids` define sobre que editoriales puede actuar;
+- `pnpu-admin` conserva alcance nacional;
+- un responsable editorial no debe operar registros de otra editorial.
+
+Roles previstos:
+
+| Rol | Uso |
+|---|---|
+| `pnpu-editorial-coordinator` | Responsable principal de la editorial |
+| `pnpu-editorial-metadata-editor` | Preparacion y correccion de metadatos |
+| `pnpu-editorial-reviewer` | Revision de diagnosticos |
+| `pnpu-editorial-viewer` | Consulta de estado |
+
+Esta base permite construir despues vistas como "mis cargas", "mis diagnosticos" y "mis
+publicaciones pendientes" sin cambiar el modelo de catalogo publico.
+
 ## 5. Libros publicados
 
 La tabla anual de libros publicados si puede alimentar un proceso de importacion, siempre en modo

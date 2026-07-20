@@ -32,6 +32,10 @@ pnpu_admin_required_role: pnpu-admin
 pnpu_admin_import_read_role: pnpu-import-reader
 pnpu_admin_import_write_role: pnpu-import-writer
 pnpu_admin_import_rollback_role: pnpu-import-rollback
+pnpu_editorial_coordinator_role: pnpu-editorial-coordinator
+pnpu_editorial_metadata_editor_role: pnpu-editorial-metadata-editor
+pnpu_editorial_reviewer_role: pnpu-editorial-reviewer
+pnpu_editorial_viewer_role: pnpu-editorial-viewer
 pnpu_oidc_issuer: ""
 pnpu_oidc_audience: ""
 pnpu_oidc_client_id: ""

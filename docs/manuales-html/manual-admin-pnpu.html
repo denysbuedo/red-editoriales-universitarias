@@ -261,6 +261,10 @@ PNPU_ADMIN_REQUIRED_ROLE=pnpu-admin
 PNPU_ADMIN_IMPORT_READ_ROLE=pnpu-import-reader
 PNPU_ADMIN_IMPORT_WRITE_ROLE=pnpu-import-writer
 PNPU_ADMIN_IMPORT_ROLLBACK_ROLE=pnpu-import-rollback
+PNPU_EDITORIAL_COORDINATOR_ROLE=pnpu-editorial-coordinator
+PNPU_EDITORIAL_METADATA_EDITOR_ROLE=pnpu-editorial-metadata-editor
+PNPU_EDITORIAL_REVIEWER_ROLE=pnpu-editorial-reviewer
+PNPU_EDITORIAL_VIEWER_ROLE=pnpu-editorial-viewer
 PNPU_OIDC_ISSUER=https://keycloak.example.edu/realms/pnpu
 PNPU_OIDC_AUDIENCE=pnpu-portal
 PNPU_OIDC_CLIENT_ID=pnpu-portal
@@ -268,6 +272,9 @@ PNPU_OIDC_SCOPES=openid profile email</code></pre>
     <p>PNPU no almacena contrasenas de administradores. El usuario, la contrasena, el segundo factor y las politicas de acceso se administran en Keycloak o en el proveedor OIDC institucional. En produccion, el JWT OIDC debe incluir el rol requerido.</p>
     <p>Roles operativos:</p>
     <table><thead><tr><th>Rol</th><th>Acciones</th></tr></thead><tbody><tr><td><code>pnpu-admin</code></td><td>Todas las acciones administrativas</td></tr><tr><td><code>pnpu-import-reader</code></td><td>Diagnosticar, previsualizar, dry-run, consultar autoridades, historial y planes</td></tr><tr><td><code>pnpu-import-writer</code></td><td>Planificar commit y escribir en Omeka S</td></tr><tr><td><code>pnpu-import-rollback</code></td><td>Planificar y ejecutar rollback</td></tr></tbody></table>
+    <p>Roles editoriales:</p>
+    <table><thead><tr><th>Rol</th><th>Acciones futuras previstas</th></tr></thead><tbody><tr><td><code>pnpu-editorial-coordinator</code></td><td>Coordinar cargas y envios de su editorial</td></tr><tr><td><code>pnpu-editorial-metadata-editor</code></td><td>Preparar o corregir metadatos de su editorial</td></tr><tr><td><code>pnpu-editorial-reviewer</code></td><td>Revisar diagnosticos de su editorial</td></tr><tr><td><code>pnpu-editorial-viewer</code></td><td>Consultar estado de su editorial</td></tr></tbody></table>
+    <p>Estos roles deben venir acompanados por una claim OIDC como <code>pnpu_editorial_ids</code>, con los UUID PNPU de las editoriales autorizadas. La escritura final en Omeka S sigue controlada por permisos nacionales hasta cerrar el flujo de aprobacion editorial.</p>
     <p>Para abrir la pantalla administrativa con OIDC:</p>
     <pre><code>https://&lt;dominio-pnpu&gt;/api/admin/auth/login?returnTo=/admin/importaciones/publicaciones</code></pre>
     <p>Para salir de la sesion PNPU:</p>
