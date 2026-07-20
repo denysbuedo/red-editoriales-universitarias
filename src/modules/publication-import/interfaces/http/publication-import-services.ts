@@ -2,6 +2,7 @@ import path from "node:path";
 
 import { createCatalogRepositoriesAsync } from "@/modules/catalog/infrastructure";
 
+import { PublicationImportAuthoritiesService } from "../../application/services/publication-import-authorities-service";
 import { PublicationImportCommitPlanService } from "../../application/services/publication-import-commit-plan-service";
 import { PublicationImportDiagnosisService } from "../../application/services/publication-import-diagnosis-service";
 import { PublicationImportDryRunService } from "../../application/services/publication-import-dry-run-service";
@@ -42,6 +43,19 @@ export async function createPublicationImportCommitPlanService(): Promise<Public
   return new PublicationImportCommitPlanService(
     readPublicationImportOptions(),
     new CatalogPublicationImportDuplicateLookup(repositories.publicationRepository),
+  );
+}
+
+export async function createPublicationImportAuthoritiesService(): Promise<PublicationImportAuthoritiesService> {
+  const repositories = await createCatalogRepositoriesAsync();
+
+  return new PublicationImportAuthoritiesService(
+    {
+      contributorRepository: repositories.contributorRepository,
+      publisherRepository: repositories.publisherRepository,
+      subjectRepository: repositories.subjectRepository,
+    },
+    readPublicationImportOptions(),
   );
 }
 

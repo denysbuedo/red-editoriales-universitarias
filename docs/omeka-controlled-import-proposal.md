@@ -217,6 +217,17 @@ metadatos exige `dcterms:creator` y `dcterms:issued` completo. Por tanto, la pla
 enriquecimiento debe incluir `contributorAuthorityIds` y `publicationDate` antes de cualquier
 escritura.
 
+La vista administrativa expone:
+
+```http
+GET /api/admin/publication-imports/authorities
+X-PNPU-Admin-Token: <token>
+```
+
+Este endpoint devuelve editoriales, contribuyentes y materias del catalogo activo para completar
+`publisherAuthorityId`, `contributorAuthorityIds` y `subjects` en el CSV de enriquecimiento. Tambien
+permite exportar un CSV auxiliar desde la interfaz.
+
 ## 14. Siguiente incremento futuro
 
 Cuando se apruebe la decision, el siguiente incremento debe ser:

@@ -317,6 +317,13 @@ El paquete contiene:
 - fecha de publicacion completa `YYYY-MM-DD`;
 - autoridades de contribuyentes para resolver `dcterms:creator`.
 
+La vista administrativa permite consultar y exportar autoridades del catalogo activo para completar
+la plantilla de enriquecimiento:
+
+- editoriales para `publisherAuthorityId`;
+- contribuyentes para `contributorAuthorityIds`;
+- materias para `subjects`.
+
 Este paquete cierra la etapa actual. Aun no representa una importacion real; es un artefacto
 validado para decision operativa y para una futura escritura controlada en Omeka S.
 

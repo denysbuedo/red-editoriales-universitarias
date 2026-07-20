@@ -4,6 +4,7 @@ import { SyntheticEvent, useState } from "react";
 
 import {
   PublicationImportBatchSnapshot,
+  PublicationImportAuthoritiesDto,
   PublicationImportCommitPlanDto,
   PublicationImportDryRunDto,
   PublicationImportMappingPreviewDto,
@@ -37,6 +38,13 @@ interface PublicationImportCommitPlanApiResponse {
   };
 }
 
+interface PublicationImportAuthoritiesApiResponse {
+  readonly data: PublicationImportAuthoritiesDto;
+  readonly meta: {
+    readonly apiVersion: "v1";
+  };
+}
+
 interface PublicationImportDiagnosisApiError {
   readonly code: string;
   readonly message: string;
@@ -51,6 +59,7 @@ export function PublicationImportDiagnosisForm() {
   const [packageJson, setPackageJson] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [action, setAction] = useState<PublicationImportAction>("diagnose");
+  const [authorities, setAuthorities] = useState<PublicationImportAuthoritiesDto | null>(null);
   const [batch, setBatch] = useState<PublicationImportBatchSnapshot | null>(null);
   const [commitPlan, setCommitPlan] = useState<PublicationImportCommitPlanDto | null>(null);
   const [dryRun, setDryRun] = useState<PublicationImportDryRunDto | null>(null);
@@ -60,6 +69,7 @@ export function PublicationImportDiagnosisForm() {
   async function submitImportAction(event: SyntheticEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
     setIsSubmitting(true);
+    setAuthorities(null);
     setBatch(null);
     setCommitPlan(null);
     setDryRun(null);
@@ -70,18 +80,21 @@ export function PublicationImportDiagnosisForm() {
 
     try {
       const response = await fetch(endpointForAction(selectedAction), {
-        method: "POST",
+        method: selectedAction === "authorities" ? "GET" : "POST",
         headers: {
           "Content-Type": "application/json",
           "X-PNPU-Admin-Token": token,
         },
-        body: JSON.stringify({
-          sourcePath,
-          sheet,
-          packageJson: selectedAction === "commitPlan" ? packageJson : undefined,
-          enrichmentCsv: selectedAction === "dryRun" ? enrichmentCsv : undefined,
-          maxRows: selectedAction === "preview" ? 25 : undefined,
-        }),
+        body:
+          selectedAction === "authorities"
+            ? undefined
+            : JSON.stringify({
+                sourcePath,
+                sheet,
+                packageJson: selectedAction === "commitPlan" ? packageJson : undefined,
+                enrichmentCsv: selectedAction === "dryRun" ? enrichmentCsv : undefined,
+                maxRows: selectedAction === "preview" ? 25 : undefined,
+              }),
       });
       const payload = (await response.json()) as unknown;
 
@@ -90,7 +103,9 @@ export function PublicationImportDiagnosisForm() {
         return;
       }
 
-      if (selectedAction === "dryRun") {
+      if (selectedAction === "authorities") {
+        setAuthorities(readAuthoritiesApiResponse(payload).data);
+      } else if (selectedAction === "dryRun") {
         setDryRun(readDryRunApiResponse(payload).data);
       } else if (selectedAction === "commitPlan") {
         setCommitPlan(readCommitPlanApiResponse(payload).data);
@@ -178,6 +193,15 @@ export function PublicationImportDiagnosisForm() {
               {isSubmitting && action === "preview" ? "Preparando" : "Preview mapeo"}
             </button>
           </div>
+          <button
+            className="h-10 rounded-md border border-neutral-500 px-4 text-sm font-semibold text-neutral-800 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:text-neutral-400"
+            disabled={isSubmitting}
+            name="intent"
+            type="submit"
+            value="authorities"
+          >
+            {isSubmitting && action === "authorities" ? "Cargando" : "Autoridades Omeka"}
+          </button>
           <label className="grid gap-1 text-sm font-medium text-neutral-800">
             CSV enriquecido
             <textarea
@@ -227,11 +251,13 @@ export function PublicationImportDiagnosisForm() {
       >
         <h2 className="text-xl font-semibold text-neutral-950">Resultado</h2>
         {error !== null ? <ErrorPanel error={error} /> : null}
+        {authorities !== null ? <AuthoritiesResult authorities={authorities} /> : null}
         {batch !== null ? <BatchDiagnostics batch={batch} /> : null}
         {commitPlan !== null ? <CommitPlanResult commitPlan={commitPlan} /> : null}
         {dryRun !== null ? <DryRunResult dryRun={dryRun} /> : null}
         {preview !== null ? <MappingPreview preview={preview} /> : null}
         {error === null &&
+        authorities === null &&
         batch === null &&
         commitPlan === null &&
         dryRun === null &&
@@ -243,6 +269,94 @@ export function PublicationImportDiagnosisForm() {
         ) : null}
       </section>
     </div>
+  );
+}
+
+function AuthoritiesResult({
+  authorities,
+}: {
+  readonly authorities: PublicationImportAuthoritiesDto;
+}) {
+  return (
+    <div className="mt-5">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm leading-6 text-neutral-700">
+          Autoridades disponibles en el catálogo activo para completar la plantilla de
+          enriquecimiento.
+        </p>
+        <button
+          className="inline-flex h-10 items-center justify-center rounded-md border border-green-800 px-4 text-sm font-semibold text-green-900 hover:bg-green-50"
+          onClick={() => {
+            exportAuthoritiesCsv(authorities);
+          }}
+          type="button"
+        >
+          Exportar autoridades
+        </button>
+      </div>
+      <dl className="mt-5 grid gap-3 md:grid-cols-3">
+        <Metric label="Editoriales" value={authorities.summary.publishers} />
+        <Metric label="Contribuyentes" value={authorities.summary.contributors} />
+        <Metric label="Materias" value={authorities.summary.subjects} />
+      </dl>
+      <div className="mt-6 grid gap-4 xl:grid-cols-3">
+        <AuthorityList
+          items={authorities.publishers.map((publisher) => ({
+            id: publisher.id,
+            label: publisher.acronym
+              ? `${publisher.label} (${publisher.acronym})`
+              : publisher.label,
+          }))}
+          title="Editoriales"
+        />
+        <AuthorityList
+          items={authorities.contributors.map((contributor) => ({
+            id: contributor.id,
+            label:
+              contributor.roles.length === 0
+                ? contributor.label
+                : `${contributor.label} | ${contributor.roles.join("|")}`,
+          }))}
+          title="Contribuyentes"
+        />
+        <AuthorityList
+          items={authorities.subjects.map((subject) => ({
+            id: subject.id,
+            label: subject.label,
+          }))}
+          title="Materias"
+        />
+      </div>
+    </div>
+  );
+}
+
+function AuthorityList({
+  items,
+  title,
+}: {
+  readonly items: readonly {
+    readonly id: string;
+    readonly label: string;
+  }[];
+  readonly title: string;
+}) {
+  return (
+    <section className="rounded-md border border-neutral-200 bg-neutral-50 p-4">
+      <h3 className="text-base font-semibold text-neutral-950">{title}</h3>
+      {items.length === 0 ? (
+        <p className="mt-3 text-sm text-neutral-700">Sin autoridades.</p>
+      ) : (
+        <ul className="mt-3 space-y-2 text-sm text-neutral-700">
+          {items.slice(0, 12).map((item) => (
+            <li className="rounded-md bg-white px-3 py-2" key={`${title}-${item.id}`}>
+              <span className="font-semibold text-neutral-950">{item.id}: </span>
+              {item.label}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }
 
@@ -691,11 +805,15 @@ function decisionClassName(
   return `${baseClassName} bg-green-50 text-green-900`;
 }
 
-type PublicationImportAction = "commitPlan" | "diagnose" | "dryRun" | "preview";
+type PublicationImportAction = "authorities" | "commitPlan" | "diagnose" | "dryRun" | "preview";
 
 function readSubmitAction(event: SyntheticEvent<HTMLFormElement>): PublicationImportAction {
   const nativeEvent = event.nativeEvent as SubmitEvent;
   const submitter = nativeEvent.submitter;
+
+  if (submitter instanceof HTMLButtonElement && submitter.value === "authorities") {
+    return "authorities";
+  }
 
   if (submitter instanceof HTMLButtonElement && submitter.value === "commitPlan") {
     return "commitPlan";
@@ -713,6 +831,10 @@ function readSubmitAction(event: SyntheticEvent<HTMLFormElement>): PublicationIm
 }
 
 function endpointForAction(action: PublicationImportAction): string {
+  if (action === "authorities") {
+    return "/api/admin/publication-imports/authorities";
+  }
+
   if (action === "commitPlan") {
     return "/api/admin/publication-imports/commit-plan";
   }
@@ -857,6 +979,42 @@ function exportReadyImportPackage(dryRun: PublicationImportDryRunDto): void {
   URL.revokeObjectURL(url);
 }
 
+function exportAuthoritiesCsv(authorities: PublicationImportAuthoritiesDto): void {
+  const rows = [
+    ["kind", "id", "label", "extra"],
+    ...authorities.publishers.map((publisher) => [
+      "publisher",
+      publisher.id,
+      publisher.label,
+      publisher.acronym ?? "",
+    ]),
+    ...authorities.contributors.map((contributor) => [
+      "contributor",
+      contributor.id,
+      contributor.label,
+      contributor.roles.join("|"),
+    ]),
+    ...authorities.subjects.map((subject) => [
+      "subject",
+      subject.id,
+      subject.label,
+      subject.uri ?? "",
+    ]),
+  ];
+  const csv = rows.map((row) => row.map(escapeCsvCell).join(",")).join("\r\n");
+  const blob = new Blob([`\uFEFF${csv}`], {
+    type: "text/csv;charset=utf-8",
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `pnpu-autoridades-importacion-${authorities.generatedAt.replace(/[:.]/gu, "-")}.csv`;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
 function buildEnrichmentMatrix(preview: PublicationImportMappingPreviewDto): {
   readonly formats: readonly string[];
   readonly genres: readonly string[];
@@ -968,6 +1126,14 @@ function readCommitPlanApiResponse(payload: unknown): PublicationImportCommitPla
   }
 
   throw new Error("Invalid publication import commit-plan response.");
+}
+
+function readAuthoritiesApiResponse(payload: unknown): PublicationImportAuthoritiesApiResponse {
+  if (typeof payload === "object" && payload !== null && "data" in payload && "meta" in payload) {
+    return payload as PublicationImportAuthoritiesApiResponse;
+  }
+
+  throw new Error("Invalid publication import authorities response.");
 }
 
 function readApiError(payload: unknown): PublicationImportDiagnosisApiError {

@@ -500,6 +500,37 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /api/admin/publication-imports/authorities:
+    get:
+      operationId: listPublicationImportAuthorities
+      summary: Lista autoridades del catálogo activo para enriquecer importaciones.
+      description: >
+        Devuelve editoriales, contribuyentes y materias disponibles en el catálogo activo para
+        completar `publisherAuthorityId`, `contributorAuthorityIds` y `subjects` en la plantilla de
+        enriquecimiento. No escribe en Omeka S ni PostgreSQL.
+      tags:
+        - Admin
+      security:
+        - PublicationImportToken: []
+      responses:
+        "200":
+          description: Autoridades disponibles para enriquecimiento.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicationImportAuthoritiesResponse"
+        "403":
+          description: Token administrativo inválido.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Endpoint no configurado o autoridades no disponibles.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /health/live:
     get:
       operationId: getLiveHealth
@@ -1834,6 +1865,108 @@ components:
       properties:
         data:
           $ref: "#/components/schemas/PublicationImportCommitPlan"
+        meta:
+          $ref: "#/components/schemas/ApiMeta"
+    PublicationImportAuthorities:
+      type: object
+      additionalProperties: false
+      required:
+        - generatedAt
+        - summary
+        - publishers
+        - contributors
+        - subjects
+      properties:
+        generatedAt:
+          type: string
+          format: date-time
+        summary:
+          type: object
+          additionalProperties: false
+          required:
+            - publishers
+            - contributors
+            - subjects
+          properties:
+            publishers:
+              type: integer
+              minimum: 0
+            contributors:
+              type: integer
+              minimum: 0
+            subjects:
+              type: integer
+              minimum: 0
+        publishers:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicationImportPublisherAuthority"
+        contributors:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicationImportContributorAuthority"
+        subjects:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicationImportSubjectAuthority"
+    PublicationImportPublisherAuthority:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - label
+        - country
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        acronym:
+          type: string
+        country:
+          type: string
+    PublicationImportContributorAuthority:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - label
+        - roles
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+        affiliation:
+          type: string
+        country:
+          type: string
+    PublicationImportSubjectAuthority:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - label
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        uri:
+          type: string
+    PublicationImportAuthoritiesResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          $ref: "#/components/schemas/PublicationImportAuthorities"
         meta:
           $ref: "#/components/schemas/ApiMeta"
     PublicationImportBatchResponse:

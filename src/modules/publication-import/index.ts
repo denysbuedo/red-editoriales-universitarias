@@ -1,6 +1,7 @@
 export * from "./application/dtos";
 export * from "./application/ports/publication-import-duplicate-lookup";
 export * from "./application/ports/publication-spreadsheet-diagnostics-runner";
+export * from "./application/services/publication-import-authorities-service";
 export * from "./application/services/publication-import-diagnosis-service";
 export * from "./application/services/publication-import-commit-plan-service";
 export * from "./application/services/publication-import-dry-run-service";
