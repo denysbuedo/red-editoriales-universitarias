@@ -46,6 +46,7 @@ const requiredArchiveEntries = [
   `${artifactName}/src/app/v1/subjects/[identifier]/route.ts`,
   `${artifactName}/src/app/v1/collections/route.ts`,
   `${artifactName}/src/app/v1/collections/[id]/route.ts`,
+  `${artifactName}/src/app/vocabularies/subjects/[identifier]/route.ts`,
   `${artifactName}/src/app/version/route.ts`,
   `${artifactName}/src/modules/catalog/application/index.ts`,
   `${artifactName}/src/modules/catalog/domain/index.ts`,

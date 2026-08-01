@@ -148,11 +148,32 @@ for (const publication of sample.records.publications) {
 console.log(JSON.stringify({ baseUrl, dryRun, actions }, null, 2));
 
 async function ensureSubject(subject) {
-  const existing = findResourceByLiteral(context.items, "skos:notation", subject.notation);
+  const existingResource = findResourceByLiteral(context.items, "skos:notation", subject.notation);
 
-  if (existing !== null) {
-    actions.push({ type: "item", key: `subject:${subject.key}`, status: "exists", id: existing });
-    return existing;
+  if (existingResource !== null) {
+    const id = readOmekaId(existingResource);
+    const currentUri = readFirstUri(existingResource, "schema:url");
+
+    if (hasText(subject.uri) && currentUri !== subject.uri) {
+      actions.push({
+        type: "item",
+        key: `subject:${subject.key}`,
+        status: dryRun ? "would_update" : "updated",
+        id,
+        field: "schema:url",
+      });
+
+      if (!dryRun) {
+        const updated = await patchJson(`/api/items/${id}`, {
+          "schema:url": [uriValue("schema:url", subject.uri)],
+        });
+        replaceResource(context.items, updated);
+      }
+    } else {
+      actions.push({ type: "item", key: `subject:${subject.key}`, status: "exists", id });
+    }
+
+    return id;
   }
 
   actions.push({ type: "item", key: `subject:${subject.key}`, status: dryRun ? "would_create" : "created" });
@@ -178,8 +199,9 @@ async function ensureItem(key, uuid, payloadFactory) {
   const existing = findResourceByLiteral(context.items, "pnpu:uuid", uuid);
 
   if (existing !== null) {
-    actions.push({ type: "item", key, status: "exists", id: existing });
-    return existing;
+    const id = readOmekaId(existing);
+    actions.push({ type: "item", key, status: "exists", id });
+    return id;
   }
 
   actions.push({ type: "item", key, status: dryRun ? "would_create" : "created" });
@@ -198,8 +220,9 @@ async function ensureItemSet(key, uuid, payloadFactory) {
   const existing = findResourceByLiteral(context.itemSets, "pnpu:uuid", uuid);
 
   if (existing !== null) {
-    actions.push({ type: "item_set", key, status: "exists", id: existing });
-    return existing;
+    const id = readOmekaId(existing);
+    actions.push({ type: "item_set", key, status: "exists", id });
+    return id;
   }
 
   actions.push({ type: "item_set", key, status: dryRun ? "would_create" : "created" });
@@ -283,12 +306,16 @@ function optionalUri(term, value) {
 function uri(term, value) {
   return {
     term,
-    value: {
-      type: "uri",
-      property_id: requirePropertyId(term),
-      "@id": value,
-      "o:label": value,
-    },
+    value: uriValue(term, value),
+  };
+}
+
+function uriValue(term, value) {
+  return {
+    type: "uri",
+    property_id: requirePropertyId(term),
+    "@id": value,
+    "o:label": value,
   };
 }
 
@@ -374,11 +401,20 @@ function findResourceByLiteral(resources, term, value) {
     const values = Array.isArray(resource[term]) ? resource[term] : [];
 
     if (values.some((item) => item?.["@value"] === value)) {
-      return readOmekaId(resource);
+      return resource;
     }
   }
 
   return null;
+}
+
+function replaceResource(resources, updatedResource) {
+  const id = readOmekaId(updatedResource);
+  const index = resources.findIndex((resource) => readOmekaId(resource) === id);
+
+  if (index >= 0) {
+    resources[index] = updatedResource;
+  }
 }
 
 async function listAll(path) {
@@ -414,6 +450,21 @@ async function getJsonArray(path, query) {
 async function postJson(path, payload) {
   const response = await fetchOmeka(path, {
     method: "POST",
+    body: JSON.stringify(payload),
+    headers: { "Content-Type": "application/json" },
+  });
+  const payloadResponse = await response.json();
+
+  if (!isJsonObject(payloadResponse)) {
+    throw new Error(`Omeka returned invalid JSON object for ${path}.`);
+  }
+
+  return payloadResponse;
+}
+
+async function patchJson(path, payload) {
+  const response = await fetchOmeka(path, {
+    method: "PATCH",
     body: JSON.stringify(payload),
     headers: { "Content-Type": "application/json" },
   });
@@ -495,6 +546,18 @@ function readOmekaId(resource) {
   }
 
   return id;
+}
+
+function readFirstUri(resource, term) {
+  const values = Array.isArray(resource[term]) ? resource[term] : [];
+
+  for (const value of values) {
+    if (typeof value?.["@id"] === "string" && value["@id"].trim().length > 0) {
+      return value["@id"];
+    }
+  }
+
+  return null;
 }
 
 function stableNegativeId(value) {

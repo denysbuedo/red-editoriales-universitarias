@@ -36,6 +36,7 @@ const runtimePaths = [
   "src/app/robots.ts",
   "src/app/sitemap.ts",
   "src/app/v1",
+  "src/app/vocabularies",
   "src/app/version/route.ts",
   "src/modules/catalog",
   "src/proxy.ts",

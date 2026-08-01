@@ -84,31 +84,31 @@
         "key": "educacion-superior",
         "notation": "37.01",
         "prefLabel": "Educacion superior",
-        "uri": "https://pnpu.mes.gob.cu/vocabularies/subjects/37-01"
+        "uri": "https://editorial.reduniv.edu.cu/materias/37.01"
       },
       {
         "key": "gestion-editorial",
         "notation": "070.5",
         "prefLabel": "Gestion editorial",
-        "uri": "https://pnpu.mes.gob.cu/vocabularies/subjects/070-5"
+        "uri": "https://editorial.reduniv.edu.cu/materias/070.5"
       },
       {
         "key": "ingenieria",
         "notation": "62",
         "prefLabel": "Ingenieria y tecnologia",
-        "uri": "https://pnpu.mes.gob.cu/vocabularies/subjects/62"
+        "uri": "https://editorial.reduniv.edu.cu/materias/62"
       },
       {
         "key": "ciencias-sociales",
         "notation": "30",
         "prefLabel": "Ciencias sociales",
-        "uri": "https://pnpu.mes.gob.cu/vocabularies/subjects/30"
+        "uri": "https://editorial.reduniv.edu.cu/materias/30"
       },
       {
         "key": "desarrollo-local",
         "notation": "332.1",
         "prefLabel": "Desarrollo local",
-        "uri": "https://pnpu.mes.gob.cu/vocabularies/subjects/332-1"
+        "uri": "https://editorial.reduniv.edu.cu/materias/332.1"
       }
     ],
     "contributors": [
