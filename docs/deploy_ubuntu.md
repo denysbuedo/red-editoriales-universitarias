@@ -38,7 +38,7 @@ Para la version actual validada localmente:
 
 ```text
 Artefacto: artifacts/pnpu-portal-0.1.0.tar.gz
-SHA-256: 19b9dc1b60d2cabcb1981502f7470a9d801cd42d60d808f3bf75b870ec1a3ee8
+SHA-256: 0dff6ea01240b85539a9946a570ced03fbe19dfe1877d72ff45ff3247b87ffd8
 ```
 
 Si se regenera el artefacto, usar siempre el nuevo `.sha256`.
@@ -389,7 +389,7 @@ artifacts/pnpu-omeka-tools-0.1.0.tar.gz.sha256
 Checksum actual:
 
 ```text
-473de1119fe6b648de1aeaafaf032609fc6cea10b99dbc3ce466d0869187906a  pnpu-omeka-tools-0.1.0.tar.gz
+b99ce56b65c97d1a652fb4eb4669b3cf7fb381cd801c80ab30ff5a1076d7e8b3  pnpu-omeka-tools-0.1.0.tar.gz
 ```
 
 Desde la PC de desarrollo:

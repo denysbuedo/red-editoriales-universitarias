@@ -165,6 +165,8 @@ async function ensureSubject(subject) {
 
       if (!dryRun) {
         const updated = await patchJson(`/api/items/${id}`, {
+          "skos:notation": [literalValue("skos:notation", subject.notation)],
+          "skos:prefLabel": [literalValue("skos:prefLabel", subject.prefLabel)],
           "schema:url": [uriValue("schema:url", subject.uri)],
         });
         replaceResource(context.items, updated);

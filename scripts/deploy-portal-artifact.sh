@@ -23,6 +23,25 @@ require_command() {
   command -v "$1" >/dev/null 2>&1 || fail "Required command not found: $1"
 }
 
+wait_for_endpoint() {
+  local path="$1"
+  local attempts="${2:-30}"
+  local url="${HEALTH_BASE_URL}${path}"
+
+  for attempt in $(seq 1 "$attempts"); do
+    if curl --fail --silent --show-error "$url"; then
+      printf '\n'
+      return 0
+    fi
+
+    if [ "$attempt" -lt "$attempts" ]; then
+      sleep 1
+    fi
+  done
+
+  fail "Endpoint did not become available: ${url}"
+}
+
 select_single_file() {
   local pattern="$1"
   local files=()
@@ -134,10 +153,8 @@ sudo systemctl restart "$SERVICE_NAME"
 
 info "Checking service and health endpoints"
 sudo systemctl status "$SERVICE_NAME" --no-pager
-curl --fail --silent --show-error "${HEALTH_BASE_URL}/health/live"
-printf '\n'
-curl --fail --silent --show-error "${HEALTH_BASE_URL}/health/ready"
-printf '\n'
+wait_for_endpoint "/health/live"
+wait_for_endpoint "/health/ready"
 curl --fail --silent --show-error "${HEALTH_BASE_URL}/health/catalog" || true
 printf '\n'
 
