@@ -22,6 +22,7 @@ const runtimePaths = [
   "package.json",
   "package-lock.json",
   "public",
+  "scripts/deploy-portal-artifact.sh",
   "scripts/health-check.sh",
   "src/app/health/live/route.ts",
   "src/app/health/ready/route.ts",
@@ -129,6 +130,19 @@ function buildSbom() {
   };
 }
 
+function writeRuntimePackageJson() {
+  const runtimePackageJson = JSON.parse(JSON.stringify(packageJson));
+
+  if (runtimePackageJson.scripts && typeof runtimePackageJson.scripts === "object") {
+    delete runtimePackageJson.scripts.prepare;
+  }
+
+  writeFileSync(
+    join(stagingDir, "package.json"),
+    `${JSON.stringify(runtimePackageJson, null, 2)}\n`,
+  );
+}
+
 async function main() {
   if (!existsSync(join(root, ".next"))) {
     throw new Error("Missing .next build output. Run npm run build before packaging.");
@@ -140,6 +154,8 @@ async function main() {
   for (const relativePath of runtimePaths) {
     await copyIfExists(relativePath);
   }
+
+  writeRuntimePackageJson();
 
   const commit = runGit(["rev-parse", "HEAD"]);
   const shortLog = runGit(["log", "-10", "--pretty=format:- %h %s"]);

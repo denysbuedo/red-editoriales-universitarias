@@ -135,6 +135,12 @@ function main() {
     "Manifest files must include catalog repository factory.",
   );
 
+  const runtimePackageJson = JSON.parse(readFileSync(join(stagingDir, "package.json"), "utf-8"));
+  assert(
+    !runtimePackageJson.scripts?.prepare,
+    "Runtime package.json must not include the development prepare script.",
+  );
+
   console.log(`Release artifact validation passed for ${basename(packagePath)}.`);
 }
 
