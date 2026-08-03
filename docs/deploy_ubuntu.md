@@ -38,7 +38,7 @@ Para la version actual validada localmente:
 
 ```text
 Artefacto: artifacts/pnpu-portal-0.1.0.tar.gz
-SHA-256: 0dff6ea01240b85539a9946a570ced03fbe19dfe1877d72ff45ff3247b87ffd8
+SHA-256: 0d105b82b6ba0098e3715d4c90e0a9c4087463cccf32e2b30b3d08ea6776941a
 ```
 
 Si se regenera el artefacto, usar siempre el nuevo `.sha256`.

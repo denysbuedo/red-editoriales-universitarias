@@ -70,7 +70,7 @@ async function authorizeAdminImportPageRequest(
   const authResponse = await authorizePublicationImportAdminRequest(authRequest, "admin page");
 
   if (authResponse !== null) {
-    return adminPageUnauthorizedResponse(authResponse.status);
+    return adminPageUnauthorizedResponse(request.nextUrl, authResponse.status);
   }
 
   if (queryToken !== null) {
@@ -92,7 +92,14 @@ async function authorizeAdminImportPageRequest(
   return null;
 }
 
-function adminPageUnauthorizedResponse(status: number): NextResponse {
+function adminPageUnauthorizedResponse(requestUrl: URL, status: number): NextResponse {
+  if (shouldRedirectAdminPageToOidcLogin()) {
+    const loginUrl = new URL("/api/admin/auth/login", requestUrl);
+    loginUrl.searchParams.set("returnTo", ADMIN_IMPORT_PAGE_PATH);
+
+    return NextResponse.redirect(loginUrl);
+  }
+
   return new NextResponse(
     `<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Acceso administrativo requerido</title></head><body><main><h1>Acceso administrativo requerido</h1><p>Use una sesion OIDC valida o un token administrativo local autorizado.</p></main></body></html>`,
     {
@@ -102,6 +109,12 @@ function adminPageUnauthorizedResponse(status: number): NextResponse {
       status,
     },
   );
+}
+
+function shouldRedirectAdminPageToOidcLogin(): boolean {
+  const authMode = process.env.PNPU_ADMIN_AUTH_MODE?.trim().toLowerCase();
+
+  return authMode === "oidc" || authMode === "hybrid";
 }
 
 export const config = {

@@ -10,6 +10,23 @@ describe("proxy", () => {
     delete process.env.PNPU_PUBLICATION_IMPORT_TOKEN;
   });
 
+  it("redirects the publication import admin page to OIDC login when OIDC mode is enabled", async () => {
+    process.env.PNPU_ADMIN_AUTH_MODE = "oidc";
+    process.env.PNPU_ENABLE_REQUEST_LOGS = "false";
+    process.env.PNPU_OIDC_AUDIENCE = "pnpu-portal";
+    process.env.PNPU_OIDC_CLIENT_ID = "pnpu-portal";
+    process.env.PNPU_OIDC_ISSUER = "https://identidad.reduniv.edu.cu/realms/pnpu";
+
+    const response = await proxy(
+      new NextRequest("https://editorial.reduniv.edu.cu/admin/importaciones/publicaciones"),
+    );
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("Location")).toBe(
+      "https://editorial.reduniv.edu.cu/api/admin/auth/login?returnTo=%2Fadmin%2Fimportaciones%2Fpublicaciones",
+    );
+  });
+
   it("protects the publication import admin page", async () => {
     process.env.PNPU_ENABLE_REQUEST_LOGS = "false";
     process.env.PNPU_PUBLICATION_IMPORT_TOKEN = "expected-token";
