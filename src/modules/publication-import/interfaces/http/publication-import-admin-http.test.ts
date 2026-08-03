@@ -428,6 +428,38 @@ describe("publication import admin HTTP helpers", () => {
     }
   });
 
+  it("returns a service error when the OIDC issuer cannot be reached during login", async () => {
+    const previousValues = snapshotEnvironment([
+      "PNPU_OIDC_AUDIENCE",
+      "PNPU_OIDC_CLIENT_ID",
+      "PNPU_OIDC_ISSUER",
+    ]);
+    const issuer = "https://keycloak.example.edu/realms/pnpu";
+    process.env.PNPU_OIDC_ISSUER = issuer;
+    process.env.PNPU_OIDC_AUDIENCE = "pnpu-portal";
+    process.env.PNPU_OIDC_CLIENT_ID = "pnpu-portal";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() => Promise.reject(new Error("connect timeout"))),
+    );
+
+    try {
+      const response = await buildPublicationImportAdminLoginResponse(
+        new Request(
+          "https://pnpu.mes.gob.cu/api/admin/auth/login?returnTo=/admin/importaciones/publicaciones",
+        ),
+      );
+
+      expect(response.status).toBe(503);
+      await expect(response.json()).resolves.toEqual({
+        code: "PNPU-503",
+        message: "Publication import admin login cannot reach the configured OIDC issuer.",
+      });
+    } finally {
+      restoreEnvironmentSnapshot(previousValues);
+    }
+  });
+
   it("exchanges an OIDC callback for an admin session cookie", async () => {
     const previousIssuer = process.env.PNPU_OIDC_ISSUER;
     const previousAudience = process.env.PNPU_OIDC_AUDIENCE;

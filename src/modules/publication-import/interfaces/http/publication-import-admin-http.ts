@@ -141,7 +141,11 @@ export async function buildPublicationImportAdminLoginResponse(
     );
   }
 
-  const discovery = await readOidcDiscovery(config.issuer, fetch);
+  const discovery = await readOidcDiscoveryForLogin(config.issuer, fetch);
+
+  if (discovery instanceof NextResponse) {
+    return discovery;
+  }
 
   if (discovery.authorization_endpoint === undefined) {
     return NextResponse.json(
@@ -184,6 +188,23 @@ export async function buildPublicationImportAdminLoginResponse(
   response.cookies.set(OIDC_STATE_COOKIE, state, cookieOptions);
 
   return response;
+}
+
+async function readOidcDiscoveryForLogin(
+  issuer: string,
+  fetchFn: FetchLike,
+): Promise<OidcDiscoveryDocument | NextResponse> {
+  try {
+    return await readOidcDiscovery(issuer, fetchFn);
+  } catch {
+    return NextResponse.json(
+      {
+        code: "PNPU-503",
+        message: "Publication import admin login cannot reach the configured OIDC issuer.",
+      },
+      { status: 503 },
+    );
+  }
 }
 
 export async function buildPublicationImportAdminCallbackResponse(

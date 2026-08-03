@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { cp, readdir, stat } from "node:fs/promises";
 import { basename, join } from "node:path";
 import { execFileSync } from "node:child_process";
@@ -75,14 +75,51 @@ async function copyIfExists(relativePath) {
     recursive: true,
     filter: (path) => {
       const normalizedPath = path.replaceAll("\\", "/");
-      return (
-        !normalizedPath.includes("/.next/cache") &&
-        !normalizedPath.includes("/.next/dev") &&
-        !normalizedPath.includes("/.next/turbopack") &&
-        !/\.test\.[jt]sx?$/.test(normalizedPath)
-      );
+      return shouldIncludeRuntimePath(normalizedPath);
     },
   });
+}
+
+function shouldIncludeRuntimePath(path) {
+  const normalizedPath = path.replaceAll("\\", "/");
+
+  return (
+    !normalizedPath.includes("/.next/cache") &&
+    !normalizedPath.includes("/.next/dev") &&
+    !normalizedPath.includes("/.next/turbopack") &&
+    !/\.test\.[jt]sx?$/.test(normalizedPath)
+  );
+}
+
+async function assertBuildOutputIsFresh() {
+  const buildIdPath = join(root, ".next", "BUILD_ID");
+
+  if (!existsSync(buildIdPath)) {
+    throw new Error("Missing .next/BUILD_ID. Run npm run build before packaging.");
+  }
+
+  const buildTime = statSync(buildIdPath).mtimeMs;
+  const stalePaths = [];
+
+  for (const relativePath of runtimePaths.filter((path) => path !== ".next")) {
+    const source = join(root, relativePath);
+
+    if (!existsSync(source)) {
+      continue;
+    }
+
+    const newestSourceTime = await newestModifiedTime(source);
+
+    if (newestSourceTime > buildTime) {
+      stalePaths.push(relativePath);
+    }
+  }
+
+  if (stalePaths.length > 0) {
+    throw new Error(
+      `Build output is older than runtime sources. Run npm run build before packaging. Stale paths: ${stalePaths.join(", ")}`,
+    );
+  }
 }
 
 async function listFiles(directory, prefix = "") {
@@ -102,6 +139,25 @@ async function listFiles(directory, prefix = "") {
   }
 
   return files.sort();
+}
+
+async function newestModifiedTime(path) {
+  if (!shouldIncludeRuntimePath(path)) {
+    return 0;
+  }
+
+  const details = await stat(path);
+
+  if (!details.isDirectory()) {
+    return details.mtimeMs;
+  }
+
+  const entries = await readdir(path);
+  const childTimes = await Promise.all(
+    entries.map((entry) => newestModifiedTime(join(path, entry))),
+  );
+
+  return Math.max(details.mtimeMs, ...childTimes);
 }
 
 function buildSbom() {
@@ -148,6 +204,8 @@ async function main() {
   if (!existsSync(join(root, ".next"))) {
     throw new Error("Missing .next build output. Run npm run build before packaging.");
   }
+
+  await assertBuildOutputIsFresh();
 
   rmSync(stagingDir, { force: true, recursive: true });
   mkdirSync(stagingDir, { recursive: true });
