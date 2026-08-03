@@ -379,13 +379,17 @@ describe("publication import admin HTTP helpers", () => {
   });
 
   it("builds an OIDC login redirect with PKCE cookies", async () => {
-    const previousIssuer = process.env.PNPU_OIDC_ISSUER;
-    const previousAudience = process.env.PNPU_OIDC_AUDIENCE;
-    const previousClientId = process.env.PNPU_OIDC_CLIENT_ID;
+    const previousValues = snapshotEnvironment([
+      "PNPU_OIDC_AUDIENCE",
+      "PNPU_OIDC_CLIENT_ID",
+      "PNPU_OIDC_ISSUER",
+      "PNPU_PUBLIC_BASE_URL",
+    ]);
     const issuer = "https://keycloak.example.edu/realms/pnpu";
     process.env.PNPU_OIDC_ISSUER = issuer;
     process.env.PNPU_OIDC_AUDIENCE = "pnpu-portal";
     process.env.PNPU_OIDC_CLIENT_ID = "pnpu-portal";
+    process.env.PNPU_PUBLIC_BASE_URL = "https://editorial.reduniv.edu.cu";
     vi.stubGlobal(
       "fetch",
       vi.fn(() =>
@@ -415,16 +419,14 @@ describe("publication import admin HTTP helpers", () => {
       expect(new URL(location ?? "").searchParams.get("client_id")).toBe("pnpu-portal");
       expect(new URL(location ?? "").searchParams.get("code_challenge_method")).toBe("S256");
       expect(new URL(location ?? "").searchParams.get("redirect_uri")).toBe(
-        "https://pnpu.mes.gob.cu/api/admin/auth/callback",
+        "https://editorial.reduniv.edu.cu/api/admin/auth/callback",
       );
       expect(cookies).toContain("pnpu_oidc_code_verifier=");
       expect(cookies).toContain("pnpu_oidc_nonce=");
       expect(cookies).toContain("pnpu_oidc_return_to=%2Fadmin%2Fimportaciones%2Fpublicaciones");
       expect(cookies).toContain("pnpu_oidc_state=");
     } finally {
-      restoreEnvironmentValue("PNPU_OIDC_ISSUER", previousIssuer);
-      restoreEnvironmentValue("PNPU_OIDC_AUDIENCE", previousAudience);
-      restoreEnvironmentValue("PNPU_OIDC_CLIENT_ID", previousClientId);
+      restoreEnvironmentSnapshot(previousValues);
     }
   });
 

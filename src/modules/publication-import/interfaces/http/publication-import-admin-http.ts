@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { ApplicationError } from "@/modules/catalog/application";
+import { getRuntimeConfig } from "@/shared/config/runtime-config";
 import { getCorrelationIdHeaderName, resolveCorrelationId } from "@/shared/http/correlation-id";
 
 type FetchLike = (input: string | URL | Request, init?: RequestInit) => Promise<Response>;
@@ -163,12 +164,13 @@ export async function buildPublicationImportAdminLoginResponse(
   const codeVerifier = randomBase64Url(64);
   const codeChallenge = await sha256Base64Url(codeVerifier);
   const authorizationUrl = new URL(discovery.authorization_endpoint);
+  const redirectUri = buildAdminAuthCallbackUrl();
 
   authorizationUrl.searchParams.set("client_id", config.clientId);
   authorizationUrl.searchParams.set("code_challenge", codeChallenge);
   authorizationUrl.searchParams.set("code_challenge_method", "S256");
   authorizationUrl.searchParams.set("nonce", nonce);
-  authorizationUrl.searchParams.set("redirect_uri", `${requestUrl.origin}/api/admin/auth/callback`);
+  authorizationUrl.searchParams.set("redirect_uri", redirectUri);
   authorizationUrl.searchParams.set("response_type", "code");
   authorizationUrl.searchParams.set("scope", config.scopes);
   authorizationUrl.searchParams.set("state", state);
@@ -256,7 +258,7 @@ export async function buildPublicationImportAdminCallbackResponse(
       clientSecret: config.clientSecret,
       code,
       codeVerifier,
-      redirectUri: `${requestUrl.origin}/api/admin/auth/callback`,
+      redirectUri: buildAdminAuthCallbackUrl(),
       tokenEndpoint: discovery.token_endpoint,
     });
     const sessionToken = tokenResponse.access_token ?? tokenResponse.id_token;
@@ -852,6 +854,10 @@ function readSafeReturnToValue(value: string): string {
   return value.startsWith("/admin/") && !value.startsWith("//")
     ? value
     : "/admin/importaciones/publicaciones";
+}
+
+function buildAdminAuthCallbackUrl(): string {
+  return `${getRuntimeConfig().publicBaseUrl}/api/admin/auth/callback`;
 }
 
 function clearOidcTemporaryCookies(response: NextResponse): void {
