@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { ApplicationError } from "@/modules/catalog/application";
 import { getRuntimeConfig } from "@/shared/config/runtime-config";
 import { getCorrelationIdHeaderName, resolveCorrelationId } from "@/shared/http/correlation-id";
+import { writeStructuredLog } from "@/shared/observability/logger";
 
 type FetchLike = (input: string | URL | Request, init?: RequestInit) => Promise<Response>;
 
@@ -212,6 +213,7 @@ async function readOidcDiscoveryForLogin(
 export async function buildPublicationImportAdminCallbackResponse(
   request: Request,
 ): Promise<NextResponse> {
+  const correlationId = resolveCorrelationId(request.headers);
   const config = readOidcAdminConfig(process.env);
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
@@ -231,13 +233,20 @@ export async function buildPublicationImportAdminCallbackResponse(
     nonce === undefined ||
     state !== expectedState
   ) {
-    return NextResponse.json(
-      {
-        code: "PNPU-403",
-        message: "Publication import admin login callback is invalid.",
-      },
-      { status: 403 },
+    logOidcCallbackFailure(
+      correlationId,
+      "callback_validation",
+      readCallbackValidationFailure({
+        code,
+        codeVerifier,
+        config,
+        expectedState,
+        nonce,
+        state,
+      }),
     );
+
+    return invalidOidcCallbackResponse(correlationId);
   }
 
   const discovery = await readOidcDiscovery(config.issuer, fetch);
@@ -289,15 +298,83 @@ export async function buildPublicationImportAdminCallbackResponse(
     clearOidcTemporaryCookies(response);
 
     return response;
-  } catch {
-    return NextResponse.json(
-      {
-        code: "PNPU-403",
-        message: "Publication import admin login callback is invalid.",
-      },
-      { status: 403 },
+  } catch (error) {
+    logOidcCallbackFailure(
+      correlationId,
+      "callback_exchange_or_verification",
+      readErrorReason(error),
     );
+
+    return invalidOidcCallbackResponse(correlationId);
   }
+}
+
+function invalidOidcCallbackResponse(correlationId: string): NextResponse {
+  const response = NextResponse.json(
+    {
+      code: "PNPU-403",
+      message: "Publication import admin login callback is invalid.",
+      correlationId,
+    },
+    { status: 403 },
+  );
+
+  response.headers.set(getCorrelationIdHeaderName(), correlationId);
+  return response;
+}
+
+function logOidcCallbackFailure(correlationId: string, stage: string, reason: string): void {
+  writeStructuredLog({
+    correlationId,
+    event: "publication_import.admin_oidc_callback_failed",
+    level: "warn",
+    reason,
+    service: "pnpu-portal",
+    stage,
+  });
+}
+
+function readCallbackValidationFailure(command: {
+  readonly code: string | null;
+  readonly codeVerifier: string | undefined;
+  readonly config: ReturnType<typeof readOidcAdminConfig>;
+  readonly expectedState: string | undefined;
+  readonly nonce: string | undefined;
+  readonly state: string | null;
+}): string {
+  if (command.config === null) {
+    return "OIDC admin configuration is incomplete.";
+  }
+
+  if (command.code === null) {
+    return "OIDC callback does not include code.";
+  }
+
+  if (command.state === null) {
+    return "OIDC callback does not include state.";
+  }
+
+  if (command.expectedState === undefined) {
+    return "OIDC callback state cookie is missing.";
+  }
+
+  if (command.codeVerifier === undefined) {
+    return "OIDC callback code verifier cookie is missing.";
+  }
+
+  if (command.nonce === undefined) {
+    return "OIDC callback nonce cookie is missing.";
+  }
+
+  if (command.state !== command.expectedState) {
+    return "OIDC callback state does not match the stored state.";
+  }
+
+  return "OIDC callback validation failed.";
+}
+
+function readErrorReason(error: unknown): string {
+  return error instanceof Error ? error.message : "Unknown OIDC callback error.";
 }
 
 export function buildPublicationImportAdminLogoutResponse(request: Request): NextResponse {
@@ -740,7 +817,7 @@ async function exchangeAuthorizationCode(command: {
   });
 
   if (!response.ok) {
-    throw new Error("OIDC token exchange failed.");
+    throw new Error(await readOidcTokenExchangeFailureReason(response));
   }
 
   const payload = (await response.json()) as unknown;
@@ -750,6 +827,17 @@ async function exchangeAuthorizationCode(command: {
   }
 
   return payload;
+}
+
+async function readOidcTokenExchangeFailureReason(response: Response): Promise<string> {
+  const error = await readOidcErrorResponse(response);
+  const status = response.status.toString();
+
+  if (error !== null) {
+    return `OIDC token exchange failed with HTTP ${status}: ${error}`;
+  }
+
+  return `OIDC token exchange failed with HTTP ${status}.`;
 }
 
 async function readOidcDiscovery(
@@ -780,6 +868,37 @@ async function readOidcDiscovery(
 
   oidcDiscoveryCache.set(issuer, payload);
   return payload;
+}
+
+async function readOidcErrorResponse(response: Response): Promise<string | null> {
+  const contentType = response.headers.get("Content-Type") ?? "";
+
+  if (!contentType.toLowerCase().includes("application/json")) {
+    return null;
+  }
+
+  try {
+    const payload = (await response.json()) as unknown;
+
+    if (typeof payload !== "object" || payload === null || Array.isArray(payload)) {
+      return null;
+    }
+
+    const error = "error" in payload ? payload.error : undefined;
+    const description = "error_description" in payload ? payload.error_description : undefined;
+
+    if (typeof error === "string" && typeof description === "string") {
+      return `${error}: ${description}`;
+    }
+
+    if (typeof error === "string") {
+      return error;
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
 }
 
 function readJwtHeader(part: string): JwtHeader {

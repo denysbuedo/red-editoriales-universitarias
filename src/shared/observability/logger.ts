@@ -14,6 +14,9 @@ interface LogEvent {
   correlationId?: string;
   method?: string;
   path?: string;
+  reason?: string;
+  stage?: string;
+  status?: number;
 }
 
 interface LoggerEnvironment {
