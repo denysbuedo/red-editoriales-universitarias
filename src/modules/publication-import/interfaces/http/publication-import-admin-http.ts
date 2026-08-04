@@ -286,7 +286,7 @@ export async function buildPublicationImportAdminCallbackResponse(
       throw new Error("OIDC token does not include the required role.");
     }
 
-    const response = NextResponse.redirect(new URL(readSafeReturnToValue(returnTo), requestUrl));
+    const response = NextResponse.redirect(buildPublicUrl(readSafeReturnToValue(returnTo)));
 
     response.cookies.set(ADMIN_SESSION_COOKIE, sessionToken, {
       httpOnly: true,
@@ -379,7 +379,7 @@ function readErrorReason(error: unknown): string {
 
 export function buildPublicationImportAdminLogoutResponse(request: Request): NextResponse {
   const requestUrl = new URL(request.url);
-  const response = NextResponse.redirect(new URL("/", requestUrl));
+  const response = NextResponse.redirect(buildPublicUrl("/"));
 
   response.cookies.set(ADMIN_SESSION_COOKIE, "", {
     httpOnly: true,
@@ -977,6 +977,10 @@ function readSafeReturnToValue(value: string): string {
 
 function buildAdminAuthCallbackUrl(): string {
   return `${getRuntimeConfig().publicBaseUrl}/api/admin/auth/callback`;
+}
+
+function buildPublicUrl(path: string): URL {
+  return new URL(path, getRuntimeConfig().publicBaseUrl);
 }
 
 function clearOidcTemporaryCookies(response: NextResponse): void {

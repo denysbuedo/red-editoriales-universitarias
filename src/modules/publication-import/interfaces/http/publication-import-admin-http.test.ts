@@ -463,10 +463,13 @@ describe("publication import admin HTTP helpers", () => {
   });
 
   it("exchanges an OIDC callback for an admin session cookie", async () => {
-    const previousIssuer = process.env.PNPU_OIDC_ISSUER;
-    const previousAudience = process.env.PNPU_OIDC_AUDIENCE;
-    const previousClientId = process.env.PNPU_OIDC_CLIENT_ID;
-    const previousRequiredRole = process.env.PNPU_ADMIN_REQUIRED_ROLE;
+    const previousValues = snapshotEnvironment([
+      "PNPU_ADMIN_REQUIRED_ROLE",
+      "PNPU_OIDC_AUDIENCE",
+      "PNPU_OIDC_CLIENT_ID",
+      "PNPU_OIDC_ISSUER",
+      "PNPU_PUBLIC_BASE_URL",
+    ]);
     const issuer = "https://keycloak.example.edu/realms/pnpu";
     const audience = "pnpu-portal";
     const nonce = "expected-nonce";
@@ -531,10 +534,11 @@ describe("publication import admin HTTP helpers", () => {
     process.env.PNPU_OIDC_AUDIENCE = audience;
     process.env.PNPU_OIDC_CLIENT_ID = audience;
     process.env.PNPU_ADMIN_REQUIRED_ROLE = "pnpu-admin";
+    process.env.PNPU_PUBLIC_BASE_URL = "https://editorial.reduniv.edu.cu";
 
     try {
       const response = await buildPublicationImportAdminCallbackResponse(
-        new Request("https://pnpu.mes.gob.cu/api/admin/auth/callback?code=abc&state=state-1", {
+        new Request("https://localhost:3000/api/admin/auth/callback?code=abc&state=state-1", {
           headers: {
             Cookie:
               "pnpu_oidc_code_verifier=verifier-1; pnpu_oidc_nonce=expected-nonce; pnpu_oidc_return_to=%2Fadmin%2Fimportaciones%2Fpublicaciones; pnpu_oidc_state=state-1",
@@ -545,28 +549,29 @@ describe("publication import admin HTTP helpers", () => {
 
       expect(response.status).toBe(307);
       expect(response.headers.get("Location")).toBe(
-        "https://pnpu.mes.gob.cu/admin/importaciones/publicaciones",
+        "https://editorial.reduniv.edu.cu/admin/importaciones/publicaciones",
       );
       expect(cookies).toContain("pnpu_admin_session=");
       expect(cookies).toContain("HttpOnly");
     } finally {
-      restoreEnvironmentValue("PNPU_OIDC_ISSUER", previousIssuer);
-      restoreEnvironmentValue("PNPU_OIDC_AUDIENCE", previousAudience);
-      restoreEnvironmentValue("PNPU_OIDC_CLIENT_ID", previousClientId);
-      restoreEnvironmentValue("PNPU_ADMIN_REQUIRED_ROLE", previousRequiredRole);
+      restoreEnvironmentSnapshot(previousValues);
     }
   });
 
   it("clears the OIDC admin session on logout", () => {
+    const previousPublicBaseUrl = process.env.PNPU_PUBLIC_BASE_URL;
+    process.env.PNPU_PUBLIC_BASE_URL = "https://editorial.reduniv.edu.cu";
+
     const response = buildPublicationImportAdminLogoutResponse(
-      new Request("https://pnpu.mes.gob.cu/api/admin/auth/logout"),
+      new Request("https://localhost:3000/api/admin/auth/logout"),
     );
     const cookies = response.headers.get("Set-Cookie") ?? "";
 
     expect(response.status).toBe(307);
-    expect(response.headers.get("Location")).toBe("https://pnpu.mes.gob.cu/");
+    expect(response.headers.get("Location")).toBe("https://editorial.reduniv.edu.cu/");
     expect(cookies).toContain("pnpu_admin_session=");
     expect(cookies).toContain("Max-Age=0");
+    restoreEnvironmentValue("PNPU_PUBLIC_BASE_URL", previousPublicBaseUrl);
   });
 
   it("maps application errors to HTTP status codes with correlation ids", async () => {
