@@ -4,14 +4,21 @@ import type { PublicationImportAdminSessionSummary } from "@/modules/publication
 
 export function AdminSessionMenu({
   session,
+  variant = "panel",
 }: {
   readonly session: PublicationImportAdminSessionSummary | null;
+  readonly variant?: "header" | "panel";
 }) {
   const displayName = session?.displayName ?? "Usuario autenticado";
+  const compact = variant === "header";
 
   return (
     <details className="relative">
-      <summary className="flex min-h-10 cursor-pointer list-none items-center gap-3 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm hover:border-blue-800">
+      <summary
+        className={`flex cursor-pointer list-none items-center gap-3 rounded-md border border-slate-300 bg-white text-sm text-slate-900 shadow-sm hover:border-blue-800 ${
+          compact ? "min-h-9 px-2.5 py-1.5" : "min-h-10 px-3 py-2"
+        }`}
+      >
         <span
           className="flex size-7 shrink-0 items-center justify-center rounded-full bg-blue-950 text-xs font-bold uppercase text-white"
           aria-hidden="true"
@@ -20,7 +27,7 @@ export function AdminSessionMenu({
         </span>
         <span className="min-w-0">
           <span className="block max-w-40 truncate font-semibold">{displayName}</span>
-          <span className="block text-xs text-slate-600">Sesión activa</span>
+          {compact ? null : <span className="block text-xs text-slate-600">Sesión activa</span>}
         </span>
       </summary>
       <div className="absolute right-0 z-20 mt-2 w-72 rounded-md border border-slate-200 bg-white p-4 shadow-lg">

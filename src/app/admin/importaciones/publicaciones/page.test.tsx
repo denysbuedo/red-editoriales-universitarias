@@ -1,11 +1,5 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import { beforeEach, describe, expect, it, vi } from "vitest";
-
-const cookiesMock = vi.hoisted(() => vi.fn());
-
-vi.mock("next/headers", () => ({
-  cookies: cookiesMock,
-}));
+import { describe, expect, it } from "vitest";
 
 import { readPublicationImportAdminSessionSummary } from "@/modules/publication-import/interfaces/http/publication-import-admin-session";
 
@@ -13,28 +7,11 @@ import PublicationImportDiagnosisPage from "./page";
 import { PublicationImportDiagnosisForm } from "./publication-import-diagnosis-form";
 
 describe("PublicationImportDiagnosisPage", () => {
-  beforeEach(() => {
-    cookiesMock.mockResolvedValue({
-      get: () => ({
-        value: buildUnsignedJwt({
-          email: "admin@example.edu",
-          name: "Admin PNPU",
-          preferred_username: "admin-pnpu",
-        }),
-      }),
-    });
-  });
-
-  it("renders the publication import diagnosis page", async () => {
-    const html = renderToStaticMarkup(await PublicationImportDiagnosisPage());
+  it("renders the publication import diagnosis page", () => {
+    const html = renderToStaticMarkup(<PublicationImportDiagnosisPage />);
 
     expect(html).toContain("Diagnóstico de publicaciones");
     expect(html).toContain("Revisión operativa de planillas XLSX");
-    expect(html).toContain("Sesión OIDC activa");
-    expect(html).toContain("Perfil administrativo");
-    expect(html).toContain("Admin PNPU");
-    expect(html).toContain("admin@example.edu");
-    expect(html).toContain("/api/admin/auth/logout");
   });
 
   it("reads the administrator session summary from the session token", () => {
