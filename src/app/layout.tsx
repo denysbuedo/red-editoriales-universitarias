@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
+import { SiteShell } from "./site-chrome";
+
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -15,7 +17,7 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="es-CU">
-      <body>{children}</body>
+      <SiteShell>{children}</SiteShell>
     </html>
   );
 }

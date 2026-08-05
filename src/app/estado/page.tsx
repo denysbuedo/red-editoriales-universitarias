@@ -33,13 +33,11 @@ export default async function CatalogStatusPage() {
 
   return (
     <main className="mx-auto min-h-screen max-w-6xl px-6 py-12">
-      <Link className="text-sm font-medium text-green-800 hover:text-green-950" href="/">
+      <Link className="text-sm font-medium text-blue-800 hover:text-blue-950" href="/">
         PNPU
       </Link>
       <header className="mt-8 border-b border-neutral-200 pb-8">
-        <p className="text-sm font-semibold uppercase tracking-normal text-green-800">
-          Diagnóstico
-        </p>
+        <p className="text-sm font-semibold uppercase tracking-normal text-blue-800">Diagnóstico</p>
         <h1 className="mt-3 text-3xl font-bold text-neutral-950 md:text-4xl">
           Estado del catálogo
         </h1>

@@ -56,11 +56,11 @@ export default async function PublicationsPage({ searchParams }: PublicationsPag
 
   return (
     <main className="mx-auto min-h-screen max-w-6xl px-6 py-12">
-      <Link className="text-sm font-medium text-green-800 hover:text-green-950" href="/">
+      <Link className="text-sm font-medium text-blue-800 hover:text-blue-950" href="/">
         PNPU
       </Link>
       <header className="mt-8 border-b border-neutral-200 pb-8">
-        <p className="text-sm font-semibold uppercase tracking-normal text-green-800">Catálogo</p>
+        <p className="text-sm font-semibold uppercase tracking-normal text-blue-800">Catálogo</p>
         <h1 className="mt-3 text-3xl font-bold text-neutral-950 md:text-4xl">
           Publicaciones universitarias
         </h1>
@@ -173,7 +173,7 @@ export default async function PublicationsPage({ searchParams }: PublicationsPag
         </label>
         <div className="flex min-w-0 items-end gap-2">
           <button
-            className="h-10 rounded-md bg-green-900 px-4 text-sm font-semibold text-white hover:bg-green-950"
+            className="h-10 rounded-md bg-blue-900 px-4 text-sm font-semibold text-white hover:bg-blue-950"
             type="submit"
           >
             Filtrar
@@ -214,7 +214,7 @@ export default async function PublicationsPage({ searchParams }: PublicationsPag
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               <Link
-                className="inline-flex rounded-md border border-green-800 px-3 py-2 text-sm font-semibold text-green-900 hover:bg-green-50"
+                className="inline-flex rounded-md border border-blue-800 px-3 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-50"
                 href="/publicaciones"
               >
                 Limpiar filtros
@@ -240,7 +240,7 @@ export default async function PublicationsPage({ searchParams }: PublicationsPag
                   <div className="min-w-0">
                     <div className="flex flex-wrap gap-2 text-sm text-neutral-600">
                       <Link
-                        className="font-medium text-green-800 hover:text-green-950"
+                        className="font-medium text-blue-800 hover:text-blue-950"
                         href={`/editoriales/${publication.publisher.id}`}
                       >
                         {publication.publisher.officialName}
@@ -251,7 +251,7 @@ export default async function PublicationsPage({ searchParams }: PublicationsPag
                     </div>
                     <h2 className="mt-2 text-xl font-semibold text-neutral-950">
                       <Link
-                        className="hover:text-green-800"
+                        className="hover:text-blue-800"
                         href={`/publicaciones/${publication.id}`}
                       >
                         {publication.title}
@@ -262,7 +262,7 @@ export default async function PublicationsPage({ searchParams }: PublicationsPag
                     ) : null}
                     <div className="mt-3 flex flex-wrap gap-2 text-xs font-medium text-neutral-700">
                       {publication.license ? (
-                        <span className="rounded-md bg-green-50 px-2 py-1 text-green-900">
+                        <span className="rounded-md bg-blue-50 px-2 py-1 text-blue-900">
                           {publication.license}
                         </span>
                       ) : null}
@@ -293,7 +293,7 @@ export default async function PublicationsPage({ searchParams }: PublicationsPag
                     ) : null}
                   </div>
                   <Link
-                    className="inline-flex rounded-md border border-green-800 px-3 py-2 text-sm font-semibold text-green-900 hover:bg-green-50"
+                    className="inline-flex rounded-md border border-blue-800 px-3 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-50"
                     href={`/publicaciones/${publication.id}`}
                   >
                     Ver ficha
@@ -463,7 +463,7 @@ function ActiveFilters({
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <p className="text-sm font-semibold text-neutral-800">Filtros activos</p>
         <Link
-          className="text-sm font-semibold text-green-800 hover:text-green-950"
+          className="text-sm font-semibold text-blue-800 hover:text-blue-950"
           href="/publicaciones"
         >
           Limpiar todo
@@ -627,7 +627,7 @@ function PaginationLink({
       aria-current={current ? "page" : undefined}
       className={
         current
-          ? "inline-flex h-9 items-center rounded-md bg-green-900 px-3 text-sm font-semibold text-white"
+          ? "inline-flex h-9 items-center rounded-md bg-blue-900 px-3 text-sm font-semibold text-white"
           : "inline-flex h-9 items-center rounded-md border border-neutral-300 px-3 text-sm font-medium text-neutral-800 hover:bg-neutral-50"
       }
       href={href}

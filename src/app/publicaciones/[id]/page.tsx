@@ -60,17 +60,17 @@ export default async function PublicationDetailPage({ params }: PublicationPageP
         id="publication-jsonld"
       />
       <nav className="flex flex-wrap gap-3 text-sm" aria-label="Breadcrumb">
-        <Link className="font-medium text-green-800 hover:text-green-950" href="/">
+        <Link className="font-medium text-blue-800 hover:text-blue-950" href="/">
           PNPU
         </Link>
         <span className="text-neutral-500">/</span>
-        <Link className="font-medium text-green-800 hover:text-green-950" href="/publicaciones">
+        <Link className="font-medium text-blue-800 hover:text-blue-950" href="/publicaciones">
           Publicaciones
         </Link>
       </nav>
 
       <article className="mt-8">
-        <p className="text-sm font-semibold uppercase tracking-normal text-green-800">
+        <p className="text-sm font-semibold uppercase tracking-normal text-blue-800">
           {publication.type}
         </p>
         <h1 className="mt-3 text-3xl font-bold leading-tight text-neutral-950 md:text-5xl">
@@ -88,14 +88,14 @@ export default async function PublicationDetailPage({ params }: PublicationPageP
         )}
         <div className="mt-6 flex flex-wrap gap-3">
           <Link
-            className="inline-flex rounded-md bg-green-900 px-4 py-2 text-sm font-semibold text-white hover:bg-green-950"
+            className="inline-flex rounded-md bg-blue-900 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-950"
             href={`/publicaciones?publisherId=${publication.publisher.id}`}
           >
             Ver catálogo de la editorial
           </Link>
           {publication.collection === undefined ? null : (
             <Link
-              className="inline-flex rounded-md border border-neutral-300 px-4 py-2 text-sm font-semibold text-neutral-900 hover:border-green-800 hover:text-green-900"
+              className="inline-flex rounded-md border border-neutral-300 px-4 py-2 text-sm font-semibold text-neutral-900 hover:border-blue-800 hover:text-blue-900"
               href={`/publicaciones?collectionId=${publication.collection.id}`}
             >
               Ver colección en catálogo
@@ -107,7 +107,7 @@ export default async function PublicationDetailPage({ params }: PublicationPageP
             <dt className="text-sm font-semibold text-neutral-600">Editorial</dt>
             <dd className="mt-1">
               <Link
-                className="font-medium text-green-800 hover:text-green-950"
+                className="font-medium text-blue-800 hover:text-blue-950"
                 href={`/editoriales/${publication.publisher.id}`}
               >
                 {publication.publisher.officialName}
@@ -119,7 +119,7 @@ export default async function PublicationDetailPage({ params }: PublicationPageP
               <dt className="text-sm font-semibold text-neutral-600">Colección</dt>
               <dd className="mt-1">
                 <Link
-                  className="font-medium text-green-800 hover:text-green-950"
+                  className="font-medium text-blue-800 hover:text-blue-950"
                   href={`/colecciones/${publication.collection.id}`}
                 >
                   {publication.collection.title}
@@ -192,7 +192,7 @@ export default async function PublicationDetailPage({ params }: PublicationPageP
                 key={contributor.id}
               >
                 <Link
-                  className="font-medium text-neutral-950 hover:text-green-800"
+                  className="font-medium text-neutral-950 hover:text-blue-800"
                   href={`/autores/${contributor.id}`}
                 >
                   {contributor.name}
@@ -202,7 +202,7 @@ export default async function PublicationDetailPage({ params }: PublicationPageP
                 </span>
                 {contributor.orcid === undefined ? null : (
                   <a
-                    className="ml-0 mt-1 block text-sm text-green-800 hover:text-green-950 md:ml-2 md:inline"
+                    className="ml-0 mt-1 block text-sm text-blue-800 hover:text-blue-950 md:ml-2 md:inline"
                     href={contributor.orcid}
                   >
                     {contributor.orcid}
@@ -224,20 +224,20 @@ export default async function PublicationDetailPage({ params }: PublicationPageP
                 <span className="font-medium text-neutral-950">{subject.preferredLabel}</span>
                 <span className="ml-2 text-sm text-neutral-600">{subject.identifier}</span>
                 <Link
-                  className="ml-0 mt-1 block text-sm text-green-800 hover:text-green-950 md:ml-2 md:inline"
+                  className="ml-0 mt-1 block text-sm text-blue-800 hover:text-blue-950 md:ml-2 md:inline"
                   href={`/publicaciones?subject=${encodeURIComponent(subject.identifier)}`}
                 >
                   Ver publicaciones
                 </Link>
                 <Link
-                  className="ml-0 mt-1 block text-sm text-green-800 hover:text-green-950 md:ml-2 md:inline"
+                  className="ml-0 mt-1 block text-sm text-blue-800 hover:text-blue-950 md:ml-2 md:inline"
                   href={`/materias/${encodeURIComponent(subject.identifier)}`}
                 >
                   Ficha de materia
                 </Link>
                 {subject.uri === undefined ? null : (
                   <a
-                    className="ml-0 mt-1 block text-sm text-green-800 hover:text-green-950 md:ml-2 md:inline"
+                    className="ml-0 mt-1 block text-sm text-blue-800 hover:text-blue-950 md:ml-2 md:inline"
                     href={subject.uri}
                   >
                     Vocabulario
@@ -291,7 +291,7 @@ export default async function PublicationDetailPage({ params }: PublicationPageP
                     )}
                   </div>
                   <a
-                    className="inline-flex rounded-md border border-green-800 px-3 py-2 text-sm font-semibold text-green-900 hover:bg-green-50"
+                    className="inline-flex rounded-md border border-blue-800 px-3 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-50"
                     href={resource.url}
                   >
                     Abrir recurso
@@ -388,7 +388,7 @@ function IdentifierValue({ identifier }: { readonly identifier: IdentifierDto })
   }
 
   return (
-    <a className="break-all text-sm font-medium text-green-800 hover:text-green-950" href={href}>
+    <a className="break-all text-sm font-medium text-blue-800 hover:text-blue-950" href={href}>
       {identifier.value}
     </a>
   );

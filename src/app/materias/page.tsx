@@ -20,11 +20,11 @@ export default async function SubjectsPage() {
 
   return (
     <main className="mx-auto min-h-screen max-w-6xl px-6 py-12">
-      <Link className="text-sm font-medium text-green-800 hover:text-green-950" href="/">
+      <Link className="text-sm font-medium text-blue-800 hover:text-blue-950" href="/">
         PNPU
       </Link>
       <header className="mt-8 border-b border-neutral-200 pb-8">
-        <p className="text-sm font-semibold uppercase tracking-normal text-green-800">Taxonomía</p>
+        <p className="text-sm font-semibold uppercase tracking-normal text-blue-800">Taxonomía</p>
         <h1 className="mt-3 text-3xl font-bold text-neutral-950 md:text-4xl">
           Materias del catálogo
         </h1>
@@ -43,7 +43,7 @@ export default async function SubjectsPage() {
               <p className="break-all text-sm text-neutral-600">{subject.identifier}</p>
               <h2 className="mt-2 text-xl font-semibold text-neutral-950">
                 <Link
-                  className="hover:text-green-800"
+                  className="hover:text-blue-800"
                   href={`/materias/${encodeURIComponent(subject.identifier)}`}
                 >
                   {subject.preferredLabel}
@@ -66,7 +66,7 @@ export default async function SubjectsPage() {
                 ))}
               </div>
               {subject.uri === undefined ? null : (
-                <p className="mt-2 break-all text-sm text-green-800">{subject.uri}</p>
+                <p className="mt-2 break-all text-sm text-blue-800">{subject.uri}</p>
               )}
               <Link
                 className="mt-3 mr-2 inline-flex rounded-md border border-neutral-300 px-3 py-2 text-sm font-semibold text-neutral-800 hover:bg-neutral-50"
@@ -75,7 +75,7 @@ export default async function SubjectsPage() {
                 Ver publicaciones
               </Link>
               <Link
-                className="mt-3 inline-flex rounded-md border border-green-800 px-3 py-2 text-sm font-semibold text-green-900 hover:bg-green-50"
+                className="mt-3 inline-flex rounded-md border border-blue-800 px-3 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-50"
                 href={`/materias/${encodeURIComponent(subject.identifier)}`}
               >
                 Ver materia

@@ -5,7 +5,7 @@ import { authorizePublicationImportAdminRequest } from "@/modules/publication-im
 import { getCorrelationIdHeaderName, resolveCorrelationId } from "@/shared/http/correlation-id";
 import { areRequestLogsEnabled, writeStructuredLog } from "@/shared/observability/logger";
 
-const ADMIN_IMPORT_PAGE_PATH = "/admin/importaciones/publicaciones";
+const ADMIN_PAGE_PATH_PREFIX = "/admin";
 const ADMIN_PAGE_TOKEN_COOKIE = "pnpu_admin_token";
 const ADMIN_PAGE_TOKEN_QUERY_PARAM = "adminToken";
 
@@ -28,8 +28,8 @@ export async function proxy(request: NextRequest) {
     });
   }
 
-  if (path === ADMIN_IMPORT_PAGE_PATH) {
-    const pageAuthResponse = await authorizeAdminImportPageRequest(request, requestHeaders);
+  if (isAdminPagePath(path)) {
+    const pageAuthResponse = await authorizeAdminPageRequest(request, requestHeaders);
 
     if (pageAuthResponse !== null) {
       pageAuthResponse.headers.set(correlationIdHeaderName, correlationId);
@@ -48,7 +48,7 @@ export async function proxy(request: NextRequest) {
   return response;
 }
 
-async function authorizeAdminImportPageRequest(
+async function authorizeAdminPageRequest(
   request: NextRequest,
   requestHeaders: Headers,
 ): Promise<NextResponse | null> {
@@ -81,7 +81,7 @@ async function authorizeAdminImportPageRequest(
     response.cookies.set(ADMIN_PAGE_TOKEN_COOKIE, queryToken, {
       httpOnly: true,
       maxAge: 60 * 60 * 8,
-      path: ADMIN_IMPORT_PAGE_PATH,
+      path: ADMIN_PAGE_PATH_PREFIX,
       sameSite: "lax",
       secure: request.nextUrl.protocol === "https:",
     });
@@ -95,7 +95,7 @@ async function authorizeAdminImportPageRequest(
 function adminPageUnauthorizedResponse(requestUrl: URL, status: number): NextResponse {
   if (shouldRedirectAdminPageToOidcLogin()) {
     const loginUrl = new URL("/api/admin/auth/login", requestUrl);
-    loginUrl.searchParams.set("returnTo", ADMIN_IMPORT_PAGE_PATH);
+    loginUrl.searchParams.set("returnTo", requestUrl.pathname);
 
     return NextResponse.redirect(loginUrl);
   }
@@ -109,6 +109,10 @@ function adminPageUnauthorizedResponse(requestUrl: URL, status: number): NextRes
       status,
     },
   );
+}
+
+function isAdminPagePath(path: string): boolean {
+  return path === ADMIN_PAGE_PATH_PREFIX || path.startsWith(`${ADMIN_PAGE_PATH_PREFIX}/`);
 }
 
 function shouldRedirectAdminPageToOidcLogin(): boolean {

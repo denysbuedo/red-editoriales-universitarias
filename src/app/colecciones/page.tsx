@@ -20,13 +20,11 @@ export default async function CollectionsPage() {
 
   return (
     <main className="mx-auto min-h-screen max-w-6xl px-6 py-12">
-      <Link className="text-sm font-medium text-green-800 hover:text-green-950" href="/">
+      <Link className="text-sm font-medium text-blue-800 hover:text-blue-950" href="/">
         PNPU
       </Link>
       <header className="mt-8 border-b border-neutral-200 pb-8">
-        <p className="text-sm font-semibold uppercase tracking-normal text-green-800">
-          Colecciones
-        </p>
+        <p className="text-sm font-semibold uppercase tracking-normal text-blue-800">Colecciones</p>
         <h1 className="mt-3 text-3xl font-bold text-neutral-950 md:text-4xl">
           Colecciones editoriales
         </h1>
@@ -47,13 +45,13 @@ export default async function CollectionsPage() {
                 {collection.publicationCount === 1 ? "" : "es"}
               </p>
               <h2 className="mt-2 text-xl font-semibold text-neutral-950">
-                <Link className="hover:text-green-800" href={`/colecciones/${collection.id}`}>
+                <Link className="hover:text-blue-800" href={`/colecciones/${collection.id}`}>
                   {collection.title}
                 </Link>
               </h2>
               <p className="mt-2 text-sm text-neutral-700">
                 <Link
-                  className="font-medium text-green-800 hover:text-green-950"
+                  className="font-medium text-blue-800 hover:text-blue-950"
                   href={`/editoriales/${collection.publisher.id}`}
                 >
                   {collection.publisher.officialName}
@@ -78,7 +76,7 @@ export default async function CollectionsPage() {
                 </div>
               )}
               <Link
-                className="mt-5 inline-flex rounded-md border border-green-800 px-3 py-2 text-sm font-semibold text-green-900 hover:bg-green-50"
+                className="mt-5 inline-flex rounded-md border border-blue-800 px-3 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-50"
                 href={`/colecciones/${collection.id}`}
               >
                 Ver colección

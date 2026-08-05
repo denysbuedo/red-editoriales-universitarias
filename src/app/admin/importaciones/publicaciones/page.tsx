@@ -2,6 +2,12 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import Link from "next/link";
 
+import {
+  PUBLICATION_IMPORT_ADMIN_SESSION_COOKIE,
+  PublicationImportAdminSessionSummary,
+  readPublicationImportAdminSessionSummary,
+} from "@/modules/publication-import/interfaces/http/publication-import-admin-session";
+
 import { PublicationImportDiagnosisForm } from "./publication-import-diagnosis-form";
 
 export const metadata: Metadata = {
@@ -9,22 +15,11 @@ export const metadata: Metadata = {
   description: "Vista operativa para diagnosticar tablas XLSX de publicaciones universitarias.",
 };
 
-interface AdminSessionSummary {
-  readonly displayName: string;
-  readonly email?: string;
-}
-
-interface AdminJwtPayload {
-  readonly email?: unknown;
-  readonly name?: unknown;
-  readonly preferred_username?: unknown;
-}
-
-const ADMIN_SESSION_COOKIE = "pnpu_admin_session";
-
 export default async function PublicationImportDiagnosisPage() {
   const cookieStore = await cookies();
-  const session = readAdminSessionSummary(cookieStore.get(ADMIN_SESSION_COOKIE)?.value);
+  const session = readPublicationImportAdminSessionSummary(
+    cookieStore.get(PUBLICATION_IMPORT_ADMIN_SESSION_COOKIE)?.value,
+  );
 
   return (
     <main className="mx-auto min-h-screen max-w-6xl px-6 py-12">
@@ -32,7 +27,7 @@ export default async function PublicationImportDiagnosisPage() {
         className="flex flex-wrap items-center justify-between gap-3"
         aria-label="Administración"
       >
-        <Link className="text-sm font-medium text-green-800 hover:text-green-950" href="/">
+        <Link className="text-sm font-medium text-blue-800 hover:text-blue-950" href="/">
           PNPU
         </Link>
         <div className="flex flex-wrap items-center gap-2">
@@ -45,9 +40,7 @@ export default async function PublicationImportDiagnosisPage() {
         </div>
       </nav>
       <header className="mt-8 border-b border-neutral-200 pb-8">
-        <p className="text-sm font-semibold uppercase tracking-normal text-green-800">
-          Importación
-        </p>
+        <p className="text-sm font-semibold uppercase tracking-normal text-blue-800">Importación</p>
         <h1 className="mt-3 text-3xl font-bold text-neutral-950 md:text-4xl">
           Diagnóstico de publicaciones
         </h1>
@@ -63,73 +56,18 @@ export default async function PublicationImportDiagnosisPage() {
   );
 }
 
-function AdminSessionPanel({ session }: { readonly session: AdminSessionSummary | null }) {
+function AdminSessionPanel({
+  session,
+}: {
+  readonly session: PublicationImportAdminSessionSummary | null;
+}) {
   return (
-    <section className="mt-6 rounded-md border border-green-200 bg-green-50 p-4">
-      <p className="text-sm font-semibold text-green-950">Sesión OIDC activa</p>
-      <p className="mt-1 text-sm text-green-900">
+    <section className="mt-6 rounded-md border border-blue-200 bg-blue-50 p-4">
+      <p className="text-sm font-semibold text-blue-950">Sesión OIDC activa</p>
+      <p className="mt-1 text-sm text-blue-900">
         {session === null ? "Usuario autenticado" : session.displayName}
         {session?.email ? ` · ${session.email}` : ""}
       </p>
     </section>
   );
-}
-
-export function readAdminSessionSummary(token: string | undefined): AdminSessionSummary | null {
-  if (token === undefined || token.trim().length === 0) {
-    return null;
-  }
-
-  const payload = readJwtPayload(token);
-
-  if (payload === null) {
-    return null;
-  }
-
-  const displayName =
-    readStringClaim(payload.name) ??
-    readStringClaim(payload.preferred_username) ??
-    readStringClaim(payload.email);
-
-  if (displayName === undefined) {
-    return null;
-  }
-
-  return {
-    displayName,
-    email: readStringClaim(payload.email),
-  };
-}
-
-function readJwtPayload(token: string): AdminJwtPayload | null {
-  const parts = token.split(".");
-
-  if (parts.length !== 3) {
-    return null;
-  }
-
-  const payload = parts[1] ?? "";
-
-  try {
-    return JSON.parse(new TextDecoder().decode(base64UrlToBytes(payload))) as AdminJwtPayload;
-  } catch {
-    return null;
-  }
-}
-
-function readStringClaim(value: unknown): string | undefined {
-  return typeof value === "string" && value.trim().length > 0 ? value : undefined;
-}
-
-function base64UrlToBytes(value: string): Uint8Array {
-  const normalized = value.replace(/-/gu, "+").replace(/_/gu, "/");
-  const padded = normalized.padEnd(normalized.length + ((4 - (normalized.length % 4)) % 4), "=");
-  const binary = atob(padded);
-  const bytes = new Uint8Array(binary.length);
-
-  for (let index = 0; index < binary.length; index += 1) {
-    bytes[index] = binary.charCodeAt(index);
-  }
-
-  return bytes;
 }

@@ -65,17 +65,17 @@ export default async function PublisherDetailPage({ params }: PublisherPageProps
         id="publisher-jsonld"
       />
       <nav className="flex flex-wrap gap-3 text-sm" aria-label="Breadcrumb">
-        <Link className="font-medium text-green-800 hover:text-green-950" href="/">
+        <Link className="font-medium text-blue-800 hover:text-blue-950" href="/">
           PNPU
         </Link>
         <span className="text-neutral-500">/</span>
-        <Link className="font-medium text-green-800 hover:text-green-950" href="/editoriales">
+        <Link className="font-medium text-blue-800 hover:text-blue-950" href="/editoriales">
           Editoriales
         </Link>
       </nav>
 
       <article className="mt-8">
-        <p className="text-sm font-semibold uppercase tracking-normal text-green-800">
+        <p className="text-sm font-semibold uppercase tracking-normal text-blue-800">
           Editorial universitaria
         </p>
         <h1 className="mt-3 text-3xl font-bold leading-tight text-neutral-950 md:text-5xl">
@@ -136,7 +136,7 @@ export default async function PublisherDetailPage({ params }: PublisherPageProps
             <div>
               <dt className="text-sm font-semibold text-neutral-600">Sitio web</dt>
               <dd className="mt-1">
-                <a className="text-green-800 hover:text-green-950" href={publisher.website}>
+                <a className="text-blue-800 hover:text-blue-950" href={publisher.website}>
                   {publisher.website}
                 </a>
               </dd>
@@ -147,7 +147,7 @@ export default async function PublisherDetailPage({ params }: PublisherPageProps
               <dt className="text-sm font-semibold text-neutral-600">Correo de contacto</dt>
               <dd className="mt-1">
                 <a
-                  className="text-green-800 hover:text-green-950"
+                  className="text-blue-800 hover:text-blue-950"
                   href={`mailto:${publisher.contactPoint.email}`}
                 >
                   {publisher.contactPoint.email}
@@ -165,10 +165,7 @@ export default async function PublisherDetailPage({ params }: PublisherPageProps
             <div>
               <dt className="text-sm font-semibold text-neutral-600">Contacto institucional</dt>
               <dd className="mt-1">
-                <a
-                  className="text-green-800 hover:text-green-950"
-                  href={publisher.contactPoint.url}
-                >
+                <a className="text-blue-800 hover:text-blue-950" href={publisher.contactPoint.url}>
                   {publisher.contactPoint.url}
                 </a>
               </dd>
@@ -204,7 +201,7 @@ export default async function PublisherDetailPage({ params }: PublisherPageProps
               </p>
             </div>
             <Link
-              className="inline-flex rounded-md border border-green-800 px-3 py-2 text-sm font-semibold text-green-900 hover:bg-green-50"
+              className="inline-flex rounded-md border border-blue-800 px-3 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-50"
               href={`/publicaciones?publisherId=${publisher.id}`}
             >
               Ver catálogo filtrado
@@ -221,7 +218,7 @@ export default async function PublisherDetailPage({ params }: PublisherPageProps
                   {publication.license === undefined ? "" : ` · ${publication.license}`}
                 </p>
                 <Link
-                  className="mt-1 block font-semibold text-neutral-950 hover:text-green-800"
+                  className="mt-1 block font-semibold text-neutral-950 hover:text-blue-800"
                   href={`/publicaciones/${publication.id}`}
                 >
                   {publication.title}
@@ -249,7 +246,7 @@ export default async function PublisherDetailPage({ params }: PublisherPageProps
                   {collection.publicationCount === 1 ? "" : "es"}
                 </p>
                 <Link
-                  className="mt-1 block font-semibold text-neutral-950 hover:text-green-800"
+                  className="mt-1 block font-semibold text-neutral-950 hover:text-blue-800"
                   href={`/colecciones/${collection.id}`}
                 >
                   {collection.title}

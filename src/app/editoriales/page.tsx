@@ -32,11 +32,11 @@ export default async function PublishersPage() {
 
   return (
     <main className="mx-auto min-h-screen max-w-6xl px-6 py-12">
-      <Link className="text-sm font-medium text-green-800 hover:text-green-950" href="/">
+      <Link className="text-sm font-medium text-blue-800 hover:text-blue-950" href="/">
         PNPU
       </Link>
       <header className="mt-8 border-b border-neutral-200 pb-8">
-        <p className="text-sm font-semibold uppercase tracking-normal text-green-800">Directorio</p>
+        <p className="text-sm font-semibold uppercase tracking-normal text-blue-800">Directorio</p>
         <h1 className="mt-3 text-3xl font-bold text-neutral-950 md:text-4xl">
           Editoriales universitarias
         </h1>
@@ -57,7 +57,7 @@ export default async function PublishersPage() {
                 {publisher.publicationCount === 1 ? "" : "es"}
               </p>
               <h2 className="mt-2 text-xl font-semibold text-neutral-950">
-                <Link className="hover:text-green-800" href={`/editoriales/${publisher.id}`}>
+                <Link className="hover:text-blue-800" href={`/editoriales/${publisher.id}`}>
                   {publisher.officialName}
                 </Link>
               </h2>
@@ -75,7 +75,7 @@ export default async function PublishersPage() {
                 </Link>
               </div>
               <Link
-                className="mt-5 inline-flex rounded-md border border-green-800 px-3 py-2 text-sm font-semibold text-green-900 hover:bg-green-50"
+                className="mt-5 inline-flex rounded-md border border-blue-800 px-3 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-50"
                 href={`/editoriales/${publisher.id}`}
               >
                 Ver ficha

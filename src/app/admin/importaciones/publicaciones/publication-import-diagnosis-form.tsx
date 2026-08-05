@@ -196,7 +196,7 @@ export function PublicationImportDiagnosisForm() {
         <h2 className="text-xl font-semibold text-neutral-950">Ejecutar revisión</h2>
         <div className="mt-4 flex flex-wrap gap-2">
           <a
-            className="inline-flex h-9 items-center rounded-md border border-green-800 px-3 text-sm font-semibold text-green-900 hover:bg-green-50"
+            className="inline-flex h-9 items-center rounded-md border border-blue-800 px-3 text-sm font-semibold text-blue-900 hover:bg-blue-50"
             href="/api/admin/auth/login?returnTo=/admin/importaciones/publicaciones"
           >
             Iniciar sesión
@@ -249,7 +249,7 @@ export function PublicationImportDiagnosisForm() {
           </label>
           <div className="grid gap-2 sm:grid-cols-2">
             <button
-              className="h-10 rounded-md bg-green-900 px-4 text-sm font-semibold text-white hover:bg-green-950 disabled:cursor-not-allowed disabled:bg-neutral-400"
+              className="h-10 rounded-md bg-blue-900 px-4 text-sm font-semibold text-white hover:bg-blue-950 disabled:cursor-not-allowed disabled:bg-neutral-400"
               disabled={isSubmitting}
               name="intent"
               type="submit"
@@ -258,7 +258,7 @@ export function PublicationImportDiagnosisForm() {
               {isSubmitting && action === "diagnose" ? "Diagnosticando" : "Diagnosticar"}
             </button>
             <button
-              className="h-10 rounded-md border border-green-800 px-4 text-sm font-semibold text-green-900 hover:bg-green-50 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:text-neutral-400"
+              className="h-10 rounded-md border border-blue-800 px-4 text-sm font-semibold text-blue-900 hover:bg-blue-50 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:text-neutral-400"
               disabled={isSubmitting}
               name="intent"
               type="submit"
@@ -285,37 +285,45 @@ export function PublicationImportDiagnosisForm() {
           >
             {isSubmitting && action === "history" ? "Cargando" : "Historial de commits"}
           </button>
-          <label className="grid gap-1 text-sm font-medium text-neutral-800">
-            Audit ID
-            <input
-              className="h-10 rounded-md border border-neutral-300 px-3 text-sm font-normal text-neutral-950"
-              maxLength={80}
-              onChange={(event) => {
-                setRollbackAuditId(event.target.value);
-              }}
-              placeholder="Identificador de auditoria"
-              type="text"
-              value={rollbackAuditId}
-            />
-          </label>
-          <button
-            className="h-10 rounded-md border border-red-800 px-4 text-sm font-semibold text-red-900 hover:bg-red-50 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:text-neutral-400"
-            disabled={isSubmitting}
-            name="intent"
-            type="submit"
-            value="rollbackPlan"
-          >
-            {isSubmitting && action === "rollbackPlan" ? "Planificando" : "Plan de rollback"}
-          </button>
-          <button
-            className="h-10 rounded-md bg-red-900 px-4 text-sm font-semibold text-white hover:bg-red-950 disabled:cursor-not-allowed disabled:bg-neutral-400"
-            disabled={isSubmitting}
-            name="intent"
-            type="submit"
-            value="rollback"
-          >
-            {isSubmitting && action === "rollback" ? "Revirtiendo" : "Ejecutar rollback"}
-          </button>
+          <section className="rounded-md border border-red-200 bg-red-50 p-4">
+            <h3 className="text-sm font-semibold text-red-950">Rollback</h3>
+            <p className="mt-1 text-xs leading-5 text-red-900">
+              Use esta zona solo para revertir una escritura previa registrada en auditoría.
+            </p>
+            <label className="mt-3 grid gap-1 text-sm font-medium text-neutral-800">
+              Audit ID
+              <input
+                className="h-10 rounded-md border border-neutral-300 bg-white px-3 text-sm font-normal text-neutral-950"
+                maxLength={80}
+                onChange={(event) => {
+                  setRollbackAuditId(event.target.value);
+                }}
+                placeholder="Identificador de auditoria"
+                type="text"
+                value={rollbackAuditId}
+              />
+            </label>
+            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              <button
+                className="h-10 rounded-md border border-red-800 bg-white px-4 text-sm font-semibold text-red-900 hover:bg-red-100 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:text-neutral-400"
+                disabled={isSubmitting}
+                name="intent"
+                type="submit"
+                value="rollbackPlan"
+              >
+                {isSubmitting && action === "rollbackPlan" ? "Planificando" : "Plan de rollback"}
+              </button>
+              <button
+                className="h-10 rounded-md bg-red-900 px-4 text-sm font-semibold text-white hover:bg-red-950 disabled:cursor-not-allowed disabled:bg-neutral-400"
+                disabled={isSubmitting}
+                name="intent"
+                type="submit"
+                value="rollback"
+              >
+                {isSubmitting && action === "rollback" ? "Revirtiendo" : "Ejecutar rollback"}
+              </button>
+            </div>
+          </section>
           <label className="grid gap-1 text-sm font-medium text-neutral-800">
             CSV enriquecido
             <textarea
@@ -336,35 +344,43 @@ export function PublicationImportDiagnosisForm() {
           >
             {isSubmitting && action === "dryRun" ? "Validando" : "Dry-run enriquecido"}
           </button>
-          <label className="grid gap-1 text-sm font-medium text-neutral-800">
-            Paquete validado
-            <textarea
-              className="min-h-36 rounded-md border border-neutral-300 px-3 py-2 text-sm font-normal text-neutral-950"
-              onChange={(event) => {
-                setPackageJson(event.target.value);
-              }}
-              placeholder="Pegue aqui el JSON exportado con candidatos listos."
-              value={packageJson}
-            />
-          </label>
-          <button
-            className="h-10 rounded-md border border-neutral-800 px-4 text-sm font-semibold text-neutral-900 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:text-neutral-400"
-            disabled={isSubmitting}
-            name="intent"
-            type="submit"
-            value="commitPlan"
-          >
-            {isSubmitting && action === "commitPlan" ? "Planificando" : "Plan de commit"}
-          </button>
-          <button
-            className="h-10 rounded-md bg-red-900 px-4 text-sm font-semibold text-white hover:bg-red-950 disabled:cursor-not-allowed disabled:bg-neutral-400"
-            disabled={isSubmitting}
-            name="intent"
-            type="submit"
-            value="commit"
-          >
-            {isSubmitting && action === "commit" ? "Escribiendo" : "Escribir en Omeka"}
-          </button>
+          <section className="rounded-md border border-amber-200 bg-amber-50 p-4">
+            <h3 className="text-sm font-semibold text-amber-950">Escritura en Omeka</h3>
+            <p className="mt-1 text-xs leading-5 text-amber-900">
+              Esta zona modifica Omeka S. Genere y revise el plan antes de ejecutar la escritura.
+            </p>
+            <label className="mt-3 grid gap-1 text-sm font-medium text-neutral-800">
+              Paquete validado
+              <textarea
+                className="min-h-36 rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-normal text-neutral-950"
+                onChange={(event) => {
+                  setPackageJson(event.target.value);
+                }}
+                placeholder="Pegue aqui el JSON exportado con candidatos listos."
+                value={packageJson}
+              />
+            </label>
+            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              <button
+                className="h-10 rounded-md border border-amber-800 bg-white px-4 text-sm font-semibold text-amber-950 hover:bg-amber-100 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:text-neutral-400"
+                disabled={isSubmitting}
+                name="intent"
+                type="submit"
+                value="commitPlan"
+              >
+                {isSubmitting && action === "commitPlan" ? "Planificando" : "Plan de commit"}
+              </button>
+              <button
+                className="h-10 rounded-md bg-red-900 px-4 text-sm font-semibold text-white hover:bg-red-950 disabled:cursor-not-allowed disabled:bg-neutral-400"
+                disabled={isSubmitting}
+                name="intent"
+                type="submit"
+                value="commit"
+              >
+                {isSubmitting && action === "commit" ? "Escribiendo" : "Escribir en Omeka"}
+              </button>
+            </div>
+          </section>
         </div>
       </form>
 
@@ -548,7 +564,7 @@ function AuthoritiesResult({
           enriquecimiento.
         </p>
         <button
-          className="inline-flex h-10 items-center justify-center rounded-md border border-green-800 px-4 text-sm font-semibold text-green-900 hover:bg-green-50"
+          className="inline-flex h-10 items-center justify-center rounded-md border border-blue-800 px-4 text-sm font-semibold text-blue-900 hover:bg-blue-50"
           onClick={() => {
             exportAuthoritiesCsv(authorities);
           }}
@@ -726,7 +742,7 @@ function DryRunResult({ dryRun }: { readonly dryRun: PublicationImportDryRunDto 
           Validación en seco del CSV enriquecido. No se escribió en Omeka S ni PostgreSQL.
         </p>
         <button
-          className="inline-flex h-10 items-center justify-center rounded-md border border-green-800 px-4 text-sm font-semibold text-green-900 hover:bg-green-50 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:text-neutral-400"
+          className="inline-flex h-10 items-center justify-center rounded-md border border-blue-800 px-4 text-sm font-semibold text-blue-900 hover:bg-blue-50 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:text-neutral-400"
           disabled={readyCandidates.length === 0}
           onClick={() => {
             exportReadyImportPackage(dryRun);
@@ -802,7 +818,7 @@ function MappingPreview({ preview }: { readonly preview: PublicationImportMappin
             Exportar JSON
           </button>
           <button
-            className="inline-flex h-10 items-center justify-center rounded-md border border-green-800 px-4 text-sm font-semibold text-green-900 hover:bg-green-50"
+            className="inline-flex h-10 items-center justify-center rounded-md border border-blue-800 px-4 text-sm font-semibold text-blue-900 hover:bg-blue-50"
             onClick={() => {
               exportEnrichmentCsv(preview);
             }}
@@ -1064,7 +1080,7 @@ function statusClassName(status: PublicationImportBatchSnapshot["status"]): stri
     return `${baseClassName} bg-amber-50 text-amber-900`;
   }
 
-  return `${baseClassName} bg-green-50 text-green-900`;
+  return `${baseClassName} bg-blue-50 text-blue-900`;
 }
 
 function formatDecision(
@@ -1094,7 +1110,7 @@ function decisionClassName(
     return `${baseClassName} bg-amber-50 text-amber-900`;
   }
 
-  return `${baseClassName} bg-green-50 text-green-900`;
+  return `${baseClassName} bg-blue-50 text-blue-900`;
 }
 
 type PublicationImportAction =
@@ -1201,7 +1217,7 @@ function dryRunDecisionClassName(
   const baseClassName = "rounded-md px-2 py-1 text-xs font-semibold";
 
   if (decision === "ready") {
-    return `${baseClassName} bg-green-50 text-green-900`;
+    return `${baseClassName} bg-blue-50 text-blue-900`;
   }
 
   if (decision === "incomplete") {

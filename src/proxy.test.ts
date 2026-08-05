@@ -27,6 +27,21 @@ describe("proxy", () => {
     );
   });
 
+  it("redirects the admin index to OIDC login when OIDC mode is enabled", async () => {
+    process.env.PNPU_ADMIN_AUTH_MODE = "oidc";
+    process.env.PNPU_ENABLE_REQUEST_LOGS = "false";
+    process.env.PNPU_OIDC_AUDIENCE = "pnpu-portal";
+    process.env.PNPU_OIDC_CLIENT_ID = "pnpu-portal";
+    process.env.PNPU_OIDC_ISSUER = "https://identidad.reduniv.edu.cu/realms/pnpu";
+
+    const response = await proxy(new NextRequest("https://editorial.reduniv.edu.cu/admin"));
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("Location")).toBe(
+      "https://editorial.reduniv.edu.cu/api/admin/auth/login?returnTo=%2Fadmin",
+    );
+  });
+
   it("protects the publication import admin page", async () => {
     process.env.PNPU_ENABLE_REQUEST_LOGS = "false";
     process.env.PNPU_PUBLICATION_IMPORT_TOKEN = "expected-token";
@@ -55,6 +70,7 @@ describe("proxy", () => {
     );
     expect(response.headers.get("Set-Cookie")).toContain("pnpu_admin_token=expected-token");
     expect(response.headers.get("Set-Cookie")).toContain("HttpOnly");
+    expect(response.headers.get("Set-Cookie")).toContain("Path=/admin");
   });
 
   it("accepts a valid admin token cookie", async () => {

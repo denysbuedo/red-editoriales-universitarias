@@ -36,7 +36,7 @@ export default async function HomePage() {
     <main className="min-h-screen bg-neutral-50">
       <section className="border-b border-neutral-200 bg-white">
         <div className="mx-auto max-w-6xl px-6 py-14 md:py-18">
-          <p className="text-sm font-semibold uppercase tracking-normal text-green-800">
+          <p className="text-sm font-semibold uppercase tracking-normal text-blue-800">
             Plataforma nacional
           </p>
           <div className="mt-4 grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-end">
@@ -77,13 +77,13 @@ export default async function HomePage() {
         <div>
           <div className="flex items-end justify-between gap-4">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-normal text-green-800">
+              <p className="text-sm font-semibold uppercase tracking-normal text-blue-800">
                 Catálogo
               </p>
               <h2 className="mt-2 text-2xl font-bold text-neutral-950">Publicaciones recientes</h2>
             </div>
             <Link
-              className="text-sm font-semibold text-green-800 hover:text-green-950"
+              className="text-sm font-semibold text-blue-800 hover:text-blue-950"
               href="/publicaciones"
             >
               Ver todas
@@ -99,7 +99,7 @@ export default async function HomePage() {
                   {publication.publicationDate} · {publication.publisher.officialName}
                 </p>
                 <h3 className="mt-1 text-lg font-semibold text-neutral-950">
-                  <Link className="hover:text-green-800" href={`/publicaciones/${publication.id}`}>
+                  <Link className="hover:text-blue-800" href={`/publicaciones/${publication.id}`}>
                     {publication.title}
                   </Link>
                 </h3>
@@ -120,7 +120,7 @@ export default async function HomePage() {
               {publisherSummaries.map((publisher) => (
                 <li key={publisher.id}>
                   <Link
-                    className="text-sm font-medium text-green-800 hover:text-green-950"
+                    className="text-sm font-medium text-blue-800 hover:text-blue-950"
                     href={`/editoriales/${publisher.id}`}
                   >
                     {publisher.acronym ?? publisher.officialName}
@@ -153,7 +153,7 @@ export default async function HomePage() {
 function PrimaryLink({ children, href }: { readonly children: string; readonly href: string }) {
   return (
     <Link
-      className="inline-flex h-10 items-center justify-center rounded-md bg-green-900 px-4 text-sm font-semibold text-white hover:bg-green-950"
+      className="inline-flex h-10 items-center justify-center rounded-md bg-blue-900 px-4 text-sm font-semibold text-white hover:bg-blue-950"
       href={href}
     >
       {children}
@@ -164,7 +164,7 @@ function PrimaryLink({ children, href }: { readonly children: string; readonly h
 function SecondaryLink({ children, href }: { readonly children: string; readonly href: string }) {
   return (
     <Link
-      className="inline-flex h-10 items-center justify-center rounded-md border border-neutral-300 px-4 text-sm font-semibold text-neutral-900 hover:border-green-800 hover:text-green-900"
+      className="inline-flex h-10 items-center justify-center rounded-md border border-neutral-300 px-4 text-sm font-semibold text-neutral-900 hover:border-blue-800 hover:text-blue-900"
       href={href}
     >
       {children}

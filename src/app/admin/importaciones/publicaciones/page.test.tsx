@@ -7,7 +7,9 @@ vi.mock("next/headers", () => ({
   cookies: cookiesMock,
 }));
 
-import PublicationImportDiagnosisPage, { readAdminSessionSummary } from "./page";
+import { readPublicationImportAdminSessionSummary } from "@/modules/publication-import/interfaces/http/publication-import-admin-session";
+
+import PublicationImportDiagnosisPage from "./page";
 import { PublicationImportDiagnosisForm } from "./publication-import-diagnosis-form";
 
 describe("PublicationImportDiagnosisPage", () => {
@@ -36,7 +38,7 @@ describe("PublicationImportDiagnosisPage", () => {
 
   it("reads the administrator session summary from the session token", () => {
     expect(
-      readAdminSessionSummary(
+      readPublicationImportAdminSessionSummary(
         buildUnsignedJwt({
           email: "admin@example.edu",
           preferred_username: "admin-pnpu",

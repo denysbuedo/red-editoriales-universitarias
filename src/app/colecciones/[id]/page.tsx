@@ -54,17 +54,17 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
         id="collection-jsonld"
       />
       <nav className="flex flex-wrap gap-3 text-sm" aria-label="Breadcrumb">
-        <Link className="font-medium text-green-800 hover:text-green-950" href="/">
+        <Link className="font-medium text-blue-800 hover:text-blue-950" href="/">
           PNPU
         </Link>
         <span className="text-neutral-500">/</span>
-        <Link className="font-medium text-green-800 hover:text-green-950" href="/colecciones">
+        <Link className="font-medium text-blue-800 hover:text-blue-950" href="/colecciones">
           Colecciones
         </Link>
       </nav>
 
       <article className="mt-8">
-        <p className="text-sm font-semibold uppercase tracking-normal text-green-800">
+        <p className="text-sm font-semibold uppercase tracking-normal text-blue-800">
           {collection.editorialSeries ?? "Colección editorial"}
         </p>
         <h1 className="mt-3 text-3xl font-bold leading-tight text-neutral-950 md:text-5xl">
@@ -77,13 +77,13 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
         )}
         <div className="mt-6 flex flex-wrap gap-3">
           <Link
-            className="inline-flex rounded-md bg-green-900 px-4 py-2 text-sm font-semibold text-white hover:bg-green-950"
+            className="inline-flex rounded-md bg-blue-900 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-950"
             href={`/publicaciones?collectionId=${collection.id}`}
           >
             Ver publicaciones de la colección
           </Link>
           <Link
-            className="inline-flex rounded-md border border-neutral-300 px-4 py-2 text-sm font-semibold text-neutral-900 hover:border-green-800 hover:text-green-900"
+            className="inline-flex rounded-md border border-neutral-300 px-4 py-2 text-sm font-semibold text-neutral-900 hover:border-blue-800 hover:text-blue-900"
             href={`/editoriales/${collection.publisher.id}`}
           >
             Ver editorial
@@ -95,7 +95,7 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
             <dt className="text-sm font-semibold text-neutral-600">Editorial</dt>
             <dd className="mt-1">
               <Link
-                className="font-medium text-green-800 hover:text-green-950"
+                className="font-medium text-blue-800 hover:text-blue-950"
                 href={`/editoriales/${collection.publisher.id}`}
               >
                 {collection.publisher.officialName}
@@ -151,7 +151,7 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
               >
                 <p className="text-sm text-neutral-600">{publication.publicationDate}</p>
                 <Link
-                  className="mt-1 block font-semibold text-neutral-950 hover:text-green-800"
+                  className="mt-1 block font-semibold text-neutral-950 hover:text-blue-800"
                   href={`/publicaciones/${publication.id}`}
                 >
                   {publication.title}
@@ -165,7 +165,7 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
                     {publication.language.toUpperCase()}
                   </span>
                   {publication.license === undefined ? null : (
-                    <span className="rounded-md bg-green-50 px-2 py-1 text-green-900">
+                    <span className="rounded-md bg-blue-50 px-2 py-1 text-blue-900">
                       {publication.license}
                     </span>
                   )}
