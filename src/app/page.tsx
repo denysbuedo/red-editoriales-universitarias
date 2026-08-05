@@ -39,27 +39,14 @@ export default async function HomePage() {
           <p className="text-sm font-semibold uppercase tracking-normal text-blue-800">
             Plataforma nacional
           </p>
-          <div className="mt-4 grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-end">
-            <div>
-              <h1 className="max-w-3xl text-4xl font-bold leading-tight text-neutral-950 md:text-5xl">
-                Catálogo nacional de editoriales universitarias
-              </h1>
-              <p className="mt-5 max-w-3xl text-lg leading-8 text-neutral-700">
-                Punto de acceso público a la producción editorial universitaria cubana, organizado
-                por editoriales, colecciones, autores, materias y recursos digitales verificables.
-              </p>
-            </div>
-            <nav
-              className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1"
-              aria-label="Accesos principales"
-            >
-              <PrimaryLink href="/publicaciones">Consultar catálogo</PrimaryLink>
-              <SecondaryLink href="/editoriales">Directorio de editoriales</SecondaryLink>
-              <SecondaryLink href="/estado">Estado del catálogo</SecondaryLink>
-              <SecondaryLink href="/admin/importaciones/publicaciones">
-                Administración
-              </SecondaryLink>
-            </nav>
+          <div className="mt-4">
+            <h1 className="max-w-4xl text-4xl font-bold leading-tight text-neutral-950 md:text-5xl">
+              Catálogo nacional de editoriales universitarias
+            </h1>
+            <p className="mt-5 max-w-3xl text-lg leading-8 text-neutral-700">
+              Punto de acceso público a la producción editorial universitaria cubana, organizado por
+              editoriales, colecciones, autores, materias y recursos digitales verificables.
+            </p>
           </div>
         </div>
       </section>
@@ -147,28 +134,6 @@ export default async function HomePage() {
         </aside>
       </section>
     </main>
-  );
-}
-
-function PrimaryLink({ children, href }: { readonly children: string; readonly href: string }) {
-  return (
-    <Link
-      className="inline-flex h-10 items-center justify-center rounded-md bg-blue-900 px-4 text-sm font-semibold text-white hover:bg-blue-950"
-      href={href}
-    >
-      {children}
-    </Link>
-  );
-}
-
-function SecondaryLink({ children, href }: { readonly children: string; readonly href: string }) {
-  return (
-    <Link
-      className="inline-flex h-10 items-center justify-center rounded-md border border-neutral-300 px-4 text-sm font-semibold text-neutral-900 hover:border-blue-800 hover:text-blue-900"
-      href={href}
-    >
-      {children}
-    </Link>
   );
 }
 

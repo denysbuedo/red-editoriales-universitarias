@@ -23,7 +23,8 @@ describe("HomePage", () => {
     expect(html).toContain("Arquitectura empresarial para universidades");
     expect(html).toContain("Editoriales integradas");
     expect(html).toContain("Materias principales");
-    expect(html).toContain("/estado");
-    expect(html).toContain("/admin/importaciones/publicaciones");
+    expect(html).not.toContain("Consultar catálogo");
+    expect(html).not.toContain("Directorio de editoriales");
+    expect(html).not.toContain("Estado del catálogo");
   });
 });

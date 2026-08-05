@@ -11,9 +11,14 @@ describe("SiteShell", () => {
       </SiteShell>,
     );
 
-    expect(html).toContain("Ministerio de Educación Superior");
+    expect(html).not.toContain("Ministerio de Educación Superior</span>");
     expect(html).toContain("/publicaciones");
+    expect(html).toContain("/editoriales");
     expect(html).toContain("/admin");
+    expect(html).not.toContain("/colecciones");
+    expect(html).not.toContain("/autores");
+    expect(html).not.toContain("/materias");
+    expect(html).not.toContain("Enlaces operativos");
     expect(html).toContain("Red Nacional de Investigación y Educación de Avanzada");
     expect(html).toContain("Reduniv");
   });
