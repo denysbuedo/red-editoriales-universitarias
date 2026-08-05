@@ -11,6 +11,7 @@
     "package:release": "node scripts/package-release.mjs",
     "package:keycloak-theme": "node scripts/package-keycloak-theme.mjs",
     "package:omeka-tools": "node scripts/package-omeka-tools.mjs",
+    "package:ops-tools": "node scripts/package-ops-tools.mjs",
     "package:validate": "node scripts/validate-release-artifact.mjs",
     "start": "next start",
     "smoke": "node scripts/smoke-test.mjs",

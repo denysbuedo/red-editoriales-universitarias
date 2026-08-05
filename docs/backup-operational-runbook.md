@@ -37,6 +37,27 @@ El repositorio incluye:
 scripts/backup-operational-state.sh
 ```
 
+Tambien puede distribuirse mediante el paquete operativo:
+
+```bash
+npm run package:ops-tools
+```
+
+Artefactos generados:
+
+```text
+artifacts/pnpu-ops-tools-0.1.0.tar.gz
+artifacts/pnpu-ops-tools-0.1.0.tar.gz.sha256
+```
+
+Checksum validado:
+
+```text
+SHA-256: c704512165f98d58da93769988d05deae3773d3a813e914e3f3fdeb200519143
+```
+
+Ese paquete puede subirse a `/home/ituser/updates` en cualquiera de las VMs operativas.
+
 El script detecta los componentes presentes en la VM y genera un directorio comprimible en:
 
 ```text
@@ -49,6 +70,16 @@ Uso:
 cd /home/ituser/updates
 chmod +x backup-operational-state.sh
 sudo ./backup-operational-state.sh
+```
+
+Uso desde el paquete operativo:
+
+```bash
+cd /home/ituser/updates
+sha256sum -c pnpu-ops-tools-0.1.0.tar.gz.sha256
+tar -xzf pnpu-ops-tools-0.1.0.tar.gz
+cd pnpu-ops-tools-0.1.0
+sudo scripts/backup-operational-state.sh
 ```
 
 Variables opcionales:

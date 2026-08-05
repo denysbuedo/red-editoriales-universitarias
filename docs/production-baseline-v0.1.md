@@ -100,6 +100,7 @@ pnpu-editorial-viewer
 | `pnpu-portal-0.1.0.tar.gz`            | VM PNPU          | Runtime del portal                     |
 | `pnpu-omeka-tools-0.1.0.tar.gz`       | VM PNPU/catalogo | Perfil PNPU, seed y diagnosticos Omeka |
 | `reduniv-keycloak-theme-0.1.0.tar.gz` | VM identidad     | Theme login Keycloak                   |
+| `pnpu-ops-tools-0.1.0.tar.gz`         | Cualquier VM     | Backup, health-check y scripts ops     |
 
 Los checksums vigentes estan documentados en:
 
