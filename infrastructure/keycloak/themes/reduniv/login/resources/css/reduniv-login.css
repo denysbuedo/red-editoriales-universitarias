@@ -19,9 +19,17 @@ body {
 }
 
 .login-pf,
+.login-pf-page,
 .login-pf body {
   background: #f8fafc !important;
   background-image: none !important;
+}
+
+.login-pf-page {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 2rem !important;
 }
 
 .pf-v5-c-login__container {
@@ -35,8 +43,11 @@ body {
 
 .pf-v5-c-login__header,
 #kc-header,
-#kc-header-wrapper {
+.login-pf-header,
+#kc-header-wrapper,
+.pf-v5-c-brand {
   display: none !important;
+  visibility: hidden !important;
 }
 
 .login-pf-page .card-pf,
@@ -49,6 +60,9 @@ body {
   margin: 0 !important;
   max-width: 30rem !important;
   min-width: 0 !important;
+  padding: 2rem !important;
+  position: relative !important;
+  width: 100% !important;
 }
 
 .login-pf-page .card-pf {
@@ -56,34 +70,47 @@ body {
   padding: 2rem;
 }
 
-.pf-v5-c-login__main-header {
-  color: var(--reduniv-blue);
-  font-size: 0;
-  line-height: 1.2;
-  text-align: center;
-}
-
-.pf-v5-c-login__main-header::before {
+.login-pf-page .card-pf::before,
+.pf-v5-c-login__main::before {
   background-image: url("../img/reduniv_logo.png");
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;
   content: "";
   display: block;
-  height: 64px;
-  margin: 0 auto 1.25rem;
-  max-width: 250px;
+  height: 58px;
+  margin: 0 auto 0.75rem;
+  max-width: 230px;
+}
+
+.login-pf-page .card-pf::after,
+.pf-v5-c-login__main::after {
+  color: #334155;
+  content: "Acceso institucional a los servicios digitales del Ministerio de Educación Superior";
+  display: block;
+  font-size: 0.86rem;
+  font-weight: 500;
+  line-height: 1.4;
+  margin: 1.25rem auto 0;
+  max-width: 24rem;
+  text-align: center;
+}
+
+.pf-v5-c-login__main-header {
+  color: var(--reduniv-blue);
+  font-size: initial;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.pf-v5-c-login__main-header::before {
+  content: none !important;
+  display: none !important;
 }
 
 .pf-v5-c-login__main-header::after {
-  content: "Acceso institucional a los servicios digitales del Ministerio de Educación Superior";
-  display: block;
-  color: #334155;
-  font-size: 0.9rem;
-  font-weight: 500;
-  line-height: 1.45;
-  margin: 0 auto 1.25rem;
-  max-width: 24rem;
+  content: none !important;
+  display: none !important;
 }
 
 #kc-page-title,

@@ -26,7 +26,7 @@ artifacts/reduniv-keycloak-theme-0.1.0.tar.gz.sha256
 Checksum validado:
 
 ```text
-SHA-256: 6f432a2a7a3d901a5d6ae2a2e7c50069ca1b2f46575084420be6ef8555d496c1
+SHA-256: 960523e3555d7060c801513ca36e579763c0897288884597cb568d0760374010
 ```
 
 ## Despliegue en la VM de identidad
