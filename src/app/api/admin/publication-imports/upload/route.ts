@@ -6,6 +6,7 @@ import { NextResponse } from "next/server";
 import { ApplicationError } from "@/modules/catalog/application";
 import {
   authorizePublicationImportAdminRequest,
+  authorizePublicationImportPublisherScopeRequest,
   publicationImportAdminErrorResponse,
 } from "@/modules/publication-import/interfaces/http/publication-import-admin-http";
 import { readPublicationImportRoot } from "@/modules/publication-import/interfaces/http/publication-import-services";
@@ -35,6 +36,15 @@ export async function POST(request: Request): Promise<NextResponse> {
     const file = formData.get("file");
     const publisherId = readSafeSegment(formData.get("publisherId"), "publisherId");
     const batchLabel = readSafeSegment(formData.get("batchLabel") ?? "lote-piloto", "batchLabel");
+    const publisherScopeResponse = await authorizePublicationImportPublisherScopeRequest(
+      request,
+      "upload",
+      publisherId,
+    );
+
+    if (publisherScopeResponse !== null) {
+      return publisherScopeResponse;
+    }
 
     if (!(file instanceof File)) {
       throw ApplicationError.validation("Publication import upload file is required.");

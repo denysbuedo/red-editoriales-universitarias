@@ -222,6 +222,7 @@ PNPU_EDITORIAL_COORDINATOR_ROLE=pnpu-editorial-coordinator
 PNPU_EDITORIAL_METADATA_EDITOR_ROLE=pnpu-editorial-metadata-editor
 PNPU_EDITORIAL_REVIEWER_ROLE=pnpu-editorial-reviewer
 PNPU_EDITORIAL_VIEWER_ROLE=pnpu-editorial-viewer
+PNPU_EDITORIAL_SCOPE_CLAIM=pnpu_editorial_ids
 
 PNPU_OIDC_ISSUER=
 PNPU_OIDC_AUDIENCE=

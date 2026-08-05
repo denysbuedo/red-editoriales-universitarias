@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { ApplicationError } from "@/modules/catalog/application";
 import {
   authorizePublicationImportAdminRequest,
+  authorizePublicationImportSourcePathScopeRequest,
   publicationImportAdminErrorResponse,
 } from "@/modules/publication-import/interfaces/http/publication-import-admin-http";
 import { createPublicationImportDryRunService } from "@/modules/publication-import/interfaces/http/publication-import-services";
@@ -27,6 +28,16 @@ export async function POST(request: Request): Promise<NextResponse> {
 
     if (typeof body.sourcePath !== "string") {
       throw ApplicationError.validation("Publication import sourcePath is required.");
+    }
+
+    const sourcePathScopeResponse = await authorizePublicationImportSourcePathScopeRequest(
+      request,
+      "dry-run",
+      body.sourcePath,
+    );
+
+    if (sourcePathScopeResponse !== null) {
+      return sourcePathScopeResponse;
     }
 
     if (body.sheet !== undefined && typeof body.sheet !== "string") {

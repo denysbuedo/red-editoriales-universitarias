@@ -18,7 +18,8 @@ type PublicationImportAdminOperation =
   | "history"
   | "mapping preview"
   | "rollback"
-  | "rollback-plan";
+  | "rollback-plan"
+  | "upload";
 
 interface AdminAuthEnvironment {
   readonly [key: string]: string | undefined;
@@ -27,6 +28,7 @@ interface AdminAuthEnvironment {
   readonly PNPU_ADMIN_IMPORT_ROLLBACK_ROLE?: string;
   readonly PNPU_ADMIN_IMPORT_WRITE_ROLE?: string;
   readonly PNPU_ADMIN_REQUIRED_ROLE?: string;
+  readonly PNPU_EDITORIAL_SCOPE_CLAIM?: string;
   readonly PNPU_OIDC_AUDIENCE?: string;
   readonly PNPU_OIDC_CLIENT_ID?: string;
   readonly PNPU_OIDC_CLIENT_SECRET?: string;
@@ -81,6 +83,10 @@ interface OidcTokenResponse {
   readonly token_type?: string;
 }
 
+interface OidcAuthorizationOptions {
+  readonly publisherId?: string;
+}
+
 const oidcDiscoveryCache = new Map<string, OidcDiscoveryDocument>();
 const jwksCache = new Map<string, JwksDocument>();
 const ADMIN_SESSION_COOKIE = "pnpu_admin_session";
@@ -122,6 +128,42 @@ export async function authorizePublicationImportAdminRequest(
   }
 
   return authorizeWithOidcBearer(request, operation, process.env, fetch);
+}
+
+export async function authorizePublicationImportPublisherScopeRequest(
+  request: Request,
+  operation: PublicationImportAdminOperation,
+  publisherId: string,
+): Promise<NextResponse | null> {
+  const mode = readAdminAuthMode(process.env);
+
+  if (mode === "token") {
+    return authorizeWithStaticToken(request, operation, process.env, mode);
+  }
+
+  if (mode === "hybrid") {
+    const tokenResponse = authorizeWithStaticToken(request, operation, process.env, mode);
+
+    if (tokenResponse === null) {
+      return null;
+    }
+  }
+
+  return authorizeWithOidcBearer(request, operation, process.env, fetch, { publisherId });
+}
+
+export async function authorizePublicationImportSourcePathScopeRequest(
+  request: Request,
+  operation: PublicationImportAdminOperation,
+  sourcePath: string,
+): Promise<NextResponse | null> {
+  const publisherId = readPublisherIdFromSourcePath(sourcePath);
+
+  if (publisherId === null) {
+    return null;
+  }
+
+  return authorizePublicationImportPublisherScopeRequest(request, operation, publisherId);
 }
 
 export function resetPublicationImportAdminAuthCachesForTests(): void {
@@ -283,7 +325,12 @@ export async function buildPublicationImportAdminCallbackResponse(
       throw new Error("OIDC ID token nonce is invalid.");
     }
 
-    if (!hasAnyRequiredRole(payload, readAllowedRoles(config, "admin page"), config.clientId)) {
+    if (
+      !hasAnyRequiredRole(
+        readPayloadRoles(payload, config.clientId),
+        readAllowedRoles(config, "admin page"),
+      )
+    ) {
       throw new Error("OIDC token does not include the required role.");
     }
 
@@ -468,6 +515,7 @@ async function authorizeWithOidcBearer(
   operation: PublicationImportAdminOperation,
   environment: AdminAuthEnvironment,
   fetchFn: FetchLike,
+  options: OidcAuthorizationOptions = {},
 ): Promise<NextResponse | null> {
   const bearerToken =
     readBearerToken(request) ??
@@ -498,8 +546,23 @@ async function authorizeWithOidcBearer(
 
   try {
     const payload = await verifyOidcJwt(bearerToken, config, fetchFn);
+    const roles = readPayloadRoles(payload, config.clientId);
 
-    if (!hasAnyRequiredRole(payload, readAllowedRoles(config, operation), config.clientId)) {
+    if (!hasAnyRequiredRole(roles, readAllowedRoles(config, operation))) {
+      return NextResponse.json(
+        {
+          code: "PNPU-403",
+          message: `Publication import ${operation} token is invalid.`,
+        },
+        { status: 403 },
+      );
+    }
+
+    if (
+      options.publisherId !== undefined &&
+      !roles.has(config.requiredRole) &&
+      !hasPublisherScope(payload, options.publisherId, config.editorialScopeClaim)
+    ) {
       return NextResponse.json(
         {
           code: "PNPU-403",
@@ -576,6 +639,7 @@ function readOidcAdminConfig(environment: AdminAuthEnvironment): {
   readonly audience: string;
   readonly clientId: string;
   readonly clientSecret?: string;
+  readonly editorialScopeClaim: string;
   readonly importReadRole: string;
   readonly importRollbackRole: string;
   readonly importWriteRole: string;
@@ -605,6 +669,7 @@ function readOidcAdminConfig(environment: AdminAuthEnvironment): {
     audience,
     clientId,
     clientSecret: environment.PNPU_OIDC_CLIENT_SECRET?.trim(),
+    editorialScopeClaim: readClaimName(environment.PNPU_EDITORIAL_SCOPE_CLAIM),
     importReadRole: readRole(environment.PNPU_ADMIN_IMPORT_READ_ROLE, "pnpu-import-reader"),
     importRollbackRole: readRole(
       environment.PNPU_ADMIN_IMPORT_ROLLBACK_ROLE,
@@ -640,6 +705,19 @@ function readRole(value: string | undefined, fallback: string): string {
   const role = value?.trim();
 
   return role !== undefined && role.length > 0 ? role : fallback;
+}
+
+function readClaimName(value: string | undefined): string {
+  const claimName = value?.trim();
+
+  return claimName !== undefined && claimName.length > 0 ? claimName : "pnpu_editorial_ids";
+}
+
+function readPublisherIdFromSourcePath(sourcePath: string): string | null {
+  const normalizedSourcePath = sourcePath.replace(/\\/gu, "/").toLowerCase();
+  const match = /^publishers\/([a-z0-9][a-z0-9._-]{1,79})\//u.exec(normalizedSourcePath);
+
+  return match?.[1] ?? null;
 }
 
 async function verifyOidcJwt(
@@ -765,21 +843,38 @@ function readAllowedRoles(
   return [config.requiredRole, config.importReadRole];
 }
 
-function hasAnyRequiredRole(
-  payload: JwtPayload,
-  requiredRoles: readonly string[],
-  clientId: string,
-): boolean {
+function hasAnyRequiredRole(roles: ReadonlySet<string>, requiredRoles: readonly string[]): boolean {
+  return requiredRoles.some((requiredRole) => roles.has(requiredRole));
+}
+
+function readPayloadRoles(payload: JwtPayload, clientId: string): ReadonlySet<string> {
   const realmRoles = payload.realm_access?.roles ?? [];
   const clientRoles = payload.resource_access?.[clientId]?.roles ?? [];
   const groups = payload.groups ?? [];
 
-  return requiredRoles.some(
-    (requiredRole) =>
-      realmRoles.includes(requiredRole) ||
-      clientRoles.includes(requiredRole) ||
-      groups.includes(requiredRole),
-  );
+  return new Set([...realmRoles, ...clientRoles, ...groups]);
+}
+
+function hasPublisherScope(payload: JwtPayload, publisherId: string, claimName: string): boolean {
+  const claimValue = (payload as Record<string, unknown>)[claimName];
+  const allowedPublisherIds = readPublisherScopeClaimValues(claimValue);
+
+  return allowedPublisherIds.includes("*") || allowedPublisherIds.includes(publisherId);
+}
+
+function readPublisherScopeClaimValues(value: unknown): readonly string[] {
+  if (Array.isArray(value)) {
+    return value.flatMap((item) => readPublisherScopeClaimValues(item));
+  }
+
+  if (typeof value !== "string") {
+    return [];
+  }
+
+  return value
+    .split(/[\s,]+/u)
+    .map((item) => item.trim().toLowerCase())
+    .filter((item) => item.length > 0);
 }
 
 async function readJwks(issuer: string, fetchFn: FetchLike): Promise<JwksDocument> {

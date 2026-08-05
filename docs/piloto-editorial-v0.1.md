@@ -38,29 +38,31 @@ Fuera de alcance:
 ## Flujo Operativo
 
 1. El administrador nacional crea o confirma la editorial piloto en Omeka.
-2. Se entrega a la editorial la plantilla XLSX/CSV aprobada.
-3. La editorial completa datos de 20 a 50 publicaciones iniciales.
-4. En `/admin/importaciones/publicaciones` se sube el XLSX indicando:
+2. El administrador nacional configura en Keycloak el claim `pnpu_editorial_ids` para los usuarios
+   responsables de esa editorial.
+3. Se entrega a la editorial la plantilla XLSX/CSV aprobada.
+4. La editorial completa datos de 20 a 50 publicaciones iniciales.
+5. En `/admin/importaciones/publicaciones` se sube el XLSX indicando:
 
 ```text
 Editorial piloto: identificador corto de editorial
 Lote: nombre corto del lote
 ```
 
-5. La plataforma guarda el archivo bajo:
+6. La plataforma guarda el archivo bajo:
 
 ```text
 PNPU_PUBLICATION_IMPORT_ROOT/publishers/<editorial>/<lote>/archivo.xlsx
 ```
 
-6. Se ejecuta diagnostico.
-7. Se ejecuta preview de mapeo.
-8. Se descarga y completa la plantilla de enriquecimiento.
-9. Se ejecuta dry-run.
-10. Si no hay errores criticos, se genera plan de commit.
-11. El administrador nacional ejecuta escritura en Omeka.
-12. Se valida navegacion publica.
-13. Se ejecuta backup antes y despues de la escritura.
+7. Se ejecuta diagnostico.
+8. Se ejecuta preview de mapeo.
+9. Se descarga y completa la plantilla de enriquecimiento.
+10. Se ejecuta dry-run.
+11. Si no hay errores criticos, se genera plan de commit.
+12. El administrador nacional ejecuta escritura en Omeka.
+13. Se valida navegacion publica.
+14. Se ejecuta backup antes y despues de la escritura.
 
 ## Criterios de Aceptacion del Piloto
 
@@ -76,7 +78,7 @@ PNPU_PUBLICATION_IMPORT_ROOT/publishers/<editorial>/<lote>/archivo.xlsx
 
 ## Pendientes Antes de Abrir a Usuarios Editoriales
 
-- Restringir subida y diagnostico por claim editorial `pnpu_editorial_ids`.
+- Configurar en Keycloak el mapper que emite `pnpu_editorial_ids` por usuario/grupo editorial.
 - Reemplazar identificador manual de editorial por selector desde autoridades.
 - Agregar historial filtrado por editorial.
 - Definir retencion de archivos XLSX subidos.

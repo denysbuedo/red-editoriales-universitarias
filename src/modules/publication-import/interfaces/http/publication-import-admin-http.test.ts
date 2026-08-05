@@ -4,6 +4,7 @@ import { ApplicationError } from "@/modules/catalog/application";
 
 import {
   authorizePublicationImportAdminRequest,
+  authorizePublicationImportPublisherScopeRequest,
   buildPublicationImportAdminCallbackResponse,
   buildPublicationImportAdminLoginResponse,
   buildPublicationImportAdminLogoutResponse,
@@ -285,6 +286,140 @@ describe("publication import admin HTTP helpers", () => {
             },
           }),
           "diagnosis",
+        ),
+      ).resolves.toBeNull();
+    } finally {
+      restoreEnvironmentSnapshot(previousValues);
+    }
+  });
+
+  it("accepts an OIDC bearer token scoped to the selected publisher", async () => {
+    const previousValues = snapshotEnvironment([
+      "PNPU_ADMIN_AUTH_MODE",
+      "PNPU_ADMIN_IMPORT_READ_ROLE",
+      "PNPU_ADMIN_REQUIRED_ROLE",
+      "PNPU_EDITORIAL_SCOPE_CLAIM",
+      "PNPU_OIDC_AUDIENCE",
+      "PNPU_OIDC_CLIENT_ID",
+      "PNPU_OIDC_ISSUER",
+    ]);
+    const issuer = "https://keycloak.example.edu/realms/reduniv";
+    const audience = "pnpu-portal";
+    const context = await buildSignedOidcTestContext({
+      audience,
+      issuer,
+      claims: {
+        pnpu_editorial_ids: ["editorial-piloto"],
+      },
+      roles: ["pnpu-import-reader"],
+    });
+    vi.stubGlobal("fetch", context.fetchMock);
+    process.env.PNPU_ADMIN_AUTH_MODE = "oidc";
+    process.env.PNPU_ADMIN_REQUIRED_ROLE = "pnpu-admin";
+    process.env.PNPU_ADMIN_IMPORT_READ_ROLE = "pnpu-import-reader";
+    process.env.PNPU_OIDC_ISSUER = issuer;
+    process.env.PNPU_OIDC_AUDIENCE = audience;
+    process.env.PNPU_OIDC_CLIENT_ID = audience;
+
+    try {
+      await expect(
+        authorizePublicationImportPublisherScopeRequest(
+          new Request("https://pnpu.mes.gob.cu/api/admin/publication-imports/upload", {
+            headers: {
+              Authorization: `Bearer ${context.token}`,
+            },
+          }),
+          "upload",
+          "editorial-piloto",
+        ),
+      ).resolves.toBeNull();
+    } finally {
+      restoreEnvironmentSnapshot(previousValues);
+    }
+  });
+
+  it("rejects an OIDC bearer token outside the selected publisher scope", async () => {
+    const previousValues = snapshotEnvironment([
+      "PNPU_ADMIN_AUTH_MODE",
+      "PNPU_ADMIN_IMPORT_READ_ROLE",
+      "PNPU_ADMIN_REQUIRED_ROLE",
+      "PNPU_OIDC_AUDIENCE",
+      "PNPU_OIDC_CLIENT_ID",
+      "PNPU_OIDC_ISSUER",
+    ]);
+    const issuer = "https://keycloak.example.edu/realms/reduniv";
+    const audience = "pnpu-portal";
+    const context = await buildSignedOidcTestContext({
+      audience,
+      issuer,
+      claims: {
+        pnpu_editorial_ids: ["editorial-otra"],
+      },
+      roles: ["pnpu-import-reader"],
+    });
+    vi.stubGlobal("fetch", context.fetchMock);
+    process.env.PNPU_ADMIN_AUTH_MODE = "oidc";
+    process.env.PNPU_ADMIN_REQUIRED_ROLE = "pnpu-admin";
+    process.env.PNPU_ADMIN_IMPORT_READ_ROLE = "pnpu-import-reader";
+    process.env.PNPU_OIDC_ISSUER = issuer;
+    process.env.PNPU_OIDC_AUDIENCE = audience;
+    process.env.PNPU_OIDC_CLIENT_ID = audience;
+
+    try {
+      const response = await authorizePublicationImportPublisherScopeRequest(
+        new Request("https://pnpu.mes.gob.cu/api/admin/publication-imports/upload", {
+          headers: {
+            Authorization: `Bearer ${context.token}`,
+          },
+        }),
+        "upload",
+        "editorial-piloto",
+      );
+
+      expect(response?.status).toBe(403);
+      await expect(response?.json()).resolves.toEqual({
+        code: "PNPU-403",
+        message: "Publication import upload token is invalid.",
+      });
+    } finally {
+      restoreEnvironmentSnapshot(previousValues);
+    }
+  });
+
+  it("allows a national admin to upload for any publisher without publisher claims", async () => {
+    const previousValues = snapshotEnvironment([
+      "PNPU_ADMIN_AUTH_MODE",
+      "PNPU_ADMIN_IMPORT_READ_ROLE",
+      "PNPU_ADMIN_REQUIRED_ROLE",
+      "PNPU_OIDC_AUDIENCE",
+      "PNPU_OIDC_CLIENT_ID",
+      "PNPU_OIDC_ISSUER",
+    ]);
+    const issuer = "https://keycloak.example.edu/realms/reduniv";
+    const audience = "pnpu-portal";
+    const context = await buildSignedOidcTestContext({
+      audience,
+      issuer,
+      roles: ["pnpu-admin"],
+    });
+    vi.stubGlobal("fetch", context.fetchMock);
+    process.env.PNPU_ADMIN_AUTH_MODE = "oidc";
+    process.env.PNPU_ADMIN_REQUIRED_ROLE = "pnpu-admin";
+    process.env.PNPU_ADMIN_IMPORT_READ_ROLE = "pnpu-import-reader";
+    process.env.PNPU_OIDC_ISSUER = issuer;
+    process.env.PNPU_OIDC_AUDIENCE = audience;
+    process.env.PNPU_OIDC_CLIENT_ID = audience;
+
+    try {
+      await expect(
+        authorizePublicationImportPublisherScopeRequest(
+          new Request("https://pnpu.mes.gob.cu/api/admin/publication-imports/upload", {
+            headers: {
+              Authorization: `Bearer ${context.token}`,
+            },
+          }),
+          "upload",
+          "editorial-piloto",
         ),
       ).resolves.toBeNull();
     } finally {
@@ -679,6 +814,7 @@ function restoreEnvironmentSnapshot(values: ReadonlyMap<string, string | undefin
 
 async function buildSignedOidcTestContext(command: {
   readonly audience: string;
+  readonly claims?: Readonly<Record<string, unknown>>;
   readonly issuer: string;
   readonly roles: readonly string[];
 }): Promise<{
@@ -697,6 +833,7 @@ async function buildSignedOidcTestContext(command: {
   );
   const publicJwk = await crypto.subtle.exportKey("jwk", keyPair.publicKey);
   const token = await signTestJwt(keyPair.privateKey, {
+    ...command.claims,
     aud: command.audience,
     exp: Math.floor(Date.now() / 1000) + 300,
     iss: command.issuer,
