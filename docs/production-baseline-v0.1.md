@@ -114,6 +114,6 @@ docs/keycloak-reduniv-theme.md
 - Ejecutar importacion con planilla real de una editorial.
 - Sustituir seed de prueba por datos reales cuando se apruebe la carga inicial.
 - Definir API institucional externa para datos maestros de editoriales.
-- Completar backup automatizado con calendario institucional.
+- Crear tarea programada nocturna para `scripts/backup-operational-state.sh` con `systemd timer`.
 - Completar Ansible para Keycloak y Omeka, no solo portal.
 - Revisar exposicion publica de `/metrics` con HAProxy o ACL institucional.

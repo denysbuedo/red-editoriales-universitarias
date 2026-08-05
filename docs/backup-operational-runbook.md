@@ -127,6 +127,25 @@ omeka-db.sql.gz
 keycloak-db.dump
 ```
 
+## Automatizacion Pendiente
+
+Decision pendiente aprobada:
+
+- crear una tarea programada nocturna para ejecutar `scripts/backup-operational-state.sh`;
+- usar `systemd timer` en Ubuntu Server LTS;
+- aplicar la tarea tanto en `vm-catalogoeditoriales` como en `vm-identidad`;
+- definir horario nocturno exacto, retencion y destino externo antes de activarla;
+- validar primero una ejecucion manual en cada VM.
+
+Propuesta inicial para retomar:
+
+```text
+Horario: diario entre 02:00 y 03:00
+Mecanismo: pnpu-operational-backup.service + pnpu-operational-backup.timer
+Destino local: /home/ituser/backups
+Pendiente: copia externa/cifrada fuera del servidor
+```
+
 ## Seguridad
 
 - Los backups contienen secretos.
