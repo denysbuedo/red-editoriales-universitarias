@@ -28,6 +28,13 @@ export function createPublicationImportDiagnosisService(): PublicationImportDiag
   );
 }
 
+export function readPublicationImportRoot(): string {
+  return path.resolve(
+    /* turbopackIgnore: true */ process.cwd(),
+    process.env.PNPU_PUBLICATION_IMPORT_ROOT ?? "Readme",
+  );
+}
+
 export function createPublicationImportMappingPreviewService(): PublicationImportMappingPreviewService {
   return new PublicationImportMappingPreviewService(
     new PythonPublicationSpreadsheetDiagnosticsRunner(),
@@ -143,12 +150,7 @@ export function createPublicationImportRollbackService(): PublicationImportRollb
 }
 
 function readPublicationImportOptions(): { readonly importRoot: string } {
-  const importRoot = path.resolve(
-    /* turbopackIgnore: true */ process.cwd(),
-    process.env.PNPU_PUBLICATION_IMPORT_ROOT ?? "Readme",
-  );
-
-  return { importRoot };
+  return { importRoot: readPublicationImportRoot() };
 }
 
 function readPublicationImportAuditDirectory(): string {

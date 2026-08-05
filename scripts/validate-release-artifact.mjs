@@ -20,6 +20,7 @@ const requiredArchiveEntries = [
   `${artifactName}/next.config.ts`,
   `${artifactName}/openapi/pnpu-portal.openapi.yml`,
   `${artifactName}/scripts/health-check.sh`,
+  `${artifactName}/scripts/check-publication-spreadsheet.py`,
   `${artifactName}/src/app/health/live/route.ts`,
   `${artifactName}/src/app/health/ready/route.ts`,
   `${artifactName}/src/app/metrics/route.ts`,

@@ -400,6 +400,75 @@ paths:
       responses:
         "307":
           description: Redirección al inicio despues de limpiar la cookie administrativa.
+  /api/admin/publication-imports/upload:
+    post:
+      operationId: uploadPublicationImportSpreadsheet
+      summary: Sube un archivo XLSX de publicaciones para un lote piloto editorial.
+      description: >
+        Endpoint operativo protegido. Guarda el XLSX dentro de
+        `PNPU_PUBLICATION_IMPORT_ROOT` bajo el espacio de trabajo de la editorial seleccionada y
+        devuelve una ruta relativa lista para diagnóstico. No escribe en Omeka S ni PostgreSQL.
+      tags:
+        - Admin
+      security:
+        - PublicationImportToken: []
+        - PublicationImportOidcBearer: []
+      x-required-roles:
+        - pnpu-admin
+        - pnpu-import-reader
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - publisherId
+                - file
+              properties:
+                publisherId:
+                  type: string
+                  minLength: 2
+                  maxLength: 80
+                  pattern: ^[a-z0-9][a-z0-9._-]{1,79}$
+                  description: Identificador operativo de la editorial dentro del espacio de importación.
+                batchLabel:
+                  type: string
+                  minLength: 2
+                  maxLength: 80
+                  pattern: ^[a-z0-9][a-z0-9._-]{1,79}$
+                  default: lote-piloto
+                  description: Etiqueta legible del lote piloto.
+                file:
+                  type: string
+                  format: binary
+                  description: Archivo XLSX de publicaciones, hasta 20 MB.
+      responses:
+        "200":
+          description: Archivo XLSX cargado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicationImportUploadResponse"
+        "403":
+          description: Token administrativo inválido.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: Solicitud inválida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Endpoint no configurado o carga no disponible.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /api/admin/publication-imports/diagnose:
     post:
       operationId: diagnosePublicationImport
@@ -1535,6 +1604,45 @@ components:
           default: EDUNIV
           minLength: 1
           maxLength: 64
+    PublicationImportUpload:
+      type: object
+      additionalProperties: false
+      required:
+        - batchLabel
+        - fileName
+        - publisherId
+        - relativeSourcePath
+        - size
+        - uploadedAt
+      properties:
+        batchLabel:
+          type: string
+          minLength: 2
+          maxLength: 80
+          pattern: ^[a-z0-9][a-z0-9._-]{1,79}$
+        fileName:
+          type: string
+          minLength: 1
+          maxLength: 120
+          pattern: ^[a-z0-9._-]+\.xlsx$
+        publisherId:
+          type: string
+          minLength: 2
+          maxLength: 80
+          pattern: ^[a-z0-9][a-z0-9._-]{1,79}$
+        relativeSourcePath:
+          type: string
+          description: Ruta relativa al directorio de importación permitido.
+          minLength: 1
+          maxLength: 260
+          pattern: ^publishers/[a-z0-9][a-z0-9._-]{1,79}/[0-9]{8}t[0-9]{6}z-[a-z0-9][a-z0-9._-]{1,79}/[a-z0-9._-]+\.xlsx$
+        size:
+          type: integer
+          minimum: 1
+          maximum: 20971520
+        uploadedAt:
+          type: string
+          format: date-time
     PublicationImportBatch:
       type: object
       additionalProperties: false
@@ -2603,6 +2711,17 @@ components:
       properties:
         data:
           $ref: "#/components/schemas/PublicationImportAuthorities"
+        meta:
+          $ref: "#/components/schemas/ApiMeta"
+    PublicationImportUploadResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          $ref: "#/components/schemas/PublicationImportUpload"
         meta:
           $ref: "#/components/schemas/ApiMeta"
     PublicationImportBatchResponse:

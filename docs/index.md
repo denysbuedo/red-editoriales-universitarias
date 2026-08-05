@@ -11,6 +11,7 @@ Este sitio reúne la documentación técnica operativa de la PNPU.
 - [Despliegue Ubuntu](deploy_ubuntu.md).
 - [Backup operativo minimo](backup-operational-runbook.md).
 - [Hardening inicial v0.1](hardening-v0.1.md).
+- [Piloto editorial v0.1](piloto-editorial-v0.1.md).
 - [Runbook de identidad administrativa](identity-admin-runbook.md).
 - [Theme Reduniv para Keycloak](keycloak-reduniv-theme.md).
 - [Documento de diseño de producto](PDD_Plataforma_Nacional_Publicaciones_Universitarias_v0.1.md).

@@ -34,6 +34,9 @@ describe("PublicationImportDiagnosisForm", () => {
     const html = renderToStaticMarkup(<PublicationImportDiagnosisForm />);
 
     expect(html).toContain("Ejecutar revisión");
+    expect(html).toContain("Carga piloto por editorial");
+    expect(html).toContain("Editorial piloto");
+    expect(html).toContain("Subir XLSX");
     expect(html).toContain("Listado_Libro_Publicados_EDUNIV.xlsx");
     expect(html).toContain("Token administrativo");
     expect(html).toContain("Preview mapeo");

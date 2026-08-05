@@ -83,10 +83,27 @@ interface PublicationImportDiagnosisApiError {
   readonly correlationId?: string;
 }
 
+interface PublicationImportUploadApiResponse {
+  readonly data: {
+    readonly batchLabel: string;
+    readonly fileName: string;
+    readonly publisherId: string;
+    readonly relativeSourcePath: string;
+    readonly size: number;
+    readonly uploadedAt: string;
+  };
+  readonly meta: {
+    readonly apiVersion: "v1";
+  };
+}
+
 export function PublicationImportDiagnosisForm() {
   const [sourcePath, setSourcePath] = useState("Listado_Libro_Publicados_EDUNIV.xlsx");
   const [sheet, setSheet] = useState("EDUNIV");
   const [token, setToken] = useState("");
+  const [publisherId, setPublisherId] = useState("editorial-piloto");
+  const [batchLabel, setBatchLabel] = useState("primer-lote");
+  const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const [rollbackAuditId, setRollbackAuditId] = useState("");
   const [enrichmentCsv, setEnrichmentCsv] = useState("");
   const [packageJson, setPackageJson] = useState("");
@@ -102,6 +119,54 @@ export function PublicationImportDiagnosisForm() {
   const [rollback, setRollback] = useState<PublicationImportRollbackDto | null>(null);
   const [rollbackPlan, setRollbackPlan] = useState<PublicationImportRollbackPlanDto | null>(null);
   const [error, setError] = useState<PublicationImportDiagnosisApiError | null>(null);
+
+  async function uploadSpreadsheet(event: SyntheticEvent<HTMLInputElement>): Promise<void> {
+    const file = event.currentTarget.files?.[0];
+
+    if (file === undefined) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    setUploadStatus(null);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.set("publisherId", publisherId);
+      formData.set("batchLabel", batchLabel);
+      formData.set("file", file);
+      const headers = new Headers();
+
+      if (token.trim().length > 0) {
+        headers.set("X-PNPU-Admin-Token", token.trim());
+      }
+
+      const response = await fetch("/api/admin/publication-imports/upload", {
+        body: formData,
+        headers,
+        method: "POST",
+      });
+      const payload = (await response.json()) as unknown;
+
+      if (!response.ok) {
+        setError(readApiError(payload));
+        return;
+      }
+
+      const upload = readUploadApiResponse(payload).data;
+      setSourcePath(upload.relativeSourcePath);
+      setUploadStatus(`Archivo cargado para ${upload.publisherId}: ${upload.relativeSourcePath}`);
+    } catch {
+      setError({
+        code: "PNPU-503",
+        message: "No se pudo subir el archivo de publicaciones.",
+      });
+    } finally {
+      setIsSubmitting(false);
+      event.currentTarget.value = "";
+    }
+  }
 
   async function submitImportAction(event: SyntheticEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
@@ -209,6 +274,60 @@ export function PublicationImportDiagnosisForm() {
           </a>
         </div>
         <div className="mt-5 grid gap-4">
+          <section className="rounded-md border border-blue-200 bg-blue-50 p-4">
+            <h3 className="text-sm font-semibold text-blue-950">Carga piloto por editorial</h3>
+            <p className="mt-1 text-xs leading-5 text-blue-900">
+              Suba el XLSX entregado por la editorial. La plataforma lo guardará dentro del área de
+              importaciones y completará la ruta del archivo.
+            </p>
+            <div className="mt-3 grid gap-3">
+              <label className="grid gap-1 text-sm font-medium text-neutral-800">
+                Editorial piloto
+                <input
+                  className="h-10 rounded-md border border-neutral-300 bg-white px-3 text-sm font-normal text-neutral-950"
+                  maxLength={80}
+                  onChange={(event) => {
+                    setPublisherId(event.target.value);
+                  }}
+                  pattern="[A-Za-z0-9._-]{2,80}"
+                  required
+                  type="text"
+                  value={publisherId}
+                />
+              </label>
+              <label className="grid gap-1 text-sm font-medium text-neutral-800">
+                Lote
+                <input
+                  className="h-10 rounded-md border border-neutral-300 bg-white px-3 text-sm font-normal text-neutral-950"
+                  maxLength={80}
+                  onChange={(event) => {
+                    setBatchLabel(event.target.value);
+                  }}
+                  pattern="[A-Za-z0-9._-]{2,80}"
+                  required
+                  type="text"
+                  value={batchLabel}
+                />
+              </label>
+              <label className="grid gap-1 text-sm font-medium text-neutral-800">
+                Subir XLSX
+                <input
+                  accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                  className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-normal text-neutral-950"
+                  disabled={isSubmitting}
+                  onChange={(event) => {
+                    void uploadSpreadsheet(event);
+                  }}
+                  type="file"
+                />
+              </label>
+              {uploadStatus === null ? null : (
+                <p className="rounded-md bg-white px-3 py-2 text-xs font-semibold text-blue-950">
+                  {uploadStatus}
+                </p>
+              )}
+            </div>
+          </section>
           <label className="grid gap-1 text-sm font-medium text-neutral-800">
             Archivo XLSX
             <input
@@ -1517,6 +1636,14 @@ function readAuthoritiesApiResponse(payload: unknown): PublicationImportAuthorit
   }
 
   throw new Error("Invalid publication import authorities response.");
+}
+
+function readUploadApiResponse(payload: unknown): PublicationImportUploadApiResponse {
+  if (typeof payload === "object" && payload !== null && "data" in payload && "meta" in payload) {
+    return payload as PublicationImportUploadApiResponse;
+  }
+
+  throw new Error("Invalid publication import upload response.");
 }
 
 function readApiError(payload: unknown): PublicationImportDiagnosisApiError {

@@ -24,6 +24,7 @@ const runtimePaths = [
   "public",
   "scripts/deploy-portal-artifact.sh",
   "scripts/health-check.sh",
+  "scripts/check-publication-spreadsheet.py",
   "src/app/health/live/route.ts",
   "src/app/health/ready/route.ts",
   "src/app/metrics/route.ts",
