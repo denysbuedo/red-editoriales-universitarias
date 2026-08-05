@@ -1,0 +1,104 @@
+:root {
+  --reduniv-blue: #14244d;
+  --reduniv-accent: #5a9bd8;
+  --reduniv-border: #d8dee9;
+  --reduniv-muted: #64748b;
+}
+
+body {
+  background:
+    linear-gradient(90deg, rgba(20, 36, 77, 0.94), rgba(20, 36, 77, 0.76)),
+    linear-gradient(180deg, #f8fafc 0%, #e5e7eb 100%);
+  color: #0f172a;
+}
+
+.login-pf-page,
+.pf-v5-c-login,
+.pf-v5-c-login__container {
+  min-height: 100vh;
+}
+
+.login-pf-page .card-pf,
+.pf-v5-c-login__main {
+  border: 1px solid var(--reduniv-border);
+  border-radius: 8px;
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.28);
+}
+
+#kc-header,
+.pf-v5-c-login__header {
+  margin-bottom: 1.5rem;
+}
+
+#kc-header-wrapper,
+.pf-v5-c-login__main-header {
+  color: #ffffff;
+  font-size: 0;
+  line-height: 1.2;
+  text-align: center;
+}
+
+#kc-header-wrapper::before,
+.pf-v5-c-login__main-header::before {
+  background-image: url("../img/reduniv_logo.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  content: "";
+  display: block;
+  height: 82px;
+  margin: 0 auto 1rem;
+  max-width: 320px;
+}
+
+#kc-header-wrapper::after,
+.pf-v5-c-login__main-header::after {
+  color: #ffffff;
+  content: "Acceso institucional a los servicios digitales del Ministerio de Educación Superior";
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin: 0 auto;
+  max-width: 34rem;
+}
+
+#kc-page-title,
+.pf-v5-c-title {
+  color: var(--reduniv-blue);
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.pf-c-button.pf-m-primary,
+.pf-v5-c-button.pf-m-primary,
+input[type="submit"] {
+  background-color: var(--reduniv-blue);
+  border-color: var(--reduniv-blue);
+}
+
+.pf-c-button.pf-m-primary:hover,
+.pf-v5-c-button.pf-m-primary:hover,
+input[type="submit"]:hover {
+  background-color: #0f1b3b;
+  border-color: #0f1b3b;
+}
+
+a {
+  color: var(--reduniv-blue);
+}
+
+a:hover {
+  color: #0f1b3b;
+}
+
+.pf-c-form-control:focus,
+.pf-v5-c-form-control:focus {
+  border-color: var(--reduniv-accent);
+  box-shadow: 0 0 0 1px var(--reduniv-accent);
+}
+
+.instruction,
+#kc-info,
+.pf-v5-c-login__main-footer {
+  color: var(--reduniv-muted);
+}

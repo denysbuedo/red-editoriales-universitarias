@@ -69,6 +69,7 @@ interface OidcJsonWebKey extends JsonWebKey {
 
 interface OidcDiscoveryDocument {
   readonly authorization_endpoint?: string;
+  readonly end_session_endpoint?: string;
   readonly jwks_uri?: string;
   readonly issuer?: string;
   readonly token_endpoint?: string;
@@ -377,9 +378,11 @@ function readErrorReason(error: unknown): string {
   return error instanceof Error ? error.message : "Unknown OIDC callback error.";
 }
 
-export function buildPublicationImportAdminLogoutResponse(request: Request): NextResponse {
+export async function buildPublicationImportAdminLogoutResponse(
+  request: Request,
+): Promise<NextResponse> {
   const requestUrl = new URL(request.url);
-  const response = NextResponse.redirect(buildPublicUrl("/"));
+  const response = NextResponse.redirect(await buildAdminLogoutRedirectUrl());
 
   response.cookies.set(ADMIN_SESSION_COOKIE, "", {
     httpOnly: true,
@@ -391,6 +394,32 @@ export function buildPublicationImportAdminLogoutResponse(request: Request): Nex
   clearOidcTemporaryCookies(response);
 
   return response;
+}
+
+async function buildAdminLogoutRedirectUrl(): Promise<URL> {
+  const localLogoutUrl = buildPublicUrl("/");
+  const config = readOidcAdminConfig(process.env);
+
+  if (config === null) {
+    return localLogoutUrl;
+  }
+
+  try {
+    const discovery = await readOidcDiscovery(config.issuer, fetch);
+
+    if (discovery.end_session_endpoint === undefined) {
+      return localLogoutUrl;
+    }
+
+    const logoutUrl = new URL(discovery.end_session_endpoint);
+
+    logoutUrl.searchParams.set("client_id", config.clientId);
+    logoutUrl.searchParams.set("post_logout_redirect_uri", localLogoutUrl.toString());
+
+    return logoutUrl;
+  } catch {
+    return localLogoutUrl;
+  }
 }
 
 function authorizeWithStaticToken(

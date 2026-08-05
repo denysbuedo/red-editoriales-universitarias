@@ -9,6 +9,7 @@ import {
 } from "@/modules/publication-import/interfaces/http/publication-import-admin-session";
 
 import { PublicationImportDiagnosisForm } from "./publication-import-diagnosis-form";
+import { AdminSessionMenu } from "../../admin-session-menu";
 
 export const metadata: Metadata = {
   title: "Diagnóstico de importación | PNPU",
@@ -30,14 +31,7 @@ export default async function PublicationImportDiagnosisPage() {
         <Link className="text-sm font-medium text-blue-800 hover:text-blue-950" href="/">
           PNPU
         </Link>
-        <div className="flex flex-wrap items-center gap-2">
-          <Link
-            className="inline-flex h-9 items-center rounded-md border border-neutral-300 px-3 text-sm font-semibold text-neutral-800 hover:bg-neutral-50"
-            href="/api/admin/auth/logout"
-          >
-            Cerrar sesión
-          </Link>
-        </div>
+        <AdminSessionMenu session={session} />
       </nav>
       <header className="mt-8 border-b border-neutral-200 pb-8">
         <p className="text-sm font-semibold uppercase tracking-normal text-blue-800">Importación</p>

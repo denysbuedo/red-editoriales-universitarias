@@ -8,6 +8,8 @@ import {
   readPublicationImportAdminSessionSummary,
 } from "@/modules/publication-import/interfaces/http/publication-import-admin-session";
 
+import { AdminSessionMenu } from "./admin-session-menu";
+
 export const metadata: Metadata = {
   title: "Administración | PNPU",
   description: "Panel administrativo de la Plataforma Nacional de Publicaciones Universitarias.",
@@ -66,12 +68,9 @@ function AdminSessionPanel({
         {session === null ? "Usuario autenticado" : session.displayName}
         {session?.email ? ` · ${session.email}` : ""}
       </p>
-      <Link
-        className="mt-3 inline-flex h-9 items-center rounded-md border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-800 hover:bg-slate-50"
-        href="/api/admin/auth/logout"
-      >
-        Cerrar sesión
-      </Link>
+      <div className="mt-3">
+        <AdminSessionMenu session={session} />
+      </div>
     </section>
   );
 }

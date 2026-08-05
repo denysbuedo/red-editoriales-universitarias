@@ -26,6 +26,7 @@ describe("AdminPage", () => {
 
     expect(html).toContain("Panel operativo PNPU");
     expect(html).toContain("Sesión OIDC activa");
+    expect(html).toContain("Perfil administrativo");
     expect(html).toContain("admin-pnpu");
     expect(html).toContain("/admin/importaciones/publicaciones");
     expect(html).toContain("/api/admin/auth/logout");

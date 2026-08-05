@@ -5,6 +5,6 @@ import { buildPublicationImportAdminLogoutResponse } from "@/modules/publication
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-export function GET(request: Request): NextResponse {
+export async function GET(request: Request): Promise<NextResponse> {
   return buildPublicationImportAdminLogoutResponse(request);
 }

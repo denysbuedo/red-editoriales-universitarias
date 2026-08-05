@@ -9,6 +9,7 @@
     "build": "next build",
     "acceptance:v0.1": "node scripts/acceptance-v0.1.mjs",
     "package:release": "node scripts/package-release.mjs",
+    "package:keycloak-theme": "node scripts/package-keycloak-theme.mjs",
     "package:omeka-tools": "node scripts/package-omeka-tools.mjs",
     "package:validate": "node scripts/validate-release-artifact.mjs",
     "start": "next start",

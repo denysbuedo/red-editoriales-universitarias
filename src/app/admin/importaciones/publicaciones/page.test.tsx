@@ -31,6 +31,7 @@ describe("PublicationImportDiagnosisPage", () => {
     expect(html).toContain("Diagnóstico de publicaciones");
     expect(html).toContain("Revisión operativa de planillas XLSX");
     expect(html).toContain("Sesión OIDC activa");
+    expect(html).toContain("Perfil administrativo");
     expect(html).toContain("Admin PNPU");
     expect(html).toContain("admin@example.edu");
     expect(html).toContain("/api/admin/auth/logout");

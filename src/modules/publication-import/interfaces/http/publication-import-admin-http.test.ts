@@ -558,11 +558,11 @@ describe("publication import admin HTTP helpers", () => {
     }
   });
 
-  it("clears the OIDC admin session on logout", () => {
+  it("clears the OIDC admin session on logout", async () => {
     const previousPublicBaseUrl = process.env.PNPU_PUBLIC_BASE_URL;
     process.env.PNPU_PUBLIC_BASE_URL = "https://editorial.reduniv.edu.cu";
 
-    const response = buildPublicationImportAdminLogoutResponse(
+    const response = await buildPublicationImportAdminLogoutResponse(
       new Request("https://localhost:3000/api/admin/auth/logout"),
     );
     const cookies = response.headers.get("Set-Cookie") ?? "";
@@ -572,6 +572,49 @@ describe("publication import admin HTTP helpers", () => {
     expect(cookies).toContain("pnpu_admin_session=");
     expect(cookies).toContain("Max-Age=0");
     restoreEnvironmentValue("PNPU_PUBLIC_BASE_URL", previousPublicBaseUrl);
+  });
+
+  it("redirects OIDC logout through the configured identity provider", async () => {
+    const previousValues = snapshotEnvironment([
+      "PNPU_OIDC_AUDIENCE",
+      "PNPU_OIDC_CLIENT_ID",
+      "PNPU_OIDC_ISSUER",
+      "PNPU_PUBLIC_BASE_URL",
+    ]);
+    const issuer = "https://identidad.reduniv.edu.cu/realms/reduniv";
+    process.env.PNPU_OIDC_ISSUER = issuer;
+    process.env.PNPU_OIDC_AUDIENCE = "pnpu-portal";
+    process.env.PNPU_OIDC_CLIENT_ID = "pnpu-portal";
+    process.env.PNPU_PUBLIC_BASE_URL = "https://editorial.reduniv.edu.cu";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() =>
+        Promise.resolve(
+          Response.json({
+            end_session_endpoint: `${issuer}/protocol/openid-connect/logout`,
+            issuer,
+          }),
+        ),
+      ),
+    );
+
+    try {
+      const response = await buildPublicationImportAdminLogoutResponse(
+        new Request("https://editorial.reduniv.edu.cu/api/admin/auth/logout"),
+      );
+      const location = new URL(response.headers.get("Location") ?? "");
+
+      expect(response.status).toBe(307);
+      expect(location.origin).toBe("https://identidad.reduniv.edu.cu");
+      expect(location.pathname).toBe("/realms/reduniv/protocol/openid-connect/logout");
+      expect(location.searchParams.get("client_id")).toBe("pnpu-portal");
+      expect(location.searchParams.get("post_logout_redirect_uri")).toBe(
+        "https://editorial.reduniv.edu.cu/",
+      );
+      expect(response.headers.get("Set-Cookie") ?? "").toContain("pnpu_admin_session=");
+    } finally {
+      restoreEnvironmentSnapshot(previousValues);
+    }
   });
 
   it("maps application errors to HTTP status codes with correlation ids", async () => {
