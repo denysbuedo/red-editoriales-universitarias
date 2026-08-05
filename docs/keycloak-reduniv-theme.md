@@ -23,6 +23,12 @@ artifacts/reduniv-keycloak-theme-0.1.0.tar.gz
 artifacts/reduniv-keycloak-theme-0.1.0.tar.gz.sha256
 ```
 
+Checksum validado:
+
+```text
+SHA-256: 41fd023beefd0bebc848816d91ab7ae12f0014273ced187e24c330f89c39c3f0
+```
+
 ## Despliegue en la VM de identidad
 
 Subir a `/home/ituser/updates` en la VM de Keycloak:
