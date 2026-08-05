@@ -56,6 +56,9 @@ export default async function HomePage() {
               <PrimaryLink href="/publicaciones">Consultar catálogo</PrimaryLink>
               <SecondaryLink href="/editoriales">Directorio de editoriales</SecondaryLink>
               <SecondaryLink href="/estado">Estado del catálogo</SecondaryLink>
+              <SecondaryLink href="/admin/importaciones/publicaciones">
+                Administración
+              </SecondaryLink>
             </nav>
           </div>
         </div>

@@ -1,15 +1,51 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import PublicationImportDiagnosisPage from "./page";
+const cookiesMock = vi.hoisted(() => vi.fn());
+
+vi.mock("next/headers", () => ({
+  cookies: cookiesMock,
+}));
+
+import PublicationImportDiagnosisPage, { readAdminSessionSummary } from "./page";
 import { PublicationImportDiagnosisForm } from "./publication-import-diagnosis-form";
 
 describe("PublicationImportDiagnosisPage", () => {
-  it("renders the publication import diagnosis page", () => {
-    const html = renderToStaticMarkup(<PublicationImportDiagnosisPage />);
+  beforeEach(() => {
+    cookiesMock.mockResolvedValue({
+      get: () => ({
+        value: buildUnsignedJwt({
+          email: "admin@example.edu",
+          name: "Admin PNPU",
+          preferred_username: "admin-pnpu",
+        }),
+      }),
+    });
+  });
+
+  it("renders the publication import diagnosis page", async () => {
+    const html = renderToStaticMarkup(await PublicationImportDiagnosisPage());
 
     expect(html).toContain("Diagnóstico de publicaciones");
     expect(html).toContain("Revisión operativa de planillas XLSX");
+    expect(html).toContain("Sesión OIDC activa");
+    expect(html).toContain("Admin PNPU");
+    expect(html).toContain("admin@example.edu");
+    expect(html).toContain("/api/admin/auth/logout");
+  });
+
+  it("reads the administrator session summary from the session token", () => {
+    expect(
+      readAdminSessionSummary(
+        buildUnsignedJwt({
+          email: "admin@example.edu",
+          preferred_username: "admin-pnpu",
+        }),
+      ),
+    ).toEqual({
+      displayName: "admin-pnpu",
+      email: "admin@example.edu",
+    });
   });
 });
 
@@ -32,3 +68,19 @@ describe("PublicationImportDiagnosisForm", () => {
     expect(html).toContain("Escribir en Omeka");
   });
 });
+
+function buildUnsignedJwt(payload: Readonly<Record<string, string>>): string {
+  return `${base64UrlEncode(JSON.stringify({ alg: "none" }))}.${base64UrlEncode(
+    JSON.stringify(payload),
+  )}.signature`;
+}
+
+function base64UrlEncode(value: string): string {
+  let binary = "";
+
+  for (const byte of new TextEncoder().encode(value)) {
+    binary += String.fromCharCode(byte);
+  }
+
+  return btoa(binary).replace(/\+/gu, "-").replace(/\//gu, "_").replace(/=+$/u, "");
+}

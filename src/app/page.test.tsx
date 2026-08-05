@@ -24,5 +24,6 @@ describe("HomePage", () => {
     expect(html).toContain("Editoriales integradas");
     expect(html).toContain("Materias principales");
     expect(html).toContain("/estado");
+    expect(html).toContain("/admin/importaciones/publicaciones");
   });
 });
