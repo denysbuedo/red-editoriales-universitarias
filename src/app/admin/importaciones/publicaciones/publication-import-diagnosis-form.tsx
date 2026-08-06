@@ -97,6 +97,20 @@ interface PublicationImportUploadApiResponse {
   };
 }
 
+const textInputClassName =
+  "min-h-10 w-full min-w-0 rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-normal text-neutral-950";
+const textareaClassName =
+  "min-h-32 w-full min-w-0 rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-normal text-neutral-950";
+const primaryButtonClassName =
+  "inline-flex min-h-10 w-full items-center justify-center rounded-md bg-blue-900 px-4 py-2 text-center text-sm font-semibold leading-5 text-white hover:bg-blue-950 disabled:cursor-not-allowed disabled:bg-neutral-400";
+const secondaryButtonClassName =
+  "inline-flex min-h-10 w-full items-center justify-center rounded-md border border-blue-800 bg-white px-4 py-2 text-center text-sm font-semibold leading-5 text-blue-900 hover:bg-blue-50 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:text-neutral-400";
+const neutralButtonClassName =
+  "inline-flex min-h-10 w-full items-center justify-center rounded-md border border-neutral-500 bg-white px-4 py-2 text-center text-sm font-semibold leading-5 text-neutral-800 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:text-neutral-400";
+const dangerButtonClassName =
+  "inline-flex min-h-10 w-full items-center justify-center rounded-md bg-red-900 px-4 py-2 text-center text-sm font-semibold leading-5 text-white hover:bg-red-950 disabled:cursor-not-allowed disabled:bg-neutral-400";
+const labelClassName = "grid min-w-0 gap-1 text-sm font-medium text-neutral-800";
+
 export function PublicationImportDiagnosisForm() {
   const [sourcePath, setSourcePath] = useState("Listado_Libro_Publicados_EDUNIV.xlsx");
   const [sheet, setSheet] = useState("EDUNIV");
@@ -251,40 +265,44 @@ export function PublicationImportDiagnosisForm() {
   }
 
   return (
-    <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,380px)_1fr]">
+    <div className="mt-6 grid min-w-0 gap-6 xl:grid-cols-[minmax(360px,460px)_minmax(0,1fr)]">
       <form
-        className="rounded-md border border-neutral-200 bg-white p-5 shadow-sm"
+        className="min-w-0 rounded-md border border-neutral-200 bg-white p-4 shadow-sm sm:p-5"
         onSubmit={(event) => {
           void submitImportAction(event);
         }}
       >
-        <h2 className="text-xl font-semibold text-neutral-950">Ejecutar revisión</h2>
-        <div className="mt-4 flex flex-wrap gap-2">
-          <a
-            className="inline-flex h-9 items-center rounded-md border border-blue-800 px-3 text-sm font-semibold text-blue-900 hover:bg-blue-50"
-            href="/api/admin/auth/login?returnTo=/admin/importaciones/publicaciones"
-          >
-            Iniciar sesión
-          </a>
-          <a
-            className="inline-flex h-9 items-center rounded-md border border-neutral-500 px-3 text-sm font-semibold text-neutral-800 hover:bg-neutral-50"
-            href="/api/admin/auth/logout"
-          >
-            Cerrar sesión
-          </a>
-        </div>
-        <div className="mt-5 grid gap-4">
-          <section className="rounded-md border border-blue-200 bg-blue-50 p-4">
-            <h3 className="text-sm font-semibold text-blue-950">Carga piloto por editorial</h3>
-            <p className="mt-1 text-xs leading-5 text-blue-900">
-              Suba el XLSX entregado por la editorial. La plataforma lo guardará dentro del área de
-              importaciones y completará la ruta del archivo.
+        <div className="flex flex-col gap-3 border-b border-neutral-200 pb-4 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-neutral-950">Panel operativo</h2>
+            <p className="mt-1 text-sm leading-6 text-neutral-600">
+              Carga, validación y escritura controlada por lote.
             </p>
-            <div className="mt-3 grid gap-3">
-              <label className="grid gap-1 text-sm font-medium text-neutral-800">
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:w-56">
+            <a
+              className="inline-flex min-h-9 items-center justify-center rounded-md border border-blue-800 bg-white px-3 py-2 text-center text-sm font-semibold leading-5 text-blue-900 hover:bg-blue-50"
+              href="/api/admin/auth/login?returnTo=/admin/importaciones/publicaciones"
+            >
+              Entrar
+            </a>
+            <a
+              className="inline-flex min-h-9 items-center justify-center rounded-md border border-neutral-500 bg-white px-3 py-2 text-center text-sm font-semibold leading-5 text-neutral-800 hover:bg-neutral-50"
+              href="/api/admin/auth/logout"
+            >
+              Salir
+            </a>
+          </div>
+        </div>
+
+        <div className="mt-5 grid min-w-0 gap-4">
+          <section className="rounded-md border border-blue-200 bg-blue-50 p-4">
+            <h3 className="text-sm font-semibold text-blue-950">1. Lote editorial</h3>
+            <div className="mt-3 grid min-w-0 gap-3 sm:grid-cols-2">
+              <label className={labelClassName}>
                 Editorial piloto
                 <input
-                  className="h-10 rounded-md border border-neutral-300 bg-white px-3 text-sm font-normal text-neutral-950"
+                  className={textInputClassName}
                   maxLength={80}
                   onChange={(event) => {
                     setPublisherId(event.target.value);
@@ -295,10 +313,10 @@ export function PublicationImportDiagnosisForm() {
                   value={publisherId}
                 />
               </label>
-              <label className="grid gap-1 text-sm font-medium text-neutral-800">
+              <label className={labelClassName}>
                 Lote
                 <input
-                  className="h-10 rounded-md border border-neutral-300 bg-white px-3 text-sm font-normal text-neutral-950"
+                  className={textInputClassName}
                   maxLength={80}
                   onChange={(event) => {
                     setBatchLabel(event.target.value);
@@ -309,110 +327,189 @@ export function PublicationImportDiagnosisForm() {
                   value={batchLabel}
                 />
               </label>
-              <label className="grid gap-1 text-sm font-medium text-neutral-800">
-                Subir XLSX
+            </div>
+            <label className={`${labelClassName} mt-3`}>
+              Subir XLSX
+              <input
+                accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                className="w-full min-w-0 rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-normal text-neutral-950 file:mr-3 file:rounded-md file:border-0 file:bg-blue-900 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-white"
+                disabled={isSubmitting}
+                onChange={(event) => {
+                  void uploadSpreadsheet(event);
+                }}
+                type="file"
+              />
+            </label>
+            {uploadStatus === null ? null : (
+              <p className="mt-3 break-words rounded-md bg-white px-3 py-2 text-xs font-semibold leading-5 text-blue-950">
+                {uploadStatus}
+              </p>
+            )}
+          </section>
+
+          <section className="rounded-md border border-neutral-200 bg-neutral-50 p-4">
+            <h3 className="text-sm font-semibold text-neutral-950">2. Revisión inicial</h3>
+            <div className="mt-3 grid min-w-0 gap-3">
+              <label className={labelClassName}>
+                Archivo XLSX
                 <input
-                  accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                  className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-normal text-neutral-950"
-                  disabled={isSubmitting}
+                  className={textInputClassName}
+                  maxLength={260}
                   onChange={(event) => {
-                    void uploadSpreadsheet(event);
+                    setSourcePath(event.target.value);
                   }}
-                  type="file"
+                  required
+                  type="text"
+                  value={sourcePath}
                 />
               </label>
-              {uploadStatus === null ? null : (
-                <p className="rounded-md bg-white px-3 py-2 text-xs font-semibold text-blue-950">
-                  {uploadStatus}
-                </p>
-              )}
+              <label className={labelClassName}>
+                Hoja
+                <input
+                  className={textInputClassName}
+                  maxLength={64}
+                  onChange={(event) => {
+                    setSheet(event.target.value);
+                  }}
+                  required
+                  type="text"
+                  value={sheet}
+                />
+              </label>
+            </div>
+            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              <button
+                className={primaryButtonClassName}
+                disabled={isSubmitting}
+                name="intent"
+                type="submit"
+                value="diagnose"
+              >
+                {isSubmitting && action === "diagnose" ? "Diagnosticando" : "Diagnosticar"}
+              </button>
+              <button
+                className={secondaryButtonClassName}
+                disabled={isSubmitting}
+                name="intent"
+                type="submit"
+                value="preview"
+              >
+                {isSubmitting && action === "preview" ? "Preparando" : "Preview mapeo"}
+              </button>
             </div>
           </section>
-          <label className="grid gap-1 text-sm font-medium text-neutral-800">
-            Archivo XLSX
-            <input
-              className="h-10 rounded-md border border-neutral-300 px-3 text-sm font-normal text-neutral-950"
-              maxLength={260}
-              onChange={(event) => {
-                setSourcePath(event.target.value);
-              }}
-              required
-              type="text"
-              value={sourcePath}
-            />
-          </label>
-          <label className="grid gap-1 text-sm font-medium text-neutral-800">
-            Hoja
-            <input
-              className="h-10 rounded-md border border-neutral-300 px-3 text-sm font-normal text-neutral-950"
-              maxLength={64}
-              onChange={(event) => {
-                setSheet(event.target.value);
-              }}
-              required
-              type="text"
-              value={sheet}
-            />
-          </label>
-          <label className="grid gap-1 text-sm font-medium text-neutral-800">
-            Token administrativo local
-            <input
-              autoComplete="off"
-              className="h-10 rounded-md border border-neutral-300 px-3 text-sm font-normal text-neutral-950"
-              onChange={(event) => {
-                setToken(event.target.value);
-              }}
-              type="password"
-              value={token}
-            />
-          </label>
-          <div className="grid gap-2 sm:grid-cols-2">
+
+          <section className="rounded-md border border-neutral-200 bg-white p-4">
+            <h3 className="text-sm font-semibold text-neutral-950">3. Catálogo de apoyo</h3>
+            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              <button
+                className={neutralButtonClassName}
+                disabled={isSubmitting}
+                name="intent"
+                type="submit"
+                value="authorities"
+              >
+                {isSubmitting && action === "authorities" ? "Cargando" : "Autoridades"}
+              </button>
+              <button
+                className={neutralButtonClassName}
+                disabled={isSubmitting}
+                name="intent"
+                type="submit"
+                value="history"
+              >
+                {isSubmitting && action === "history" ? "Cargando" : "Historial"}
+              </button>
+            </div>
+          </section>
+
+          <section className="rounded-md border border-neutral-200 bg-neutral-50 p-4">
+            <h3 className="text-sm font-semibold text-neutral-950">4. Enriquecimiento</h3>
+            <label className={`${labelClassName} mt-3`}>
+              CSV enriquecido
+              <textarea
+                className={textareaClassName}
+                onChange={(event) => {
+                  setEnrichmentCsv(event.target.value);
+                }}
+                placeholder="Pegue aqui la plantilla de enriquecimiento completada."
+                value={enrichmentCsv}
+              />
+            </label>
             <button
-              className="h-10 rounded-md bg-blue-900 px-4 text-sm font-semibold text-white hover:bg-blue-950 disabled:cursor-not-allowed disabled:bg-neutral-400"
+              className={`${primaryButtonClassName} mt-3 bg-neutral-900 hover:bg-black`}
               disabled={isSubmitting}
               name="intent"
               type="submit"
-              value="diagnose"
+              value="dryRun"
             >
-              {isSubmitting && action === "diagnose" ? "Diagnosticando" : "Diagnosticar"}
+              {isSubmitting && action === "dryRun" ? "Validando" : "Dry-run enriquecido"}
             </button>
-            <button
-              className="h-10 rounded-md border border-blue-800 px-4 text-sm font-semibold text-blue-900 hover:bg-blue-50 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:text-neutral-400"
-              disabled={isSubmitting}
-              name="intent"
-              type="submit"
-              value="preview"
-            >
-              {isSubmitting && action === "preview" ? "Preparando" : "Preview mapeo"}
-            </button>
-          </div>
-          <button
-            className="h-10 rounded-md border border-neutral-500 px-4 text-sm font-semibold text-neutral-800 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:text-neutral-400"
-            disabled={isSubmitting}
-            name="intent"
-            type="submit"
-            value="authorities"
-          >
-            {isSubmitting && action === "authorities" ? "Cargando" : "Autoridades Omeka"}
-          </button>
-          <button
-            className="h-10 rounded-md border border-neutral-500 px-4 text-sm font-semibold text-neutral-800 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:text-neutral-400"
-            disabled={isSubmitting}
-            name="intent"
-            type="submit"
-            value="history"
-          >
-            {isSubmitting && action === "history" ? "Cargando" : "Historial de commits"}
-          </button>
-          <section className="rounded-md border border-red-200 bg-red-50 p-4">
-            <h3 className="text-sm font-semibold text-red-950">Rollback</h3>
-            <p className="mt-1 text-xs leading-5 text-red-900">
-              Use esta zona solo para revertir una escritura previa registrada en auditoría.
-            </p>
-            <label className="mt-3 grid gap-1 text-sm font-medium text-neutral-800">
+          </section>
+
+          <details className="rounded-md border border-neutral-200 bg-white p-4">
+            <summary className="cursor-pointer text-sm font-semibold text-neutral-950">
+              Acceso local
+            </summary>
+            <label className={`${labelClassName} mt-3`}>
+              Token administrativo local
+              <input
+                autoComplete="off"
+                className={textInputClassName}
+                onChange={(event) => {
+                  setToken(event.target.value);
+                }}
+                type="password"
+                value={token}
+              />
+            </label>
+          </details>
+
+          <details className="rounded-md border border-amber-200 bg-amber-50 p-4">
+            <summary className="cursor-pointer text-sm font-semibold text-amber-950">
+              Escritura en Omeka
+            </summary>
+            <label className={`${labelClassName} mt-3`}>
+              Paquete validado
+              <textarea
+                className={textareaClassName}
+                onChange={(event) => {
+                  setPackageJson(event.target.value);
+                }}
+                placeholder="Pegue aqui el JSON exportado con candidatos listos."
+                value={packageJson}
+              />
+            </label>
+            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              <button
+                className="inline-flex min-h-10 w-full items-center justify-center rounded-md border border-amber-800 bg-white px-4 py-2 text-center text-sm font-semibold leading-5 text-amber-950 hover:bg-amber-100 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:text-neutral-400"
+                disabled={isSubmitting}
+                name="intent"
+                type="submit"
+                value="commitPlan"
+              >
+                {isSubmitting && action === "commitPlan" ? "Planificando" : "Plan de commit"}
+              </button>
+              <button
+                className={dangerButtonClassName}
+                disabled={isSubmitting}
+                name="intent"
+                type="submit"
+                value="commit"
+              >
+                {isSubmitting && action === "commit" ? "Escribiendo" : "Escribir en Omeka"}
+              </button>
+            </div>
+          </details>
+
+          <details className="rounded-md border border-red-200 bg-red-50 p-4">
+            <summary className="cursor-pointer text-sm font-semibold text-red-950">
+              Rollback
+            </summary>
+            <label className={`${labelClassName} mt-3`}>
               Audit ID
               <input
-                className="h-10 rounded-md border border-neutral-300 bg-white px-3 text-sm font-normal text-neutral-950"
+                className={textInputClassName}
                 maxLength={80}
                 onChange={(event) => {
                   setRollbackAuditId(event.target.value);
@@ -424,7 +521,7 @@ export function PublicationImportDiagnosisForm() {
             </label>
             <div className="mt-3 grid gap-2 sm:grid-cols-2">
               <button
-                className="h-10 rounded-md border border-red-800 bg-white px-4 text-sm font-semibold text-red-900 hover:bg-red-100 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:text-neutral-400"
+                className="inline-flex min-h-10 w-full items-center justify-center rounded-md border border-red-800 bg-white px-4 py-2 text-center text-sm font-semibold leading-5 text-red-900 hover:bg-red-100 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:text-neutral-400"
                 disabled={isSubmitting}
                 name="intent"
                 type="submit"
@@ -433,7 +530,7 @@ export function PublicationImportDiagnosisForm() {
                 {isSubmitting && action === "rollbackPlan" ? "Planificando" : "Plan de rollback"}
               </button>
               <button
-                className="h-10 rounded-md bg-red-900 px-4 text-sm font-semibold text-white hover:bg-red-950 disabled:cursor-not-allowed disabled:bg-neutral-400"
+                className={dangerButtonClassName}
                 disabled={isSubmitting}
                 name="intent"
                 type="submit"
@@ -442,70 +539,13 @@ export function PublicationImportDiagnosisForm() {
                 {isSubmitting && action === "rollback" ? "Revirtiendo" : "Ejecutar rollback"}
               </button>
             </div>
-          </section>
-          <label className="grid gap-1 text-sm font-medium text-neutral-800">
-            CSV enriquecido
-            <textarea
-              className="min-h-36 rounded-md border border-neutral-300 px-3 py-2 text-sm font-normal text-neutral-950"
-              onChange={(event) => {
-                setEnrichmentCsv(event.target.value);
-              }}
-              placeholder="Pegue aqui la plantilla de enriquecimiento completada."
-              value={enrichmentCsv}
-            />
-          </label>
-          <button
-            className="h-10 rounded-md bg-neutral-900 px-4 text-sm font-semibold text-white hover:bg-black disabled:cursor-not-allowed disabled:bg-neutral-400"
-            disabled={isSubmitting}
-            name="intent"
-            type="submit"
-            value="dryRun"
-          >
-            {isSubmitting && action === "dryRun" ? "Validando" : "Dry-run enriquecido"}
-          </button>
-          <section className="rounded-md border border-amber-200 bg-amber-50 p-4">
-            <h3 className="text-sm font-semibold text-amber-950">Escritura en Omeka</h3>
-            <p className="mt-1 text-xs leading-5 text-amber-900">
-              Esta zona modifica Omeka S. Genere y revise el plan antes de ejecutar la escritura.
-            </p>
-            <label className="mt-3 grid gap-1 text-sm font-medium text-neutral-800">
-              Paquete validado
-              <textarea
-                className="min-h-36 rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-normal text-neutral-950"
-                onChange={(event) => {
-                  setPackageJson(event.target.value);
-                }}
-                placeholder="Pegue aqui el JSON exportado con candidatos listos."
-                value={packageJson}
-              />
-            </label>
-            <div className="mt-3 grid gap-2 sm:grid-cols-2">
-              <button
-                className="h-10 rounded-md border border-amber-800 bg-white px-4 text-sm font-semibold text-amber-950 hover:bg-amber-100 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:text-neutral-400"
-                disabled={isSubmitting}
-                name="intent"
-                type="submit"
-                value="commitPlan"
-              >
-                {isSubmitting && action === "commitPlan" ? "Planificando" : "Plan de commit"}
-              </button>
-              <button
-                className="h-10 rounded-md bg-red-900 px-4 text-sm font-semibold text-white hover:bg-red-950 disabled:cursor-not-allowed disabled:bg-neutral-400"
-                disabled={isSubmitting}
-                name="intent"
-                type="submit"
-                value="commit"
-              >
-                {isSubmitting && action === "commit" ? "Escribiendo" : "Escribir en Omeka"}
-              </button>
-            </div>
-          </section>
+          </details>
         </div>
       </form>
 
       <section
         aria-live="polite"
-        className="rounded-md border border-neutral-200 bg-white p-5 shadow-sm"
+        className="min-w-0 overflow-hidden rounded-md border border-neutral-200 bg-white p-4 shadow-sm sm:p-5"
       >
         <h2 className="text-xl font-semibold text-neutral-950">Resultado</h2>
         {error !== null ? <ErrorPanel error={error} /> : null}

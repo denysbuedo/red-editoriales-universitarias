@@ -10,8 +10,8 @@ describe("PublicationImportDiagnosisPage", () => {
   it("renders the publication import diagnosis page", () => {
     const html = renderToStaticMarkup(<PublicationImportDiagnosisPage />);
 
-    expect(html).toContain("Diagnóstico de publicaciones");
-    expect(html).toContain("Revisión operativa de planillas XLSX");
+    expect(html).toContain("Carga y revisión de publicaciones");
+    expect(html).toContain("Control operativo de lotes XLSX");
   });
 
   it("reads the administrator session summary from the session token", () => {
@@ -33,15 +33,15 @@ describe("PublicationImportDiagnosisForm", () => {
   it("renders the initial diagnosis form", () => {
     const html = renderToStaticMarkup(<PublicationImportDiagnosisForm />);
 
-    expect(html).toContain("Ejecutar revisión");
-    expect(html).toContain("Carga piloto por editorial");
+    expect(html).toContain("Panel operativo");
+    expect(html).toContain("1. Lote editorial");
     expect(html).toContain("Editorial piloto");
     expect(html).toContain("Subir XLSX");
     expect(html).toContain("Listado_Libro_Publicados_EDUNIV.xlsx");
     expect(html).toContain("Token administrativo");
     expect(html).toContain("Preview mapeo");
-    expect(html).toContain("Autoridades Omeka");
-    expect(html).toContain("Historial de commits");
+    expect(html).toContain("Autoridades");
+    expect(html).toContain("Historial");
     expect(html).toContain("Plan de rollback");
     expect(html).toContain("Ejecutar rollback");
     expect(html).toContain("CSV enriquecido");

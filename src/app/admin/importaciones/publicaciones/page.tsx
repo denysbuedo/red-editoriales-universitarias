@@ -9,15 +9,14 @@ export const metadata: Metadata = {
 
 export default function PublicationImportDiagnosisPage() {
   return (
-    <main className="mx-auto min-h-screen max-w-6xl px-6 py-12">
-      <header className="border-b border-neutral-200 pb-8">
+    <main className="mx-auto min-h-screen max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <header className="border-b border-neutral-200 pb-6">
         <p className="text-sm font-semibold uppercase tracking-normal text-blue-800">Importación</p>
-        <h1 className="mt-3 text-3xl font-bold text-neutral-950 md:text-4xl">
-          Diagnóstico de publicaciones
+        <h1 className="mt-2 text-2xl font-bold text-neutral-950 md:text-3xl">
+          Carga y revisión de publicaciones
         </h1>
-        <p className="mt-4 max-w-3xl text-base leading-7 text-neutral-700">
-          Revisión operativa de planillas XLSX entregadas por editoriales antes de cualquier mapeo
-          hacia Omeka S.
+        <p className="mt-3 max-w-4xl text-sm leading-6 text-neutral-700 md:text-base">
+          Control operativo de lotes XLSX antes de escribir en Omeka S.
         </p>
       </header>
 
