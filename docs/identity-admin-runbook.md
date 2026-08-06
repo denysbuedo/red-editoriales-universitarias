@@ -6,11 +6,11 @@ Configurar la autorizacion de endpoints administrativos del Portal PNPU.
 
 ## Modos soportados
 
-| Modo | Uso |
-| --- | --- |
-| `token` | Desarrollo local. Valida `X-PNPU-Admin-Token` contra `PNPU_PUBLICATION_IMPORT_TOKEN`. |
-| `hybrid` | Transicion. Acepta token local, OIDC Bearer JWT valido o cookie de sesion OIDC. |
-| `oidc` | Produccion. Acepta OIDC Bearer JWT valido o cookie de sesion OIDC. |
+| Modo     | Uso                                                                                   |
+| -------- | ------------------------------------------------------------------------------------- |
+| `token`  | Desarrollo local. Valida `X-PNPU-Admin-Token` contra `PNPU_PUBLICATION_IMPORT_TOKEN`. |
+| `hybrid` | Transicion. Acepta token local, OIDC Bearer JWT valido o cookie de sesion OIDC.       |
+| `oidc`   | Produccion. Acepta OIDC Bearer JWT valido o cookie de sesion OIDC.                    |
 
 ## Variables
 
@@ -24,6 +24,7 @@ PNPU_EDITORIAL_COORDINATOR_ROLE=pnpu-editorial-coordinator
 PNPU_EDITORIAL_METADATA_EDITOR_ROLE=pnpu-editorial-metadata-editor
 PNPU_EDITORIAL_REVIEWER_ROLE=pnpu-editorial-reviewer
 PNPU_EDITORIAL_VIEWER_ROLE=pnpu-editorial-viewer
+PNPU_EDITORIAL_SCOPE_CLAIM=pnpu_editorial_ids
 PNPU_OIDC_ISSUER=https://keycloak.example.edu/realms/pnpu
 PNPU_OIDC_AUDIENCE=pnpu-portal
 PNPU_OIDC_CLIENT_ID=pnpu-portal
@@ -45,12 +46,12 @@ PNPU_PUBLICATION_IMPORT_TOKEN=
 
 ## Permisos administrativos
 
-| Rol | Alcance |
-| --- | --- |
-| `pnpu-admin` | Acceso total a la pantalla y a todos los endpoints administrativos. |
-| `pnpu-import-reader` | Diagnostico, preview, dry-run, autoridades, historial y planes no destructivos de lectura. |
-| `pnpu-import-writer` | Plan de commit y escritura controlada en Omeka S. |
-| `pnpu-import-rollback` | Plan de rollback y ejecucion de rollback controlado. |
+| Rol                    | Alcance                                                                                    |
+| ---------------------- | ------------------------------------------------------------------------------------------ |
+| `pnpu-admin`           | Acceso total a la pantalla y a todos los endpoints administrativos.                        |
+| `pnpu-import-reader`   | Diagnostico, preview, dry-run, autoridades, historial y planes no destructivos de lectura. |
+| `pnpu-import-writer`   | Plan de commit y escritura controlada en Omeka S.                                          |
+| `pnpu-import-rollback` | Plan de rollback y ejecucion de rollback controlado.                                       |
 
 Los nombres pueden cambiarse con las variables `PNPU_ADMIN_IMPORT_READ_ROLE`,
 `PNPU_ADMIN_IMPORT_WRITE_ROLE` y `PNPU_ADMIN_IMPORT_ROLLBACK_ROLE`. La pantalla administrativa puede
@@ -62,24 +63,36 @@ de ejecutar la operacion.
 Los responsables de editoriales no usan los permisos nacionales de importacion. Deben autenticarse
 con roles editoriales y con un alcance explicito de editorial.
 
-| Rol | Alcance previsto |
-| --- | --- |
-| `pnpu-editorial-coordinator` | Responsable principal. Puede preparar, revisar y enviar cargas de su editorial. |
-| `pnpu-editorial-metadata-editor` | Puede preparar o corregir metadatos de su editorial. |
-| `pnpu-editorial-reviewer` | Puede revisar diagnosticos y observaciones de su editorial. |
-| `pnpu-editorial-viewer` | Puede consultar estado y resultados de su editorial. |
+| Rol                              | Alcance previsto                                                                |
+| -------------------------------- | ------------------------------------------------------------------------------- |
+| `pnpu-editorial-coordinator`     | Responsable principal. Puede preparar, revisar y enviar cargas de su editorial. |
+| `pnpu-editorial-metadata-editor` | Puede preparar o corregir metadatos de su editorial.                            |
+| `pnpu-editorial-reviewer`        | Puede revisar diagnosticos y observaciones de su editorial.                     |
+| `pnpu-editorial-viewer`          | Puede consultar estado y resultados de su editorial.                            |
 
-El token OIDC debe incluir al menos un identificador de editorial asignada. PNPU reconoce estas
-claims:
+El token OIDC debe incluir al menos un identificador de editorial asignada. PNPU lee por defecto la
+claim `pnpu_editorial_ids`; el nombre puede cambiarse con `PNPU_EDITORIAL_SCOPE_CLAIM`.
 
 ```json
 {
-  "pnpu_editorial_ids": ["018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c03"]
+  "pnpu_editorial_ids": ["editorial-uh"]
 }
 ```
 
-Tambien se aceptan `pnpu_editorial_id`, `publisher_id` y `publisher_ids`. El valor debe mapearse al
-UUID PNPU de la editorial. `pnpu-admin` conserva alcance nacional y no requiere claim editorial.
+El valor debe coincidir con el identificador operativo usado en la carga piloto, por ejemplo
+`editorial-uh`, `editorial-feijoo` o `ediciones-oriente`. `pnpu-admin` conserva alcance nacional y
+no requiere claim editorial.
+
+Para configurar un usuario editorial desde la VM de identidad:
+
+```bash
+cd /home/ituser/updates
+chmod +x configure-keycloak-editorial-user.sh
+./configure-keycloak-editorial-user.sh
+```
+
+El script pide realm, cliente, usuario, rol y editorial(es), crea o actualiza el mapper OIDC
+`pnpu_editorial_ids` en el cliente `pnpu-portal` y asigna el atributo al usuario.
 
 ## Flujo web administrativo
 

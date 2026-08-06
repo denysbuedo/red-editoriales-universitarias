@@ -15,6 +15,7 @@ const checksumPath = `${packagePath}.sha256`;
 
 const toolPaths = [
   "scripts/backup-operational-state.sh",
+  "scripts/configure-keycloak-editorial-user.sh",
   "scripts/deploy-keycloak-theme.sh",
   "scripts/deploy-omeka-tools.sh",
   "scripts/deploy-portal-artifact.sh",
@@ -81,6 +82,7 @@ Herramientas operativas PNPU para VM de portal/catalogo y VM de identidad.
 - despliegue de artefacto PNPU;
 - despliegue de herramientas Omeka;
 - despliegue de theme Keycloak;
+- configuracion de usuarios editoriales Keycloak;
 - health-check local;
 - documentacion operativa de apoyo.
 
