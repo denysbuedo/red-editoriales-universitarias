@@ -736,6 +736,108 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /api/admin/publication-imports/batches:
+    get:
+      operationId: listPublicationImportWorkflowBatches
+      summary: Lista lotes de importación de una editorial piloto.
+      description: >
+        Devuelve el estado operativo persistido de los lotes XLSX cargados por una editorial. La
+        consulta exige `publisherId` para mantener el aislamiento por editorial cuando se usa OIDC.
+      tags:
+        - Admin
+      security:
+        - PublicationImportToken: []
+        - PublicationImportOidcBearer: []
+      x-required-roles:
+        - pnpu-admin
+        - pnpu-import-reader
+      parameters:
+        - name: publisherId
+          in: query
+          required: true
+          description: Identificador operativo de la editorial.
+          schema:
+            type: string
+            minLength: 2
+            maxLength: 80
+            pattern: ^[a-z0-9][a-z0-9._-]{1,79}$
+      responses:
+        "200":
+          description: Lotes persistidos para la editorial solicitada.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicationImportWorkflowListResponse"
+        "403":
+          description: Token administrativo inválido o usuario sin alcance editorial.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: Identificador de editorial requerido o inválido.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Endpoint no configurado o estado de lotes no disponible.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/admin/publication-imports/batches/review:
+    post:
+      operationId: submitPublicationImportWorkflowBatchForReview
+      summary: Envía un lote diagnosticado a revisión nacional.
+      description: >
+        Marca un lote como listo para revisión nacional. No escribe en Omeka S; solo registra el
+        cambio de estado operativo del lote.
+      tags:
+        - Admin
+      security:
+        - PublicationImportToken: []
+        - PublicationImportOidcBearer: []
+      x-required-roles:
+        - pnpu-admin
+        - pnpu-import-reader
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PublicationImportWorkflowReviewRequest"
+      responses:
+        "200":
+          description: Lote enviado a revisión nacional.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicationImportWorkflowBatchDetailResponse"
+        "403":
+          description: Token administrativo inválido o usuario sin alcance editorial.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Lote no encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: Lote no listo para revisión o solicitud inválida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Endpoint no configurado o estado de lotes no disponible.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /api/admin/publication-imports/history:
     get:
       operationId: listPublicationImportHistory
@@ -2337,6 +2439,173 @@ components:
       properties:
         data:
           $ref: "#/components/schemas/PublicationImportCommit"
+        meta:
+          $ref: "#/components/schemas/ApiMeta"
+    PublicationImportWorkflowStatus:
+      type: string
+      enum:
+        - approved
+        - diagnosed
+        - dry_run_completed
+        - imported
+        - needs_correction
+        - previewed
+        - ready_for_review
+        - rejected
+        - uploaded
+    PublicationImportWorkflowBatch:
+      type: object
+      additionalProperties: false
+      required:
+        - batchLabel
+        - createdAt
+        - fileName
+        - lastEventAt
+        - publisherId
+        - relativeSourcePath
+        - status
+        - updatedAt
+      properties:
+        batchLabel:
+          type: string
+          minLength: 2
+          maxLength: 120
+        createdAt:
+          type: string
+          format: date-time
+        fileName:
+          type: string
+          minLength: 1
+          maxLength: 160
+        lastEventAt:
+          type: string
+          format: date-time
+        publisherId:
+          type: string
+          minLength: 2
+          maxLength: 80
+          pattern: ^[a-z0-9][a-z0-9._-]{1,79}$
+        relativeSourcePath:
+          type: string
+          minLength: 1
+          maxLength: 260
+          pattern: ^publishers/[a-z0-9][a-z0-9._-]{1,79}/.+\.xlsx$
+        sheet:
+          type: string
+          minLength: 1
+          maxLength: 64
+        status:
+          $ref: "#/components/schemas/PublicationImportWorkflowStatus"
+        updatedAt:
+          type: string
+          format: date-time
+    PublicationImportWorkflowEvent:
+      type: object
+      additionalProperties: false
+      required:
+        - at
+        - message
+        - status
+      properties:
+        at:
+          type: string
+          format: date-time
+        message:
+          type: string
+          minLength: 1
+        status:
+          $ref: "#/components/schemas/PublicationImportWorkflowStatus"
+    PublicationImportWorkflowBatchDetail:
+      type: object
+      additionalProperties: false
+      required:
+        - batch
+        - events
+      properties:
+        batch:
+          $ref: "#/components/schemas/PublicationImportWorkflowBatch"
+        events:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicationImportWorkflowEvent"
+    PublicationImportWorkflowList:
+      type: object
+      additionalProperties: false
+      required:
+        - batches
+        - generatedAt
+        - summary
+      properties:
+        batches:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicationImportWorkflowBatch"
+        generatedAt:
+          type: string
+          format: date-time
+        publisherId:
+          type: string
+        summary:
+          type: object
+          additionalProperties: false
+          required:
+            - diagnosed
+            - imported
+            - needsCorrection
+            - readyForReview
+            - total
+            - uploaded
+          properties:
+            diagnosed:
+              type: integer
+              minimum: 0
+            imported:
+              type: integer
+              minimum: 0
+            needsCorrection:
+              type: integer
+              minimum: 0
+            readyForReview:
+              type: integer
+              minimum: 0
+            total:
+              type: integer
+              minimum: 0
+            uploaded:
+              type: integer
+              minimum: 0
+    PublicationImportWorkflowReviewRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - sourcePath
+      properties:
+        sourcePath:
+          type: string
+          description: Ruta relativa al directorio de importación permitido.
+          minLength: 1
+          maxLength: 260
+          pattern: ^publishers/[a-z0-9][a-z0-9._-]{1,79}/.+\.xlsx$
+    PublicationImportWorkflowListResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          $ref: "#/components/schemas/PublicationImportWorkflowList"
+        meta:
+          $ref: "#/components/schemas/ApiMeta"
+    PublicationImportWorkflowBatchDetailResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          $ref: "#/components/schemas/PublicationImportWorkflowBatchDetail"
         meta:
           $ref: "#/components/schemas/ApiMeta"
     PublicationImportAuditLog:

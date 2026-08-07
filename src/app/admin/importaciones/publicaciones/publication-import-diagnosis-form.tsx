@@ -12,6 +12,8 @@ import {
   PublicationImportMappingPreviewDto,
   PublicationImportRollbackDto,
   PublicationImportRollbackPlanDto,
+  PublicationImportWorkflowBatchDetailDto,
+  PublicationImportWorkflowListDto,
 } from "@/modules/publication-import";
 
 interface PublicationImportDiagnosisApiResponse {
@@ -77,6 +79,20 @@ interface PublicationImportRollbackApiResponse {
   };
 }
 
+interface PublicationImportWorkflowListApiResponse {
+  readonly data: PublicationImportWorkflowListDto;
+  readonly meta: {
+    readonly apiVersion: "v1";
+  };
+}
+
+interface PublicationImportWorkflowDetailApiResponse {
+  readonly data: PublicationImportWorkflowBatchDetailDto;
+  readonly meta: {
+    readonly apiVersion: "v1";
+  };
+}
+
 interface PublicationImportDiagnosisApiError {
   readonly code: string;
   readonly message: string;
@@ -118,6 +134,7 @@ export function PublicationImportDiagnosisForm() {
   const [publisherId, setPublisherId] = useState("editorial-piloto");
   const [batchLabel, setBatchLabel] = useState("primer-lote");
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
+  const [workflow, setWorkflow] = useState<PublicationImportWorkflowListDto | null>(null);
   const [rollbackAuditId, setRollbackAuditId] = useState("");
   const [enrichmentCsv, setEnrichmentCsv] = useState("");
   const [packageJson, setPackageJson] = useState("");
@@ -171,6 +188,7 @@ export function PublicationImportDiagnosisForm() {
       const upload = readUploadApiResponse(payload).data;
       setSourcePath(upload.relativeSourcePath);
       setUploadStatus(`Archivo cargado para ${upload.publisherId}: ${upload.relativeSourcePath}`);
+      await refreshWorkflow(upload.publisherId);
     } catch {
       setError({
         code: "PNPU-503",
@@ -179,6 +197,89 @@ export function PublicationImportDiagnosisForm() {
     } finally {
       setIsSubmitting(false);
       event.currentTarget.value = "";
+    }
+  }
+
+  async function refreshWorkflow(selectedPublisherId = publisherId): Promise<void> {
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const headers = new Headers();
+
+      if (token.trim().length > 0) {
+        headers.set("X-PNPU-Admin-Token", token.trim());
+      }
+
+      const response = await fetch(
+        `/api/admin/publication-imports/batches?publisherId=${encodeURIComponent(selectedPublisherId.trim().toLowerCase())}`,
+        {
+          headers,
+          method: "GET",
+        },
+      );
+      const payload = (await response.json()) as unknown;
+
+      if (!response.ok) {
+        setError(readApiError(payload));
+        return;
+      }
+
+      setWorkflow(readWorkflowListApiResponse(payload).data);
+    } catch {
+      setError({
+        code: "PNPU-503",
+        message: "No se pudieron cargar los lotes de importación.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  async function submitCurrentBatchForReview(): Promise<void> {
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const headers = new Headers({
+        "Content-Type": "application/json",
+      });
+
+      if (token.trim().length > 0) {
+        headers.set("X-PNPU-Admin-Token", token.trim());
+      }
+
+      const response = await fetch("/api/admin/publication-imports/batches/review", {
+        body: JSON.stringify({ sourcePath }),
+        headers,
+        method: "POST",
+      });
+      const payload = (await response.json()) as unknown;
+
+      if (!response.ok) {
+        setError(readApiError(payload));
+        return;
+      }
+
+      const detail = readWorkflowDetailApiResponse(payload).data;
+      setWorkflow((current) =>
+        current === null
+          ? null
+          : {
+              ...current,
+              batches: current.batches.map((batch) =>
+                batch.relativeSourcePath === detail.batch.relativeSourcePath ? detail.batch : batch,
+              ),
+            },
+      );
+      setUploadStatus(`Lote enviado a revisión: ${detail.batch.relativeSourcePath}`);
+    } catch {
+      setError({
+        code: "PNPU-503",
+        message: "No se pudo enviar el lote a revisión.",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -253,6 +354,15 @@ export function PublicationImportDiagnosisForm() {
         setRollback(readRollbackApiResponse(payload).data);
       } else {
         setBatch(readApiResponse(payload).data);
+      }
+
+      if (
+        selectedAction === "diagnose" ||
+        selectedAction === "preview" ||
+        selectedAction === "dryRun" ||
+        selectedAction === "commit"
+      ) {
+        await refreshWorkflow();
       }
     } catch {
       setError({
@@ -423,8 +533,40 @@ export function PublicationImportDiagnosisForm() {
             </div>
           </section>
 
+          <section className="rounded-md border border-blue-200 bg-white p-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <h3 className="text-sm font-semibold text-neutral-950">4. Lotes de la editorial</h3>
+              <button
+                className="inline-flex min-h-9 items-center justify-center rounded-md border border-blue-800 bg-white px-3 py-2 text-center text-sm font-semibold leading-5 text-blue-900 hover:bg-blue-50 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:text-neutral-400"
+                disabled={isSubmitting}
+                onClick={() => {
+                  void refreshWorkflow();
+                }}
+                type="button"
+              >
+                Actualizar lotes
+              </button>
+            </div>
+            <WorkflowBatches
+              onSelect={(batchSourcePath) => {
+                setSourcePath(batchSourcePath);
+              }}
+              workflow={workflow}
+            />
+            <button
+              className={`${secondaryButtonClassName} mt-3`}
+              disabled={isSubmitting}
+              onClick={() => {
+                void submitCurrentBatchForReview();
+              }}
+              type="button"
+            >
+              Enviar lote actual a revisión
+            </button>
+          </section>
+
           <section className="rounded-md border border-neutral-200 bg-neutral-50 p-4">
-            <h3 className="text-sm font-semibold text-neutral-950">4. Enriquecimiento</h3>
+            <h3 className="text-sm font-semibold text-neutral-950">5. Enriquecimiento</h3>
             <label className={`${labelClassName} mt-3`}>
               CSV enriquecido
               <textarea
@@ -574,6 +716,65 @@ export function PublicationImportDiagnosisForm() {
           </p>
         ) : null}
       </section>
+    </div>
+  );
+}
+
+function WorkflowBatches({
+  onSelect,
+  workflow,
+}: {
+  readonly onSelect: (sourcePath: string) => void;
+  readonly workflow: PublicationImportWorkflowListDto | null;
+}) {
+  if (workflow === null) {
+    return (
+      <p className="mt-3 text-sm leading-6 text-neutral-700">
+        Actualice para ver los lotes registrados de esta editorial.
+      </p>
+    );
+  }
+
+  if (workflow.batches.length === 0) {
+    return <p className="mt-3 text-sm leading-6 text-neutral-700">No hay lotes registrados.</p>;
+  }
+
+  return (
+    <div className="mt-3 grid gap-3">
+      <dl className="grid gap-2 sm:grid-cols-3">
+        <Metric label="Total" value={workflow.summary.total} />
+        <Metric label="Revisión" value={workflow.summary.readyForReview} />
+        <Metric label="Importados" value={workflow.summary.imported} />
+      </dl>
+      <ul className="grid gap-2">
+        {workflow.batches.slice(0, 6).map((batch) => (
+          <li
+            className="rounded-md border border-neutral-200 bg-neutral-50 p-3 text-sm"
+            key={batch.relativeSourcePath}
+          >
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0">
+                <p className="break-words font-semibold text-neutral-950">{batch.batchLabel}</p>
+                <p className="mt-1 break-words text-xs leading-5 text-neutral-600">
+                  {batch.relativeSourcePath}
+                </p>
+              </div>
+              <span className={workflowStatusClassName(batch.status)}>
+                {formatWorkflowStatus(batch.status)}
+              </span>
+            </div>
+            <button
+              className="mt-2 text-sm font-semibold text-blue-900 hover:text-blue-950"
+              onClick={() => {
+                onSelect(batch.relativeSourcePath);
+              }}
+              type="button"
+            >
+              Usar este lote
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -1242,6 +1443,61 @@ function statusClassName(status: PublicationImportBatchSnapshot["status"]): stri
   return `${baseClassName} bg-blue-50 text-blue-900`;
 }
 
+function formatWorkflowStatus(
+  status: PublicationImportWorkflowListDto["batches"][number]["status"],
+): string {
+  if (status === "diagnosed") {
+    return "diagnosticado";
+  }
+
+  if (status === "dry_run_completed") {
+    return "dry-run";
+  }
+
+  if (status === "imported") {
+    return "importado";
+  }
+
+  if (status === "needs_correction") {
+    return "corregir";
+  }
+
+  if (status === "previewed") {
+    return "preview";
+  }
+
+  if (status === "ready_for_review") {
+    return "en revisión";
+  }
+
+  if (status === "approved") {
+    return "aprobado";
+  }
+
+  if (status === "rejected") {
+    return "rechazado";
+  }
+
+  return "cargado";
+}
+
+function workflowStatusClassName(
+  status: PublicationImportWorkflowListDto["batches"][number]["status"],
+): string {
+  const baseClassName =
+    "inline-flex shrink-0 items-center rounded-md px-2 py-1 text-xs font-semibold";
+
+  if (status === "imported" || status === "ready_for_review" || status === "approved") {
+    return `${baseClassName} bg-blue-50 text-blue-900`;
+  }
+
+  if (status === "needs_correction" || status === "rejected") {
+    return `${baseClassName} bg-red-50 text-red-800`;
+  }
+
+  return `${baseClassName} bg-neutral-100 text-neutral-700`;
+}
+
 function formatDecision(
   decision: PublicationImportMappingPreviewDto["rows"][number]["decision"],
 ): string {
@@ -1684,6 +1940,24 @@ function readUploadApiResponse(payload: unknown): PublicationImportUploadApiResp
   }
 
   throw new Error("Invalid publication import upload response.");
+}
+
+function readWorkflowListApiResponse(payload: unknown): PublicationImportWorkflowListApiResponse {
+  if (typeof payload === "object" && payload !== null && "data" in payload && "meta" in payload) {
+    return payload as PublicationImportWorkflowListApiResponse;
+  }
+
+  throw new Error("Invalid publication import workflow list response.");
+}
+
+function readWorkflowDetailApiResponse(
+  payload: unknown,
+): PublicationImportWorkflowDetailApiResponse {
+  if (typeof payload === "object" && payload !== null && "data" in payload && "meta" in payload) {
+    return payload as PublicationImportWorkflowDetailApiResponse;
+  }
+
+  throw new Error("Invalid publication import workflow detail response.");
 }
 
 function readApiError(payload: unknown): PublicationImportDiagnosisApiError {

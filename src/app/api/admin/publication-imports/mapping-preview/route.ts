@@ -6,7 +6,11 @@ import {
   authorizePublicationImportSourcePathScopeRequest,
   publicationImportAdminErrorResponse,
 } from "@/modules/publication-import/interfaces/http/publication-import-admin-http";
-import { createPublicationImportMappingPreviewService } from "@/modules/publication-import/interfaces/http/publication-import-services";
+import {
+  createPublicationImportMappingPreviewService,
+  createPublicationImportWorkflowService,
+} from "@/modules/publication-import/interfaces/http/publication-import-services";
+import { readPublicationImportWorkflowIdentityFromSourcePath } from "@/modules/publication-import/interfaces/http/publication-import-workflow-http";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -54,6 +58,14 @@ export async function POST(request: Request): Promise<NextResponse> {
       sourcePath: body.sourcePath,
       sheet: body.sheet,
       maxRows,
+    });
+    const workflowIdentity = readPublicationImportWorkflowIdentityFromSourcePath(body.sourcePath);
+    await createPublicationImportWorkflowService().record({
+      ...workflowIdentity,
+      message: "Preview de mapeo generado.",
+      relativeSourcePath: body.sourcePath,
+      sheet: body.sheet,
+      status: "previewed",
     });
 
     return NextResponse.json({

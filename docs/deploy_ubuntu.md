@@ -210,6 +210,7 @@ PNPU_CATALOG_REFRESH_TOKEN=CAMBIAR_TOKEN_REFRESH
 PNPU_ADMIN_AUTH_MODE=token
 PNPU_PUBLICATION_IMPORT_TOKEN=CAMBIAR_TOKEN_ADMIN_LOCAL
 PNPU_PUBLICATION_IMPORT_ROOT=/opt/pnpu/portal/shared/imports
+PNPU_PUBLICATION_IMPORT_WORKFLOW_DIR=/opt/pnpu/portal/shared/import-workflow
 PNPU_OMEKA_IMPORT_ENABLED=true
 PNPU_OMEKA_ROLLBACK_ENABLED=true
 
@@ -238,11 +239,12 @@ sudo chown root:pnpu /etc/pnpu/portal.env
 sudo chmod 640 /etc/pnpu/portal.env
 ```
 
-Crear carpeta de importaciones:
+Crear carpetas persistentes de importaciones:
 
 ```bash
 sudo mkdir -p /opt/pnpu/portal/shared/imports
-sudo chown -R pnpu:pnpu /opt/pnpu/portal/shared/imports
+sudo mkdir -p /opt/pnpu/portal/shared/import-workflow
+sudo chown -R pnpu:pnpu /opt/pnpu/portal/shared/imports /opt/pnpu/portal/shared/import-workflow
 ```
 
 Notas:

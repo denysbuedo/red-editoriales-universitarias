@@ -1,5 +1,6 @@
 export * from "./catalog-publication-import-duplicate-lookup";
 export * from "./file-publication-import-audit-repository";
+export * from "./file-publication-import-workflow-repository";
 export * from "./omeka-publication-import-commit-writer";
 export * from "./omeka-publication-import-rollback-executor";
 export * from "./omeka-publication-import-rollback-verifier";

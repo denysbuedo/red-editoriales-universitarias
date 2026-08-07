@@ -6,7 +6,11 @@ import {
   authorizePublicationImportSourcePathScopeRequest,
   publicationImportAdminErrorResponse,
 } from "@/modules/publication-import/interfaces/http/publication-import-admin-http";
-import { createPublicationImportDiagnosisService } from "@/modules/publication-import/interfaces/http/publication-import-services";
+import {
+  createPublicationImportDiagnosisService,
+  createPublicationImportWorkflowService,
+} from "@/modules/publication-import/interfaces/http/publication-import-services";
+import { readPublicationImportWorkflowIdentityFromSourcePath } from "@/modules/publication-import/interfaces/http/publication-import-workflow-http";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -47,6 +51,14 @@ export async function POST(request: Request): Promise<NextResponse> {
     const batch = await service.diagnose({
       sourcePath: body.sourcePath,
       sheet: body.sheet,
+    });
+    const workflowIdentity = readPublicationImportWorkflowIdentityFromSourcePath(body.sourcePath);
+    await createPublicationImportWorkflowService().record({
+      ...workflowIdentity,
+      message: `Diagnóstico ejecutado. Estado: ${batch.status}.`,
+      relativeSourcePath: body.sourcePath,
+      sheet: body.sheet,
+      status: batch.status === "needs_correction" ? "needs_correction" : "diagnosed",
     });
 
     return NextResponse.json({

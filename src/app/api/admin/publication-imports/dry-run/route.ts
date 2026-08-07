@@ -6,7 +6,11 @@ import {
   authorizePublicationImportSourcePathScopeRequest,
   publicationImportAdminErrorResponse,
 } from "@/modules/publication-import/interfaces/http/publication-import-admin-http";
-import { createPublicationImportDryRunService } from "@/modules/publication-import/interfaces/http/publication-import-services";
+import {
+  createPublicationImportDryRunService,
+  createPublicationImportWorkflowService,
+} from "@/modules/publication-import/interfaces/http/publication-import-services";
+import { readPublicationImportWorkflowIdentityFromSourcePath } from "@/modules/publication-import/interfaces/http/publication-import-workflow-http";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -53,6 +57,14 @@ export async function POST(request: Request): Promise<NextResponse> {
       sourcePath: body.sourcePath,
       sheet: body.sheet,
       enrichmentCsv: body.enrichmentCsv,
+    });
+    const workflowIdentity = readPublicationImportWorkflowIdentityFromSourcePath(body.sourcePath);
+    await createPublicationImportWorkflowService().record({
+      ...workflowIdentity,
+      message: `Dry-run ejecutado. Listas: ${String(dryRun.summary.ready)}.`,
+      relativeSourcePath: body.sourcePath,
+      sheet: body.sheet,
+      status: "dry_run_completed",
     });
 
     return NextResponse.json({

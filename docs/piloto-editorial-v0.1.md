@@ -11,6 +11,7 @@ Incluido:
 
 - carga de XLSX por editorial piloto;
 - diagnostico automatico de estructura y calidad minima;
+- registro persistente de lotes por editorial;
 - preview de mapeo PNPU;
 - descarga de plantilla de enriquecimiento;
 - dry-run con datos enriquecidos;
@@ -55,14 +56,17 @@ Lote: nombre corto del lote
 PNPU_PUBLICATION_IMPORT_ROOT/publishers/<editorial>/<lote>/archivo.xlsx
 ```
 
-7. Se ejecuta diagnostico.
-8. Se ejecuta preview de mapeo.
-9. Se descarga y completa la plantilla de enriquecimiento.
-10. Se ejecuta dry-run.
-11. Si no hay errores criticos, se genera plan de commit.
-12. El administrador nacional ejecuta escritura en Omeka.
-13. Se valida navegacion publica.
-14. Se ejecuta backup antes y despues de la escritura.
+7. La plataforma registra el lote en el estado operativo persistente bajo
+   `PNPU_PUBLICATION_IMPORT_WORKFLOW_DIR`.
+8. Se ejecuta diagnostico.
+9. Se ejecuta preview de mapeo.
+10. Se descarga y completa la plantilla de enriquecimiento.
+11. Se ejecuta dry-run.
+12. La editorial envia el lote a revision nacional desde la seccion "Lotes de la editorial".
+13. Si no hay errores criticos, se genera plan de commit.
+14. El administrador nacional ejecuta escritura en Omeka.
+15. Se valida navegacion publica.
+16. Se ejecuta backup antes y despues de la escritura.
 
 ## Criterios de Aceptacion del Piloto
 
@@ -71,6 +75,8 @@ PNPU_PUBLICATION_IMPORT_ROOT/publishers/<editorial>/<lote>/archivo.xlsx
 - Todas las publicaciones tienen editorial, materia, licencia, idioma y recurso digital cuando
   aplique.
 - El plan de commit no contiene riesgos bloqueantes.
+- Cada lote queda visible en el historial operativo de su editorial.
+- El lote cambia a `ready_for_review` antes de la escritura nacional.
 - Las publicaciones aparecen en `/publicaciones`.
 - Los filtros por editorial y materia funcionan.
 - La ficha publica muestra ISBN/DOI, licencia, contribuyentes, coleccion y recursos.
@@ -80,6 +86,5 @@ PNPU_PUBLICATION_IMPORT_ROOT/publishers/<editorial>/<lote>/archivo.xlsx
 
 - Configurar en Keycloak el mapper que emite `pnpu_editorial_ids` por usuario/grupo editorial.
 - Reemplazar identificador manual de editorial por selector desde autoridades.
-- Agregar historial filtrado por editorial.
 - Definir retencion de archivos XLSX subidos.
 - Formalizar plantilla oficial con nombres de columnas estables.

@@ -11,9 +11,11 @@ import { PublicationImportDryRunService } from "../../application/services/publi
 import { PublicationImportMappingPreviewService } from "../../application/services/publication-import-mapping-preview-service";
 import { PublicationImportRollbackPlanService } from "../../application/services/publication-import-rollback-plan-service";
 import { PublicationImportRollbackService } from "../../application/services/publication-import-rollback-service";
+import { PublicationImportWorkflowService } from "../../application/services/publication-import-workflow-service";
 import {
   CatalogPublicationImportDuplicateLookup,
   FilePublicationImportAuditRepository,
+  FilePublicationImportWorkflowRepository,
   OmekaPublicationImportCommitWriter,
   OmekaPublicationImportRollbackExecutor,
   OmekaPublicationImportRollbackVerifier,
@@ -108,6 +110,12 @@ export function createPublicationImportAuditService(): PublicationImportAuditSer
   );
 }
 
+export function createPublicationImportWorkflowService(): PublicationImportWorkflowService {
+  return new PublicationImportWorkflowService(
+    new FilePublicationImportWorkflowRepository(readPublicationImportWorkflowDirectory()),
+  );
+}
+
 export function createPublicationImportRollbackPlanService(): PublicationImportRollbackPlanService {
   const writerConfig = readOmekaImportWriterConfig();
 
@@ -155,6 +163,15 @@ function readPublicationImportOptions(): { readonly importRoot: string } {
 
 function readPublicationImportAuditDirectory(): string {
   const configuredDirectory = process.env.PNPU_PUBLICATION_IMPORT_AUDIT_DIR ?? ".pnpu/import-audit";
+
+  return path.isAbsolute(configuredDirectory)
+    ? configuredDirectory
+    : path.resolve(/* turbopackIgnore: true */ process.cwd(), configuredDirectory);
+}
+
+function readPublicationImportWorkflowDirectory(): string {
+  const configuredDirectory =
+    process.env.PNPU_PUBLICATION_IMPORT_WORKFLOW_DIR ?? ".pnpu/import-workflow";
 
   return path.isAbsolute(configuredDirectory)
     ? configuredDirectory

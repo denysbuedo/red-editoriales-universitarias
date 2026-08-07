@@ -9,7 +9,10 @@ import {
   authorizePublicationImportPublisherScopeRequest,
   publicationImportAdminErrorResponse,
 } from "@/modules/publication-import/interfaces/http/publication-import-admin-http";
-import { readPublicationImportRoot } from "@/modules/publication-import/interfaces/http/publication-import-services";
+import {
+  createPublicationImportWorkflowService,
+  readPublicationImportRoot,
+} from "@/modules/publication-import/interfaces/http/publication-import-services";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -90,6 +93,14 @@ export async function POST(request: Request): Promise<NextResponse> {
       size: file.size,
       uploadedAt: uploadedAt.toISOString(),
     };
+    await createPublicationImportWorkflowService().record({
+      batchLabel,
+      fileName,
+      message: "Archivo XLSX cargado por la editorial.",
+      publisherId,
+      relativeSourcePath,
+      status: "uploaded",
+    });
 
     return NextResponse.json({
       data: payload,
