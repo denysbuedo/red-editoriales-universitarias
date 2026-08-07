@@ -137,4 +137,41 @@ describe("PublicationImportWorkflowService", () => {
       await rm(directory, { force: true, recursive: true });
     }
   });
+
+  it("requires national approval before commit", async () => {
+    const directory = await mkdtemp(path.join(os.tmpdir(), "pnpu-import-workflow-"));
+    const service = new PublicationImportWorkflowService(
+      new FilePublicationImportWorkflowRepository(directory),
+    );
+
+    try {
+      await service.record({
+        batchLabel: "primer-lote",
+        fileName: "publicaciones.xlsx",
+        message: "Lote enviado a revisión nacional.",
+        publisherId: "editorial-uh",
+        relativeSourcePath: "publishers/editorial-uh/primer-lote/publicaciones.xlsx",
+        status: "ready_for_review",
+      });
+
+      await expect(
+        service.assertApprovedForCommit({
+          relativeSourcePath: "publishers/editorial-uh/primer-lote/publicaciones.xlsx",
+        }),
+      ).rejects.toThrow("Publication import batch must be approved before commit.");
+
+      await service.review({
+        decision: "approved",
+        relativeSourcePath: "publishers/editorial-uh/primer-lote/publicaciones.xlsx",
+      });
+
+      await expect(
+        service.assertApprovedForCommit({
+          relativeSourcePath: "publishers/editorial-uh/primer-lote/publicaciones.xlsx",
+        }),
+      ).resolves.toBeUndefined();
+    } finally {
+      await rm(directory, { force: true, recursive: true });
+    }
+  });
 });

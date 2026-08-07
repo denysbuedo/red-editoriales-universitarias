@@ -65,7 +65,8 @@ PNPU_PUBLICATION_IMPORT_ROOT/publishers/<editorial>/<lote>/archivo.xlsx
 12. La editorial envia el lote a revision nacional desde la seccion "Lotes de la editorial".
 13. El administrador nacional carga la cola en "Revision nacional" y aprueba o rechaza el lote.
 14. Si el lote queda aprobado y no hay errores criticos, se genera plan de commit.
-15. El administrador nacional ejecuta escritura en Omeka.
+15. El administrador nacional ejecuta escritura en Omeka. La plataforma bloquea el commit si el
+    lote no esta en estado `approved`.
 16. Se valida navegacion publica.
 17. Se ejecuta backup antes y despues de la escritura.
 

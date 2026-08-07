@@ -9,6 +9,7 @@ import {
   createPublicationImportCommitService,
   createPublicationImportWorkflowService,
 } from "@/modules/publication-import/interfaces/http/publication-import-services";
+import { readReadyPublicationImportPackage } from "@/modules/publication-import/application/services/publication-import-commit-plan-service";
 import { readPublicationImportWorkflowIdentityFromSourcePath } from "@/modules/publication-import/interfaces/http/publication-import-workflow-http";
 
 export const dynamic = "force-dynamic";
@@ -31,12 +32,18 @@ export async function POST(request: Request): Promise<NextResponse> {
       throw ApplicationError.validation("Publication import packageJson is required.");
     }
 
+    const importPackage = readReadyPublicationImportPackage(body.packageJson);
+    const workflowService = createPublicationImportWorkflowService();
+    await workflowService.assertApprovedForCommit({
+      relativeSourcePath: importPackage.manifest.source,
+    });
+
     const service = await createPublicationImportCommitService();
     const commit = await service.commit({
       packageJson: body.packageJson,
     });
     const workflowIdentity = readPublicationImportWorkflowIdentityFromSourcePath(commit.source);
-    await createPublicationImportWorkflowService().record({
+    await workflowService.record({
       ...workflowIdentity,
       message: `Lote importado en Omeka. Audit ID: ${commit.auditId}.`,
       relativeSourcePath: commit.source,

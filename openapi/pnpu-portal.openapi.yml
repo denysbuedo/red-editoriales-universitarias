@@ -661,7 +661,7 @@ paths:
       summary: Ejecuta escritura controlada de un paquete validado hacia Omeka S.
       description: >
         Ejecuta el plan de commit y crea Items/Media en Omeka S solo si no existen riesgos
-        bloqueantes y `PNPU_OMEKA_IMPORT_ENABLED=true`.
+        bloqueantes, `PNPU_OMEKA_IMPORT_ENABLED=true` y el lote fue aprobado en revisión nacional.
       tags:
         - Admin
       security:
@@ -690,7 +690,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         "422":
-          description: Paquete inválido o plan bloqueado.
+          description: Paquete inválido, plan bloqueado o lote sin aprobación nacional.
           content:
             application/json:
               schema:
@@ -782,6 +782,62 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
         "503":
           description: Endpoint no configurado o estado de lotes no disponible.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/admin/publication-imports/batches/detail:
+    get:
+      operationId: getPublicationImportWorkflowBatchDetail
+      summary: Devuelve detalle e historial de eventos de un lote de importación.
+      description: >
+        Devuelve el estado actual del lote y sus eventos operativos. En modo OIDC respeta el alcance
+        editorial derivado de la ruta `publishers/<editorial>/...`.
+      tags:
+        - Admin
+      security:
+        - PublicationImportToken: []
+        - PublicationImportOidcBearer: []
+      x-required-roles:
+        - pnpu-admin
+        - pnpu-import-reader
+      parameters:
+        - name: sourcePath
+          in: query
+          required: true
+          description: Ruta relativa del XLSX dentro del directorio de importación.
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 260
+            pattern: ^publishers/[a-z0-9][a-z0-9._-]{1,79}/.+\.xlsx$
+      responses:
+        "200":
+          description: Detalle de lote.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicationImportWorkflowBatchDetailResponse"
+        "403":
+          description: Token administrativo inválido o usuario sin alcance editorial.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Lote no encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: Solicitud inválida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Endpoint no configurado o detalle no disponible.
           content:
             application/json:
               schema:

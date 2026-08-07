@@ -28,6 +28,28 @@ export class PublicationImportWorkflowService {
     );
   }
 
+  public async assertApprovedForCommit(command: {
+    readonly relativeSourcePath: string;
+  }): Promise<void> {
+    const current = await this.get(command);
+
+    if (current.batch.status !== "approved") {
+      throw ApplicationError.validation("Publication import batch must be approved before commit.");
+    }
+  }
+
+  public async get(command: {
+    readonly relativeSourcePath: string;
+  }): Promise<PublicationImportWorkflowBatchDetailDto> {
+    const current = await this.repository.read(command);
+
+    if (current === null) {
+      throw ApplicationError.notFound("Publication import batch was not found.");
+    }
+
+    return current;
+  }
+
   public async record(command: {
     readonly batchLabel: string;
     readonly fileName: string;

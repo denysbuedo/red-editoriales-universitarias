@@ -135,6 +135,8 @@ export function PublicationImportDiagnosisForm() {
   const [batchLabel, setBatchLabel] = useState("primer-lote");
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const [workflow, setWorkflow] = useState<PublicationImportWorkflowListDto | null>(null);
+  const [workflowDetail, setWorkflowDetail] =
+    useState<PublicationImportWorkflowBatchDetailDto | null>(null);
   const [reviewQueue, setReviewQueue] = useState<PublicationImportWorkflowListDto | null>(null);
   const [reviewMessage, setReviewMessage] = useState("");
   const [rollbackAuditId, setRollbackAuditId] = useState("");
@@ -264,6 +266,7 @@ export function PublicationImportDiagnosisForm() {
       }
 
       const detail = readWorkflowDetailApiResponse(payload).data;
+      setWorkflowDetail(detail);
       setWorkflow((current) =>
         current === null
           ? null
@@ -318,6 +321,47 @@ export function PublicationImportDiagnosisForm() {
     }
   }
 
+  async function selectWorkflowBatch(batchSourcePath: string): Promise<void> {
+    setSourcePath(batchSourcePath);
+    await loadWorkflowBatchDetail(batchSourcePath);
+  }
+
+  async function loadWorkflowBatchDetail(batchSourcePath: string): Promise<void> {
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const headers = new Headers();
+
+      if (token.trim().length > 0) {
+        headers.set("X-PNPU-Admin-Token", token.trim());
+      }
+
+      const response = await fetch(
+        `/api/admin/publication-imports/batches/detail?sourcePath=${encodeURIComponent(batchSourcePath)}`,
+        {
+          headers,
+          method: "GET",
+        },
+      );
+      const payload = (await response.json()) as unknown;
+
+      if (!response.ok) {
+        setError(readApiError(payload));
+        return;
+      }
+
+      setWorkflowDetail(readWorkflowDetailApiResponse(payload).data);
+    } catch {
+      setError({
+        code: "PNPU-503",
+        message: "No se pudo cargar el detalle del lote.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   async function submitReviewDecision(
     decision: "approved" | "rejected",
     selectedSourcePath = sourcePath,
@@ -352,6 +396,7 @@ export function PublicationImportDiagnosisForm() {
 
       const detail = readWorkflowDetailApiResponse(payload).data;
 
+      setWorkflowDetail(detail);
       setReviewQueue((current) =>
         current === null
           ? null
@@ -658,10 +703,11 @@ export function PublicationImportDiagnosisForm() {
             </div>
             <WorkflowBatches
               onSelect={(batchSourcePath) => {
-                setSourcePath(batchSourcePath);
+                void selectWorkflowBatch(batchSourcePath);
               }}
               workflow={workflow}
             />
+            <WorkflowBatchDetail detail={workflowDetail} />
             <button
               className={`${secondaryButtonClassName} mt-3`}
               disabled={isSubmitting}
@@ -696,7 +742,7 @@ export function PublicationImportDiagnosisForm() {
                 void submitReviewDecision("rejected", batchSourcePath);
               }}
               onSelect={(batchSourcePath) => {
-                setSourcePath(batchSourcePath);
+                void selectWorkflowBatch(batchSourcePath);
               }}
               reviewQueue={reviewQueue}
             />
@@ -926,6 +972,45 @@ function WorkflowBatches({
         ))}
       </ul>
     </div>
+  );
+}
+
+function WorkflowBatchDetail({
+  detail,
+}: {
+  readonly detail: PublicationImportWorkflowBatchDetailDto | null;
+}) {
+  if (detail === null) {
+    return null;
+  }
+
+  return (
+    <section className="mt-3 rounded-md border border-neutral-200 bg-neutral-50 p-3">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <h4 className="text-sm font-semibold text-neutral-950">Historial del lote</h4>
+          <p className="mt-1 break-words text-xs leading-5 text-neutral-600">
+            {detail.batch.relativeSourcePath}
+          </p>
+        </div>
+        <span className={workflowStatusClassName(detail.batch.status)}>
+          {formatWorkflowStatus(detail.batch.status)}
+        </span>
+      </div>
+      <ol className="mt-3 grid gap-2">
+        {detail.events.map((event) => (
+          <li className="rounded-md bg-white px-3 py-2 text-sm" key={`${event.at}-${event.status}`}>
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+              <span className="font-semibold text-neutral-950">
+                {formatWorkflowStatus(event.status)}
+              </span>
+              <time className="text-xs text-neutral-600">{event.at}</time>
+            </div>
+            <p className="mt-1 leading-6 text-neutral-700">{event.message}</p>
+          </li>
+        ))}
+      </ol>
+    </section>
   );
 }
 
