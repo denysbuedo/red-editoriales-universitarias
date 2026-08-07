@@ -2,6 +2,7 @@ import { ApplicationError } from "@/modules/catalog/application";
 
 import {
   PublicationImportWorkflowBatchDetailDto,
+  PublicationImportWorkflowBatchDto,
   PublicationImportWorkflowListDto,
   PublicationImportWorkflowStatus,
 } from "../dtos";
@@ -15,19 +16,16 @@ export class PublicationImportWorkflowService {
   }): Promise<PublicationImportWorkflowListDto> {
     const batches = await this.repository.list(command);
 
-    return {
-      batches,
-      generatedAt: new Date().toISOString(),
-      publisherId: command?.publisherId,
-      summary: {
-        diagnosed: batches.filter((batch) => batch.status === "diagnosed").length,
-        imported: batches.filter((batch) => batch.status === "imported").length,
-        needsCorrection: batches.filter((batch) => batch.status === "needs_correction").length,
-        readyForReview: batches.filter((batch) => batch.status === "ready_for_review").length,
-        total: batches.length,
-        uploaded: batches.filter((batch) => batch.status === "uploaded").length,
-      },
-    };
+    return buildListDto(batches, command?.publisherId);
+  }
+
+  public async listReviewQueue(): Promise<PublicationImportWorkflowListDto> {
+    const batches = await this.repository.list();
+
+    return buildListDto(
+      batches.filter((batch) => batch.status === "ready_for_review"),
+      undefined,
+    );
   }
 
   public async record(command: {
@@ -40,6 +38,42 @@ export class PublicationImportWorkflowService {
     readonly status: PublicationImportWorkflowStatus;
   }): Promise<PublicationImportWorkflowBatchDetailDto> {
     return this.repository.record(command);
+  }
+
+  public async review(command: {
+    readonly decision: "approved" | "rejected";
+    readonly message?: string;
+    readonly relativeSourcePath: string;
+  }): Promise<PublicationImportWorkflowBatchDetailDto> {
+    const current = await this.repository.read({
+      relativeSourcePath: command.relativeSourcePath,
+    });
+
+    if (current === null) {
+      throw ApplicationError.notFound("Publication import batch was not found.");
+    }
+
+    if (current.batch.status !== "ready_for_review") {
+      throw ApplicationError.validation("Publication import batch is not pending national review.");
+    }
+
+    const customMessage = command.message?.trim();
+    const defaultMessage =
+      command.decision === "approved"
+        ? "Lote aprobado para preparación de commit."
+        : "Lote rechazado en revisión nacional.";
+    const reviewMessage =
+      customMessage !== undefined && customMessage.length > 0 ? customMessage : defaultMessage;
+
+    return this.repository.record({
+      batchLabel: current.batch.batchLabel,
+      fileName: current.batch.fileName,
+      message: reviewMessage,
+      publisherId: current.batch.publisherId,
+      relativeSourcePath: current.batch.relativeSourcePath,
+      sheet: current.batch.sheet,
+      status: command.decision,
+    });
   }
 
   public async submitForReview(command: {
@@ -65,6 +99,27 @@ export class PublicationImportWorkflowService {
       status: "ready_for_review",
     });
   }
+}
+
+function buildListDto(
+  batches: readonly PublicationImportWorkflowBatchDto[],
+  publisherId: string | undefined,
+): PublicationImportWorkflowListDto {
+  return {
+    batches,
+    generatedAt: new Date().toISOString(),
+    publisherId,
+    summary: {
+      approved: batches.filter((batch) => batch.status === "approved").length,
+      diagnosed: batches.filter((batch) => batch.status === "diagnosed").length,
+      imported: batches.filter((batch) => batch.status === "imported").length,
+      needsCorrection: batches.filter((batch) => batch.status === "needs_correction").length,
+      readyForReview: batches.filter((batch) => batch.status === "ready_for_review").length,
+      rejected: batches.filter((batch) => batch.status === "rejected").length,
+      total: batches.length,
+      uploaded: batches.filter((batch) => batch.status === "uploaded").length,
+    },
+  };
 }
 
 function canSubmitForReview(status: PublicationImportWorkflowStatus): boolean {

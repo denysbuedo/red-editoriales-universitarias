@@ -135,6 +135,8 @@ export function PublicationImportDiagnosisForm() {
   const [batchLabel, setBatchLabel] = useState("primer-lote");
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const [workflow, setWorkflow] = useState<PublicationImportWorkflowListDto | null>(null);
+  const [reviewQueue, setReviewQueue] = useState<PublicationImportWorkflowListDto | null>(null);
+  const [reviewMessage, setReviewMessage] = useState("");
   const [rollbackAuditId, setRollbackAuditId] = useState("");
   const [enrichmentCsv, setEnrichmentCsv] = useState("");
   const [packageJson, setPackageJson] = useState("");
@@ -277,6 +279,113 @@ export function PublicationImportDiagnosisForm() {
       setError({
         code: "PNPU-503",
         message: "No se pudo enviar el lote a revisión.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  async function refreshReviewQueue(): Promise<void> {
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const headers = new Headers();
+
+      if (token.trim().length > 0) {
+        headers.set("X-PNPU-Admin-Token", token.trim());
+      }
+
+      const response = await fetch("/api/admin/publication-imports/review-queue", {
+        headers,
+        method: "GET",
+      });
+      const payload = (await response.json()) as unknown;
+
+      if (!response.ok) {
+        setError(readApiError(payload));
+        return;
+      }
+
+      setReviewQueue(readWorkflowListApiResponse(payload).data);
+    } catch {
+      setError({
+        code: "PNPU-503",
+        message: "No se pudo cargar la cola de revisión nacional.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  async function submitReviewDecision(
+    decision: "approved" | "rejected",
+    selectedSourcePath = sourcePath,
+  ): Promise<void> {
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const headers = new Headers({
+        "Content-Type": "application/json",
+      });
+
+      if (token.trim().length > 0) {
+        headers.set("X-PNPU-Admin-Token", token.trim());
+      }
+
+      const response = await fetch("/api/admin/publication-imports/review-decision", {
+        body: JSON.stringify({
+          decision,
+          message: reviewMessage,
+          sourcePath: selectedSourcePath,
+        }),
+        headers,
+        method: "POST",
+      });
+      const payload = (await response.json()) as unknown;
+
+      if (!response.ok) {
+        setError(readApiError(payload));
+        return;
+      }
+
+      const detail = readWorkflowDetailApiResponse(payload).data;
+
+      setReviewQueue((current) =>
+        current === null
+          ? null
+          : {
+              ...current,
+              batches: current.batches.filter(
+                (batch) => batch.relativeSourcePath !== detail.batch.relativeSourcePath,
+              ),
+              summary: {
+                ...current.summary,
+                readyForReview: Math.max(0, current.summary.readyForReview - 1),
+                total: Math.max(0, current.summary.total - 1),
+              },
+            },
+      );
+      setWorkflow((current) =>
+        current === null
+          ? null
+          : {
+              ...current,
+              batches: current.batches.map((batch) =>
+                batch.relativeSourcePath === detail.batch.relativeSourcePath ? detail.batch : batch,
+              ),
+            },
+      );
+      setUploadStatus(
+        decision === "approved"
+          ? `Lote aprobado: ${detail.batch.relativeSourcePath}`
+          : `Lote rechazado: ${detail.batch.relativeSourcePath}`,
+      );
+    } catch {
+      setError({
+        code: "PNPU-503",
+        message: "No se pudo registrar la decisión de revisión nacional.",
       });
     } finally {
       setIsSubmitting(false);
@@ -565,8 +674,49 @@ export function PublicationImportDiagnosisForm() {
             </button>
           </section>
 
+          <section className="rounded-md border border-neutral-300 bg-white p-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <h3 className="text-sm font-semibold text-neutral-950">5. Revisión nacional</h3>
+              <button
+                className="inline-flex min-h-9 items-center justify-center rounded-md border border-neutral-700 bg-white px-3 py-2 text-center text-sm font-semibold leading-5 text-neutral-900 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:text-neutral-400"
+                disabled={isSubmitting}
+                onClick={() => {
+                  void refreshReviewQueue();
+                }}
+                type="button"
+              >
+                Cargar cola
+              </button>
+            </div>
+            <ReviewQueue
+              onApprove={(batchSourcePath) => {
+                void submitReviewDecision("approved", batchSourcePath);
+              }}
+              onReject={(batchSourcePath) => {
+                void submitReviewDecision("rejected", batchSourcePath);
+              }}
+              onSelect={(batchSourcePath) => {
+                setSourcePath(batchSourcePath);
+              }}
+              reviewQueue={reviewQueue}
+            />
+            <label className={`${labelClassName} mt-3`}>
+              Nota de revisión
+              <input
+                className={textInputClassName}
+                maxLength={240}
+                onChange={(event) => {
+                  setReviewMessage(event.target.value);
+                }}
+                placeholder="Opcional"
+                type="text"
+                value={reviewMessage}
+              />
+            </label>
+          </section>
+
           <section className="rounded-md border border-neutral-200 bg-neutral-50 p-4">
-            <h3 className="text-sm font-semibold text-neutral-950">5. Enriquecimiento</h3>
+            <h3 className="text-sm font-semibold text-neutral-950">6. Enriquecimiento</h3>
             <label className={`${labelClassName} mt-3`}>
               CSV enriquecido
               <textarea
@@ -772,6 +922,96 @@ function WorkflowBatches({
             >
               Usar este lote
             </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function ReviewQueue({
+  onApprove,
+  onReject,
+  onSelect,
+  reviewQueue,
+}: {
+  readonly onApprove: (sourcePath: string) => void;
+  readonly onReject: (sourcePath: string) => void;
+  readonly onSelect: (sourcePath: string) => void;
+  readonly reviewQueue: PublicationImportWorkflowListDto | null;
+}) {
+  if (reviewQueue === null) {
+    return (
+      <p className="mt-3 text-sm leading-6 text-neutral-700">
+        Cargue la cola para ver lotes enviados por editoriales.
+      </p>
+    );
+  }
+
+  if (reviewQueue.batches.length === 0) {
+    return (
+      <p className="mt-3 text-sm leading-6 text-neutral-700">
+        No hay lotes pendientes de revisión nacional.
+      </p>
+    );
+  }
+
+  return (
+    <div className="mt-3 grid gap-3">
+      <dl className="grid gap-2 sm:grid-cols-3">
+        <Metric label="Pendientes" value={reviewQueue.summary.readyForReview} />
+        <Metric label="Editoriales" value={countDistinctPublishers(reviewQueue)} />
+        <Metric label="Total" value={reviewQueue.summary.total} />
+      </dl>
+      <ul className="grid gap-2">
+        {reviewQueue.batches.slice(0, 8).map((batch) => (
+          <li
+            className="rounded-md border border-neutral-200 bg-neutral-50 p-3 text-sm"
+            key={batch.relativeSourcePath}
+          >
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0">
+                <p className="break-words font-semibold text-neutral-950">{batch.publisherId}</p>
+                <p className="mt-1 break-words text-neutral-700">{batch.batchLabel}</p>
+                <p className="mt-1 break-words text-xs leading-5 text-neutral-600">
+                  {batch.relativeSourcePath}
+                </p>
+              </div>
+              <span className={workflowStatusClassName(batch.status)}>
+                {formatWorkflowStatus(batch.status)}
+              </span>
+            </div>
+            <div className="mt-3 grid gap-2 sm:grid-cols-3">
+              <button
+                className="inline-flex min-h-9 items-center justify-center rounded-md border border-blue-800 bg-white px-3 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-50"
+                onClick={() => {
+                  onSelect(batch.relativeSourcePath);
+                }}
+                type="button"
+              >
+                Seleccionar
+              </button>
+              <button
+                className="inline-flex min-h-9 items-center justify-center rounded-md bg-blue-900 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-950"
+                onClick={() => {
+                  onSelect(batch.relativeSourcePath);
+                  onApprove(batch.relativeSourcePath);
+                }}
+                type="button"
+              >
+                Aprobar
+              </button>
+              <button
+                className="inline-flex min-h-9 items-center justify-center rounded-md bg-red-900 px-3 py-2 text-sm font-semibold text-white hover:bg-red-950"
+                onClick={() => {
+                  onSelect(batch.relativeSourcePath);
+                  onReject(batch.relativeSourcePath);
+                }}
+                type="button"
+              >
+                Rechazar
+              </button>
+            </div>
           </li>
         ))}
       </ul>
@@ -1496,6 +1736,10 @@ function workflowStatusClassName(
   }
 
   return `${baseClassName} bg-neutral-100 text-neutral-700`;
+}
+
+function countDistinctPublishers(workflow: PublicationImportWorkflowListDto): number {
+  return new Set(workflow.batches.map((batch) => batch.publisherId)).size;
 }
 
 function formatDecision(

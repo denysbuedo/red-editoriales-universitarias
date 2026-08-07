@@ -86,4 +86,55 @@ describe("PublicationImportWorkflowService", () => {
       await rm(directory, { force: true, recursive: true });
     }
   });
+
+  it("lists the national review queue and records national decisions", async () => {
+    const directory = await mkdtemp(path.join(os.tmpdir(), "pnpu-import-workflow-"));
+    const service = new PublicationImportWorkflowService(
+      new FilePublicationImportWorkflowRepository(directory),
+    );
+
+    try {
+      await service.record({
+        batchLabel: "primer-lote",
+        fileName: "publicaciones.xlsx",
+        message: "Lote enviado a revisión nacional.",
+        publisherId: "editorial-uh",
+        relativeSourcePath: "publishers/editorial-uh/primer-lote/publicaciones.xlsx",
+        status: "ready_for_review",
+      });
+      await service.record({
+        batchLabel: "segundo-lote",
+        fileName: "publicaciones.xlsx",
+        message: "Archivo XLSX cargado por la editorial.",
+        publisherId: "editorial-uclv",
+        relativeSourcePath: "publishers/editorial-uclv/segundo-lote/publicaciones.xlsx",
+        status: "uploaded",
+      });
+
+      const queue = await service.listReviewQueue();
+      const approved = await service.review({
+        decision: "approved",
+        message: "Aprobado para piloto.",
+        relativeSourcePath: "publishers/editorial-uh/primer-lote/publicaciones.xlsx",
+      });
+      const queueAfterDecision = await service.listReviewQueue();
+
+      expect(queue.summary).toMatchObject({
+        readyForReview: 1,
+        total: 1,
+      });
+      expect(queue.batches[0]).toMatchObject({
+        publisherId: "editorial-uh",
+        status: "ready_for_review",
+      });
+      expect(approved.batch.status).toBe("approved");
+      expect(approved.events.at(-1)).toMatchObject({
+        message: "Aprobado para piloto.",
+        status: "approved",
+      });
+      expect(queueAfterDecision.batches).toEqual([]);
+    } finally {
+      await rm(directory, { force: true, recursive: true });
+    }
+  });
 });

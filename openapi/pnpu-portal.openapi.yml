@@ -838,6 +838,92 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /api/admin/publication-imports/review-queue:
+    get:
+      operationId: listPublicationImportNationalReviewQueue
+      summary: Lista lotes pendientes de revisión nacional.
+      description: >
+        Devuelve los lotes enviados por editoriales que están en estado `ready_for_review`. La ruta
+        es de alcance nacional y requiere rol administrativo o de escritura de importaciones.
+      tags:
+        - Admin
+      security:
+        - PublicationImportToken: []
+        - PublicationImportOidcBearer: []
+      x-required-roles:
+        - pnpu-admin
+        - pnpu-import-writer
+      responses:
+        "200":
+          description: Cola nacional de revisión.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicationImportWorkflowListResponse"
+        "403":
+          description: Token administrativo inválido o usuario sin rol nacional.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Endpoint no configurado o cola no disponible.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/admin/publication-imports/review-decision:
+    post:
+      operationId: decidePublicationImportNationalReview
+      summary: Registra aprobación o rechazo nacional de un lote.
+      description: >
+        Cambia un lote desde `ready_for_review` hacia `approved` o `rejected`. No escribe en Omeka S
+        ni ejecuta commit.
+      tags:
+        - Admin
+      security:
+        - PublicationImportToken: []
+        - PublicationImportOidcBearer: []
+      x-required-roles:
+        - pnpu-admin
+        - pnpu-import-writer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PublicationImportWorkflowReviewDecisionRequest"
+      responses:
+        "200":
+          description: Decisión nacional registrada.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicationImportWorkflowBatchDetailResponse"
+        "403":
+          description: Token administrativo inválido o usuario sin rol nacional.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Lote no encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: Lote no pendiente de revisión o solicitud inválida.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Endpoint no configurado o decisión no disponible.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /api/admin/publication-imports/history:
     get:
       operationId: listPublicationImportHistory
@@ -2549,13 +2635,18 @@ components:
           type: object
           additionalProperties: false
           required:
+            - approved
             - diagnosed
             - imported
             - needsCorrection
             - readyForReview
+            - rejected
             - total
             - uploaded
           properties:
+            approved:
+              type: integer
+              minimum: 0
             diagnosed:
               type: integer
               minimum: 0
@@ -2566,6 +2657,9 @@ components:
               type: integer
               minimum: 0
             readyForReview:
+              type: integer
+              minimum: 0
+            rejected:
               type: integer
               minimum: 0
             total:
@@ -2580,6 +2674,27 @@ components:
       required:
         - sourcePath
       properties:
+        sourcePath:
+          type: string
+          description: Ruta relativa al directorio de importación permitido.
+          minLength: 1
+          maxLength: 260
+          pattern: ^publishers/[a-z0-9][a-z0-9._-]{1,79}/.+\.xlsx$
+    PublicationImportWorkflowReviewDecisionRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - decision
+        - sourcePath
+      properties:
+        decision:
+          type: string
+          enum:
+            - approved
+            - rejected
+        message:
+          type: string
+          maxLength: 240
         sourcePath:
           type: string
           description: Ruta relativa al directorio de importación permitido.

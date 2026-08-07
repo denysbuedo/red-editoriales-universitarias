@@ -63,10 +63,11 @@ PNPU_PUBLICATION_IMPORT_ROOT/publishers/<editorial>/<lote>/archivo.xlsx
 10. Se descarga y completa la plantilla de enriquecimiento.
 11. Se ejecuta dry-run.
 12. La editorial envia el lote a revision nacional desde la seccion "Lotes de la editorial".
-13. Si no hay errores criticos, se genera plan de commit.
-14. El administrador nacional ejecuta escritura en Omeka.
-15. Se valida navegacion publica.
-16. Se ejecuta backup antes y despues de la escritura.
+13. El administrador nacional carga la cola en "Revision nacional" y aprueba o rechaza el lote.
+14. Si el lote queda aprobado y no hay errores criticos, se genera plan de commit.
+15. El administrador nacional ejecuta escritura en Omeka.
+16. Se valida navegacion publica.
+17. Se ejecuta backup antes y despues de la escritura.
 
 ## Criterios de Aceptacion del Piloto
 
@@ -77,6 +78,7 @@ PNPU_PUBLICATION_IMPORT_ROOT/publishers/<editorial>/<lote>/archivo.xlsx
 - El plan de commit no contiene riesgos bloqueantes.
 - Cada lote queda visible en el historial operativo de su editorial.
 - El lote cambia a `ready_for_review` antes de la escritura nacional.
+- El administrador nacional registra `approved` o `rejected` antes de ejecutar commit.
 - Las publicaciones aparecen en `/publicaciones`.
 - Los filtros por editorial y materia funcionan.
 - La ficha publica muestra ISBN/DOI, licencia, contribuyentes, coleccion y recursos.

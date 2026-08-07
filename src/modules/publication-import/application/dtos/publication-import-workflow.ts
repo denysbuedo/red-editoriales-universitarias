@@ -36,12 +36,14 @@ export interface PublicationImportWorkflowListDto {
   readonly generatedAt: string;
   readonly publisherId?: string;
   readonly summary: {
-    readonly total: number;
-    readonly uploaded: number;
+    readonly approved: number;
     readonly diagnosed: number;
-    readonly readyForReview: number;
     readonly imported: number;
     readonly needsCorrection: number;
+    readonly readyForReview: number;
+    readonly rejected: number;
+    readonly total: number;
+    readonly uploaded: number;
   };
   readonly batches: readonly PublicationImportWorkflowBatchDto[];
 }
