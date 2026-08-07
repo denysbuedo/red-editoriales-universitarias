@@ -38,7 +38,7 @@ Para la version actual validada localmente:
 
 ```text
 Artefacto: artifacts/pnpu-portal-0.1.0.tar.gz
-SHA-256: d9fb977907b9ef6254b9e1408a91fa7ba3d3f0dfdeaa46db7fe572fd246c5f82
+SHA-256: e1d6359607522066e567f8321ae12958992d8ed703977b117493100ac1e31229
 ```
 
 Si se regenera el artefacto, usar siempre el nuevo `.sha256`.
@@ -190,7 +190,7 @@ NODE_ENV=production
 PORT=3000
 
 PNPU_PUBLIC_BASE_URL=https://editorial.reduniv.edu.cu
-PNPU_COMMIT_SHA=768842f
+PNPU_COMMIT_SHA=178aa73
 PNPU_LOG_LEVEL=info
 PNPU_ENABLE_REQUEST_LOGS=true
 
