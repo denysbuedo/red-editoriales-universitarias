@@ -57,210 +57,308 @@ export default async function PublisherDetailPage({ params }: PublisherPageProps
   }
 
   const { collections, publicationCount, publications, publisher } = profile;
+  const contactEmail = publisher.contactPoint?.email;
+  const contactUrl = publisher.contactPoint?.url ?? publisher.website;
 
   return (
-    <main className="mx-auto min-h-screen max-w-5xl px-6 py-12">
+    <main className="min-h-screen bg-slate-50">
       <JsonLdScript
         data={buildPublisherJsonLd(publisher, buildPublisherUrl(publisher.id))}
         id="publisher-jsonld"
       />
-      <nav className="flex flex-wrap gap-3 text-sm" aria-label="Breadcrumb">
-        <Link className="font-medium text-blue-800 hover:text-blue-950" href="/">
-          PNPU
-        </Link>
-        <span className="text-neutral-500">/</span>
-        <Link className="font-medium text-blue-800 hover:text-blue-950" href="/editoriales">
-          Editoriales
-        </Link>
-      </nav>
 
-      <article className="mt-8">
-        <p className="text-sm font-semibold uppercase tracking-normal text-blue-800">
-          Editorial universitaria
-        </p>
-        <h1 className="mt-3 text-3xl font-bold leading-tight text-neutral-950 md:text-5xl">
-          {publisher.officialName}
-        </h1>
-        {publisher.logo === undefined ? null : (
-          <div className="mt-5">
-            <Image
-              alt={`Logo de ${publisher.officialName}`}
-              className="h-16 w-auto rounded-md border border-neutral-200 bg-white p-2"
-              height={64}
-              unoptimized
-              src={publisher.logo}
-              width={160}
-            />
-          </div>
-        )}
-        {publisher.description === undefined ? null : (
-          <p className="mt-6 max-w-3xl text-base leading-7 text-neutral-700">
-            {publisher.description}
-          </p>
-        )}
+      <div className="mx-auto max-w-6xl px-6 py-10">
+        <nav className="flex flex-wrap gap-3 text-sm" aria-label="Breadcrumb">
+          <Link className="font-medium text-blue-800 hover:text-blue-950" href="/">
+            PNPU
+          </Link>
+          <span className="text-slate-400">/</span>
+          <Link className="font-medium text-blue-800 hover:text-blue-950" href="/editoriales">
+            Editoriales
+          </Link>
+          <span className="text-slate-400">/</span>
+          <span className="font-medium text-slate-700">{publisher.acronym ?? "Ficha"}</span>
+        </nav>
 
-        <dl className="mt-8 grid gap-4 rounded-md border border-neutral-200 bg-white p-5 shadow-sm md:grid-cols-2">
-          {publisher.acronym === undefined ? null : (
-            <div>
-              <dt className="text-sm font-semibold text-neutral-600">Sigla</dt>
-              <dd className="mt-1 text-neutral-950">{publisher.acronym}</dd>
-            </div>
-          )}
-          {publisher.publisherCode === undefined ? null : (
-            <div>
-              <dt className="text-sm font-semibold text-neutral-600">Código institucional</dt>
-              <dd className="mt-1 text-neutral-950">{publisher.publisherCode}</dd>
-            </div>
-          )}
-          <div>
-            <dt className="text-sm font-semibold text-neutral-600">Universidad</dt>
-            <dd className="mt-1 text-neutral-950">{publisher.university.officialName}</dd>
-          </div>
-          {publisher.university.acronym === undefined ? null : (
-            <div>
-              <dt className="text-sm font-semibold text-neutral-600">Sigla universitaria</dt>
-              <dd className="mt-1 text-neutral-950">{publisher.university.acronym}</dd>
-            </div>
-          )}
-          <div>
-            <dt className="text-sm font-semibold text-neutral-600">País</dt>
-            <dd className="mt-1 text-neutral-950">{publisher.country}</dd>
-          </div>
-          {publisher.province === undefined ? null : (
-            <div>
-              <dt className="text-sm font-semibold text-neutral-600">Provincia</dt>
-              <dd className="mt-1 text-neutral-950">{publisher.province}</dd>
-            </div>
-          )}
-          {publisher.website === undefined ? null : (
-            <div>
-              <dt className="text-sm font-semibold text-neutral-600">Sitio web</dt>
-              <dd className="mt-1">
-                <a className="text-blue-800 hover:text-blue-950" href={publisher.website}>
-                  {publisher.website}
-                </a>
-              </dd>
-            </div>
-          )}
-          {publisher.contactPoint?.email === undefined ? null : (
-            <div>
-              <dt className="text-sm font-semibold text-neutral-600">Correo de contacto</dt>
-              <dd className="mt-1">
-                <a
-                  className="text-blue-800 hover:text-blue-950"
-                  href={`mailto:${publisher.contactPoint.email}`}
-                >
-                  {publisher.contactPoint.email}
-                </a>
-              </dd>
-            </div>
-          )}
-          {publisher.contactPoint?.telephone === undefined ? null : (
-            <div>
-              <dt className="text-sm font-semibold text-neutral-600">Teléfono</dt>
-              <dd className="mt-1 text-neutral-950">{publisher.contactPoint.telephone}</dd>
-            </div>
-          )}
-          {publisher.contactPoint?.url === undefined ? null : (
-            <div>
-              <dt className="text-sm font-semibold text-neutral-600">Contacto institucional</dt>
-              <dd className="mt-1">
-                <a className="text-blue-800 hover:text-blue-950" href={publisher.contactPoint.url}>
-                  {publisher.contactPoint.url}
-                </a>
-              </dd>
-            </div>
-          )}
-        </dl>
-
-        <section className="mt-8 rounded-md border border-neutral-200 bg-white p-5 shadow-sm">
-          <h2 className="text-xl font-semibold text-neutral-950">Datos institucionales</h2>
-          <p className="mt-3 text-sm leading-6 text-neutral-700">
-            Estos datos provienen del registro institucional definido para la PNPU. La plataforma no
-            permite modificarlos desde la ficha pública.
-          </p>
-          <dl className="mt-4 grid gap-4 md:grid-cols-2">
-            <div>
-              <dt className="text-sm font-semibold text-neutral-600">ID PNPU editorial</dt>
-              <dd className="mt-1 break-all text-neutral-950">{publisher.id}</dd>
-            </div>
-            <div>
-              <dt className="text-sm font-semibold text-neutral-600">ID PNPU universidad</dt>
-              <dd className="mt-1 break-all text-neutral-950">{publisher.university.id}</dd>
-            </div>
-          </dl>
-        </section>
-
-        <section className="mt-8">
-          <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-            <div>
-              <h2 className="text-xl font-semibold text-neutral-950">Publicaciones</h2>
-              <p className="mt-1 text-sm text-neutral-600">
-                {publicationCount} publicación{publicationCount === 1 ? "" : "es"} asociada
-                {publicationCount === 1 ? "" : "s"} a esta editorial.
+        <article className="mt-8">
+          <header className="grid gap-6 border-b border-slate-200 pb-8 lg:grid-cols-[minmax(0,1fr)_340px]">
+            <div className="min-w-0">
+              <p className="text-sm font-semibold uppercase tracking-normal text-blue-900">
+                Editorial universitaria
               </p>
+              <h1 className="mt-3 text-3xl font-bold leading-tight text-slate-950 md:text-5xl">
+                {publisher.officialName}
+              </h1>
+              {publisher.description === undefined ? null : (
+                <p className="mt-5 max-w-4xl text-base leading-7 text-slate-700">
+                  {publisher.description}
+                </p>
+              )}
+              <div className="mt-5 flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-normal">
+                {publisher.acronym === undefined ? null : (
+                  <span className="rounded-md bg-blue-50 px-2.5 py-1.5 text-blue-900">
+                    {publisher.acronym}
+                  </span>
+                )}
+                {publisher.publisherCode === undefined ? null : (
+                  <span className="rounded-md bg-slate-100 px-2.5 py-1.5 text-slate-700">
+                    {publisher.publisherCode}
+                  </span>
+                )}
+                <span className="rounded-md bg-slate-100 px-2.5 py-1.5 text-slate-700">
+                  {publisher.province ?? publisher.country}
+                </span>
+              </div>
             </div>
-            <Link
-              className="inline-flex rounded-md border border-blue-800 px-3 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-50"
-              href={`/publicaciones?publisherId=${publisher.id}`}
-            >
-              Ver catálogo filtrado
-            </Link>
-          </div>
-          <ul className="mt-4 grid gap-3">
-            {publications.map((publication) => (
-              <li
-                className="rounded-md border border-neutral-200 bg-white px-4 py-3"
-                key={publication.id}
-              >
-                <p className="text-sm text-neutral-600">
-                  {publication.publicationDate} · {publication.type}
-                  {publication.license === undefined ? "" : ` · ${publication.license}`}
-                </p>
-                <Link
-                  className="mt-1 block font-semibold text-neutral-950 hover:text-blue-800"
-                  href={`/publicaciones/${publication.id}`}
-                >
-                  {publication.title}
-                </Link>
-                {publication.subjects.length === 0 ? null : (
-                  <p className="mt-2 text-sm text-neutral-600">
-                    {publication.subjects.map((subject) => subject.preferredLabel).join(", ")}
-                  </p>
-                )}
-              </li>
-            ))}
-          </ul>
-        </section>
 
-        <section className="mt-8">
-          <h2 className="text-xl font-semibold text-neutral-950">Colecciones</h2>
-          <div className="mt-4 grid gap-3 md:grid-cols-2">
-            {collections.map((collection) => (
-              <article
-                className="rounded-md border border-neutral-200 bg-white px-4 py-3"
-                key={collection.id}
-              >
-                <p className="text-sm text-neutral-600">
-                  {collection.publicationCount} publicación
-                  {collection.publicationCount === 1 ? "" : "es"}
-                </p>
-                <Link
-                  className="mt-1 block font-semibold text-neutral-950 hover:text-blue-800"
-                  href={`/colecciones/${collection.id}`}
-                >
-                  {collection.title}
-                </Link>
-                {collection.editorialSeries === undefined ? null : (
-                  <p className="mt-1 text-sm text-neutral-600">{collection.editorialSeries}</p>
+            <aside className="rounded-md border border-slate-200 bg-white p-5 shadow-sm">
+              {publisher.logo === undefined ? null : (
+                <div className="mb-5 flex h-20 items-center justify-start">
+                  <Image
+                    alt={`Logo de ${publisher.officialName}`}
+                    className="max-h-20 w-auto rounded-md border border-slate-200 bg-white p-2"
+                    height={80}
+                    unoptimized
+                    src={publisher.logo}
+                    width={200}
+                  />
+                </div>
+              )}
+              <h2 className="text-base font-semibold text-slate-950">Contacto institucional</h2>
+              <dl className="mt-4 grid gap-3 text-sm">
+                <DescriptionPair label="Universidad" value={publisher.university.officialName} />
+                <DescriptionPair label="País" value={publisher.country} />
+                <DescriptionPair label="Provincia" value={publisher.province ?? "No registrada"} />
+                {contactEmail === undefined ? null : (
+                  <div className="min-w-0">
+                    <dt className="font-semibold text-slate-500">Correo de contacto</dt>
+                    <dd className="mt-1 break-words">
+                      <a
+                        className="text-blue-800 hover:text-blue-950"
+                        href={`mailto:${contactEmail}`}
+                      >
+                        {contactEmail}
+                      </a>
+                    </dd>
+                  </div>
                 )}
-              </article>
-            ))}
-          </div>
-        </section>
-      </article>
+                {publisher.contactPoint?.telephone === undefined ? null : (
+                  <DescriptionPair label="Teléfono" value={publisher.contactPoint.telephone} />
+                )}
+              </dl>
+              <div className="mt-5 grid gap-2">
+                {contactUrl === undefined ? null : (
+                  <a
+                    className="inline-flex min-h-10 items-center justify-center rounded-md border border-blue-800 px-3 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-50"
+                    href={contactUrl}
+                  >
+                    Sitio institucional
+                  </a>
+                )}
+                <Link
+                  className="inline-flex min-h-10 items-center justify-center rounded-md bg-blue-950 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-900"
+                  href={`/publicaciones?publisherId=${publisher.id}`}
+                >
+                  Ver publicaciones
+                </Link>
+              </div>
+            </aside>
+          </header>
+
+          <dl className="mt-6 grid gap-3 md:grid-cols-3">
+            <Metric label="Publicaciones" value={publicationCount} />
+            <Metric label="Colecciones" value={collections.length} />
+            <Metric label="Materias" value={countSubjects(publications)} />
+          </dl>
+
+          <section className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
+            <div className="rounded-md border border-slate-200 bg-white p-5 shadow-sm">
+              <h2 className="text-xl font-semibold text-slate-950">Datos institucionales</h2>
+              <dl className="mt-5 grid gap-4 md:grid-cols-2">
+                <DescriptionPair label="ID PNPU editorial" value={publisher.id} />
+                <DescriptionPair
+                  label="Código institucional"
+                  value={publisher.publisherCode ?? "No registrado"}
+                />
+                <DescriptionPair
+                  label="Sigla universitaria"
+                  value={publisher.university.acronym ?? "No registrada"}
+                />
+                <DescriptionPair label="ID PNPU universidad" value={publisher.university.id} />
+                <DescriptionPair
+                  label="Provincia universidad"
+                  value={publisher.university.province ?? "No registrada"}
+                />
+                <DescriptionPair label="País universidad" value={publisher.university.country} />
+              </dl>
+            </div>
+
+            <div className="rounded-md border border-slate-200 bg-white p-5 shadow-sm">
+              <h2 className="text-xl font-semibold text-slate-950">Enlaces</h2>
+              <dl className="mt-5 grid gap-4 text-sm">
+                <LinkPair label="Sitio web" value={publisher.website} />
+                <LinkPair label="Contacto institucional" value={publisher.contactPoint?.url} />
+                <LinkPair label="Universidad" value={publisher.university.website} />
+              </dl>
+            </div>
+          </section>
+
+          <section className="mt-8">
+            <div className="flex flex-col gap-3 border-b border-slate-200 pb-4 md:flex-row md:items-end md:justify-between">
+              <div>
+                <h2 className="text-xl font-semibold text-slate-950">Publicaciones</h2>
+                <p className="mt-1 text-sm text-slate-600">
+                  {publicationCount} publicación{publicationCount === 1 ? "" : "es"} asociada
+                  {publicationCount === 1 ? "" : "s"} a esta editorial.
+                </p>
+              </div>
+              <Link
+                className="inline-flex min-h-10 items-center justify-center rounded-md border border-blue-800 px-3 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-50"
+                href={`/publicaciones?publisherId=${publisher.id}`}
+              >
+                Ver catálogo filtrado
+              </Link>
+            </div>
+
+            {publications.length === 0 ? (
+              <p className="mt-4 rounded-md border border-slate-200 bg-white p-4 text-sm text-slate-700">
+                No hay publicaciones asociadas a esta editorial en el catálogo activo.
+              </p>
+            ) : (
+              <ul className="mt-4 divide-y divide-slate-200 overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm">
+                {publications.map((publication) => (
+                  <PublicationRow key={publication.id} publication={publication} />
+                ))}
+              </ul>
+            )}
+          </section>
+
+          <section className="mt-8">
+            <h2 className="text-xl font-semibold text-slate-950">Colecciones</h2>
+            {collections.length === 0 ? (
+              <p className="mt-4 rounded-md border border-slate-200 bg-white p-4 text-sm text-slate-700">
+                No hay colecciones asociadas a esta editorial en el catálogo activo.
+              </p>
+            ) : (
+              <div className="mt-4 grid gap-4 md:grid-cols-2">
+                {collections.map((collection) => (
+                  <CollectionCard collection={collection} key={collection.id} />
+                ))}
+              </div>
+            )}
+          </section>
+        </article>
+      </div>
     </main>
   );
+}
+
+function Metric({ label, value }: { readonly label: string; readonly value: number }) {
+  return (
+    <div className="rounded-md border border-slate-200 bg-white p-4 shadow-sm">
+      <dt className="text-xs font-semibold uppercase tracking-normal text-slate-500">{label}</dt>
+      <dd className="mt-1 text-2xl font-bold text-slate-950">{value}</dd>
+    </div>
+  );
+}
+
+function DescriptionPair({ label, value }: { readonly label: string; readonly value: string }) {
+  return (
+    <div className="min-w-0">
+      <dt className="text-sm font-semibold text-slate-500">{label}</dt>
+      <dd className="mt-1 break-words text-sm text-slate-950">{value}</dd>
+    </div>
+  );
+}
+
+function LinkPair({
+  label,
+  value,
+}: {
+  readonly label: string;
+  readonly value: string | undefined;
+}) {
+  if (value === undefined) {
+    return <DescriptionPair label={label} value="No registrado" />;
+  }
+
+  return (
+    <div className="min-w-0">
+      <dt className="font-semibold text-slate-500">{label}</dt>
+      <dd className="mt-1 break-words">
+        <a className="text-blue-800 hover:text-blue-950" href={value}>
+          {value}
+        </a>
+      </dd>
+    </div>
+  );
+}
+
+function PublicationRow({ publication }: { readonly publication: PublicationSummary }) {
+  return (
+    <li className="grid gap-3 p-4 md:grid-cols-[minmax(0,1fr)_160px] md:items-start">
+      <div className="min-w-0">
+        <p className="text-xs font-semibold uppercase tracking-normal text-slate-500">
+          {publication.publicationDate} · {publication.type}
+          {publication.license === undefined ? "" : ` · ${publication.license}`}
+        </p>
+        <Link
+          className="mt-1 block text-base font-semibold leading-6 text-slate-950 hover:text-blue-900"
+          href={`/publicaciones/${publication.id}`}
+        >
+          {publication.title}
+        </Link>
+        {publication.subjects.length === 0 ? null : (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {publication.subjects.slice(0, 4).map((subject) => (
+              <span
+                className="rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700"
+                key={subject.identifier}
+              >
+                {subject.preferredLabel}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+      <div className="text-left text-sm text-slate-600 md:text-right">
+        {publication.primaryIdentifier === undefined ? null : (
+          <p className="font-medium text-slate-800">
+            {publication.primaryIdentifier.type.toUpperCase()}:{" "}
+            {publication.primaryIdentifier.value}
+          </p>
+        )}
+        <p className="mt-1">{publication.language.toUpperCase()}</p>
+      </div>
+    </li>
+  );
+}
+
+function CollectionCard({ collection }: { readonly collection: CollectionSummary }) {
+  return (
+    <article className="rounded-md border border-slate-200 bg-white p-4 shadow-sm">
+      <p className="text-xs font-semibold uppercase tracking-normal text-slate-500">
+        {collection.publicationCount} publicación{collection.publicationCount === 1 ? "" : "es"}
+      </p>
+      <Link
+        className="mt-2 block text-base font-semibold text-slate-950 hover:text-blue-900"
+        href={`/colecciones/${collection.id}`}
+      >
+        {collection.title}
+      </Link>
+      {collection.editorialSeries === undefined ? null : (
+        <p className="mt-2 text-sm text-slate-600">{collection.editorialSeries}</p>
+      )}
+    </article>
+  );
+}
+
+function countSubjects(publications: readonly PublicationSummary[]): number {
+  return new Set(
+    publications.flatMap((publication) =>
+      publication.subjects.map((subject) => subject.identifier),
+    ),
+  ).size;
 }
 
 function buildPublisherJsonLd(publisher: PublisherDetail, url: string): JsonLdObject {

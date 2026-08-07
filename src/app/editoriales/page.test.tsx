@@ -11,9 +11,12 @@ describe("PublishersPage", () => {
   it("renders the publisher directory page", async () => {
     const html = renderToStaticMarkup(await PublishersPage());
 
+    expect(html).toContain("Directorio nacional");
     expect(html).toContain("Editoriales universitarias");
+    expect(html).toContain("Registro público de editoriales universitarias");
     expect(html).toContain("Editorial Universidad de La Habana");
     expect(html).toContain("Editorial UH");
+    expect(html).toContain("Publicaciones");
     expect(html).toContain("/editoriales/018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c03");
   });
 });

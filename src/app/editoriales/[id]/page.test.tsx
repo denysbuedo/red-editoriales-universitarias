@@ -18,6 +18,9 @@ describe("PublisherDetailPage", () => {
     expect(html).toContain("Contacto institucional");
     expect(html).toContain("Logo de Editorial Universidad de La Habana");
     expect(html).toContain("ID PNPU editorial");
+    expect(html).toContain("Datos institucionales");
+    expect(html).toContain("Materias");
+    expect(html).toContain("Enlaces");
     expect(html).toContain("País");
     expect(html).toContain('type="application/ld+json"');
     expect(html).toContain('"@type":"Organization"');
