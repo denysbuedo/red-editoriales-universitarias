@@ -1082,6 +1082,41 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /api/admin/publication-imports/retention-plan:
+    get:
+      operationId: getPublicationImportRetentionPlan
+      summary: Genera un plan no destructivo de retención de XLSX importados.
+      description: >
+        Lista archivos XLSX cargados bajo `PNPU_PUBLICATION_IMPORT_ROOT` y marca los vencidos según
+        `PNPU_PUBLICATION_IMPORT_RETENTION_DAYS`. No elimina archivos ni modifica el estado de
+        lotes.
+      tags:
+        - Admin
+      security:
+        - PublicationImportToken: []
+        - PublicationImportOidcBearer: []
+      x-required-roles:
+        - pnpu-admin
+        - pnpu-import-reader
+      responses:
+        "200":
+          description: Plan operativo de retención.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicationImportRetentionPlanResponse"
+        "403":
+          description: Token administrativo inválido.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Endpoint no configurado o plan no disponible.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /api/admin/publication-imports/rollback-plan:
     post:
       operationId: planPublicationImportRollback
@@ -1384,6 +1419,8 @@ components:
         country:
           type: string
           pattern: ^[A-Z]{2}$
+        publisherCode:
+          type: string
     PublisherDetail:
       allOf:
         - $ref: "#/components/schemas/PublisherSummary"
@@ -3177,6 +3214,8 @@ components:
           type: string
         country:
           type: string
+        publisherCode:
+          type: string
     PublicationImportContributorAuthority:
       type: object
       additionalProperties: false
@@ -3219,6 +3258,82 @@ components:
       properties:
         data:
           $ref: "#/components/schemas/PublicationImportAuthorities"
+        meta:
+          $ref: "#/components/schemas/ApiMeta"
+    PublicationImportRetentionPlan:
+      type: object
+      additionalProperties: false
+      required:
+        - generatedAt
+        - retentionDays
+        - cutoff
+        - summary
+        - files
+      properties:
+        generatedAt:
+          type: string
+          format: date-time
+        retentionDays:
+          type: integer
+          minimum: 0
+        cutoff:
+          type:
+            - string
+            - "null"
+          format: date-time
+        summary:
+          type: object
+          additionalProperties: false
+          required:
+            - files
+            - expiredFiles
+            - bytes
+            - expiredBytes
+          properties:
+            files:
+              type: integer
+              minimum: 0
+            expiredFiles:
+              type: integer
+              minimum: 0
+            bytes:
+              type: integer
+              minimum: 0
+            expiredBytes:
+              type: integer
+              minimum: 0
+        files:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicationImportRetentionFile"
+    PublicationImportRetentionFile:
+      type: object
+      additionalProperties: false
+      required:
+        - expired
+        - modifiedAt
+        - relativePath
+        - size
+      properties:
+        expired:
+          type: boolean
+        modifiedAt:
+          type: string
+          format: date-time
+        relativePath:
+          type: string
+        size:
+          type: integer
+          minimum: 0
+    PublicationImportRetentionPlanResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          $ref: "#/components/schemas/PublicationImportRetentionPlan"
         meta:
           $ref: "#/components/schemas/ApiMeta"
     PublicationImportUploadResponse:

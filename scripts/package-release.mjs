@@ -25,6 +25,8 @@ const runtimePaths = [
   "scripts/deploy-portal-artifact.sh",
   "scripts/health-check.sh",
   "scripts/check-publication-spreadsheet.py",
+  "src/app/admin",
+  "src/app/api/admin",
   "src/app/health/live/route.ts",
   "src/app/health/ready/route.ts",
   "src/app/metrics/route.ts",
@@ -40,12 +42,14 @@ const runtimePaths = [
   "src/app/vocabularies",
   "src/app/version/route.ts",
   "src/modules/catalog",
+  "src/modules/publication-import",
   "src/proxy.ts",
   "src/shared/config/runtime-config.ts",
   "src/shared/http/correlation-id.ts",
   "src/shared/observability/logger.ts",
   "src/shared/observability/prometheus.ts",
   "src/shared/security/http-security-headers.ts",
+  "src/shared/security/editorial-access.ts",
   "src/shared/seo/json-ld.tsx",
 ];
 

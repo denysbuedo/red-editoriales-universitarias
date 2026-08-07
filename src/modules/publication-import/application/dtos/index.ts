@@ -3,6 +3,7 @@ export * from "./publication-import-authorities";
 export * from "./publication-import-commit";
 export * from "./publication-import-rollback-plan";
 export * from "./publication-import-rollback";
+export * from "./publication-import-retention";
 export * from "./publication-import-workflow";
 export * from "./publication-import-template";
 export * from "./publication-import-diagnostics";

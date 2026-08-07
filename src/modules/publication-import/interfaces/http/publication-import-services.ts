@@ -11,6 +11,7 @@ import { PublicationImportDryRunService } from "../../application/services/publi
 import { PublicationImportMappingPreviewService } from "../../application/services/publication-import-mapping-preview-service";
 import { PublicationImportRollbackPlanService } from "../../application/services/publication-import-rollback-plan-service";
 import { PublicationImportRollbackService } from "../../application/services/publication-import-rollback-service";
+import { PublicationImportRetentionService } from "../../application/services/publication-import-retention-service";
 import { PublicationImportWorkflowService } from "../../application/services/publication-import-workflow-service";
 import {
   CatalogPublicationImportDuplicateLookup,
@@ -116,6 +117,13 @@ export function createPublicationImportWorkflowService(): PublicationImportWorkf
   );
 }
 
+export function createPublicationImportRetentionService(): PublicationImportRetentionService {
+  return new PublicationImportRetentionService({
+    importRoot: readPublicationImportRoot(),
+    retentionDays: readPublicationImportRetentionDays(),
+  });
+}
+
 export function createPublicationImportRollbackPlanService(): PublicationImportRollbackPlanService {
   const writerConfig = readOmekaImportWriterConfig();
 
@@ -176,4 +184,16 @@ function readPublicationImportWorkflowDirectory(): string {
   return path.isAbsolute(configuredDirectory)
     ? configuredDirectory
     : path.resolve(/* turbopackIgnore: true */ process.cwd(), configuredDirectory);
+}
+
+function readPublicationImportRetentionDays(): number {
+  const configuredDays = process.env.PNPU_PUBLICATION_IMPORT_RETENTION_DAYS?.trim();
+
+  if (configuredDays === undefined || configuredDays.length === 0) {
+    return 365;
+  }
+
+  const retentionDays = Number(configuredDays);
+
+  return Number.isInteger(retentionDays) && retentionDays >= 0 ? retentionDays : 365;
 }

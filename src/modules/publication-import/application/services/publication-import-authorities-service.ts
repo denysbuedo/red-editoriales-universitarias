@@ -45,6 +45,7 @@ export class PublicationImportAuthoritiesService {
             label: snapshot.officialName,
             acronym: snapshot.acronym,
             country: snapshot.country,
+            publisherCode: snapshot.publisherCode,
           };
         })
         .sort((left, right) => left.label.localeCompare(right.label, "es")),

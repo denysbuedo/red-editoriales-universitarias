@@ -17,7 +17,9 @@ Incluido:
 - dry-run con datos enriquecidos;
 - plan de commit;
 - escritura controlada en Omeka S;
-- historial y rollback por lote.
+- historial y rollback por lote;
+- cola nacional de revision;
+- plan no destructivo de retencion de XLSX cargados.
 
 Fuera de alcance:
 
@@ -46,9 +48,13 @@ Fuera de alcance:
 5. En `/admin/importaciones/publicaciones` se sube el XLSX indicando:
 
 ```text
-Editorial piloto: identificador corto de editorial
+Editorial piloto: identificador operativo de editorial
 Lote: nombre corto del lote
 ```
+
+El identificador operativo debe coincidir con el claim OIDC `pnpu_editorial_ids` del usuario. La
+pantalla muestra sugerencias a partir de autoridades y lotes existentes, pero el valor final lo
+gobierna Keycloak.
 
 6. La plataforma guarda el archivo bajo:
 
@@ -69,6 +75,7 @@ PNPU_PUBLICATION_IMPORT_ROOT/publishers/<editorial>/<lote>/archivo.xlsx
     lote no esta en estado `approved`.
 16. Se valida navegacion publica.
 17. Se ejecuta backup antes y despues de la escritura.
+18. Se revisa el plan de retencion para confirmar XLSX vigentes y vencidos.
 
 ## Criterios de Aceptacion del Piloto
 
@@ -84,6 +91,7 @@ PNPU_PUBLICATION_IMPORT_ROOT/publishers/<editorial>/<lote>/archivo.xlsx
 - Los filtros por editorial y materia funcionan.
 - La ficha publica muestra ISBN/DOI, licencia, contribuyentes, coleccion y recursos.
 - Existe rollback probado para un lote pequeno.
+- El endpoint de retencion responde y no elimina archivos automaticamente.
 
 ## Plantillas Oficiales
 
@@ -110,10 +118,23 @@ npm run acceptance:pilot-import
 ```
 
 Si `PNPU_ADMIN_AUTH_MODE=oidc` y el token local ya no esta activo, usar `PNPU_PILOT_BEARER_TOKEN`
-con un access token emitido por Keycloak para un usuario con alcance sobre la editorial piloto.
+con un access token emitido por Keycloak para un usuario nacional con rol `pnpu-admin` o
+`pnpu-import-writer`. El script tambien valida cola nacional de revision.
 
-## Pendientes Antes de Abrir a Usuarios Editoriales
+## Estado Antes de Abrir a Usuarios Editoriales
 
-- Configurar en Keycloak el mapper que emite `pnpu_editorial_ids` por usuario/grupo editorial.
-- Reemplazar identificador manual de editorial por selector desde autoridades.
-- Definir retencion de archivos XLSX subidos.
+- Keycloak dispone del script operativo `configure-keycloak-editorial-user.sh` para crear o
+  actualizar usuarios editoriales, rol y mapper `pnpu_editorial_ids`.
+- La pantalla administrativa mantiene identificador manual, pero incorpora sugerencias desde
+  autoridades y lotes existentes para reducir errores de captura.
+- La retencion se define por `PNPU_PUBLICATION_IMPORT_RETENTION_DAYS` y se valida con
+  `/api/admin/publication-imports/retention-plan`.
+
+## Politica Inicial de Retencion
+
+Para el piloto se recomienda:
+
+- `PNPU_PUBLICATION_IMPORT_RETENTION_DAYS=365`;
+- no borrar automaticamente archivos desde la aplicacion;
+- revisar el plan de retencion despues de cada importacion grande;
+- mover o eliminar XLSX vencidos solo mediante procedimiento operativo aprobado.

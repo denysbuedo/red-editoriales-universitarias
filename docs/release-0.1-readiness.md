@@ -11,17 +11,17 @@ camino controlado para importar publicaciones.
 
 ## Alcance incluido
 
-| Area | Estado v0.1 | Evidencia |
-|---|---|---|
-| Portal publico | Incluido | Home, publicaciones, editoriales, autores, materias y colecciones |
-| API publica | Incluido | OpenAPI 3.1 y endpoints `/v1/*` |
-| Catalogo Omeka S | Incluido | Repositorio `omeka`, snapshot cacheado y diagnostico `/health/catalog` |
-| Importacion controlada | Incluido | Diagnostico, preview, dry-run, plan, commit, auditoria y rollback |
-| Identidad administrativa | Incluido | OIDC/Keycloak, PKCE, cookie HTTP-only y roles granulares |
-| Alcance editorial | Base incluida | Roles editoriales y claims `pnpu_editorial_ids` |
-| Observabilidad | Incluido | `/health/live`, `/health/ready`, `/metrics`, logs y correlacion |
-| Infraestructura | Incluido | GitHub Actions, Ansible, systemd, release artifact y rollback |
-| Manuales operativos | Incluido | Manual admin y manual responsables editoriales en MD y HTML |
+| Area                     | Estado v0.1   | Evidencia                                                              |
+| ------------------------ | ------------- | ---------------------------------------------------------------------- |
+| Portal publico           | Incluido      | Home, publicaciones, editoriales, autores, materias y colecciones      |
+| API publica              | Incluido      | OpenAPI 3.1 y endpoints `/v1/*`                                        |
+| Catalogo Omeka S         | Incluido      | Repositorio `omeka`, snapshot cacheado y diagnostico `/health/catalog` |
+| Importacion controlada   | Incluido      | Diagnostico, preview, dry-run, plan, commit, auditoria y rollback      |
+| Identidad administrativa | Incluido      | OIDC/Keycloak, PKCE, cookie HTTP-only y roles granulares               |
+| Alcance editorial        | Base incluida | Roles editoriales y claims `pnpu_editorial_ids`                        |
+| Observabilidad           | Incluido      | `/health/live`, `/health/ready`, `/metrics`, logs y correlacion        |
+| Infraestructura          | Incluido      | GitHub Actions, Ansible, systemd, release artifact y rollback          |
+| Manuales operativos      | Incluido      | Manual admin y manual responsables editoriales en MD y HTML            |
 
 ## Fuera de alcance v0.1
 
@@ -38,59 +38,60 @@ camino controlado para importar publicaciones.
 
 ### Portal
 
-| Variable | Requerida | Uso |
-|---|---:|---|
-| `NODE_ENV` | Si | Entorno de ejecucion |
-| `PORT` | Si | Puerto local del proceso Next.js |
-| `PNPU_PUBLIC_BASE_URL` | Si | URL publica canonica |
-| `PNPU_COMMIT_SHA` | Recomendado | Trazabilidad de despliegue |
-| `PNPU_LOG_LEVEL` | Recomendado | Nivel de logs |
-| `PNPU_ENABLE_REQUEST_LOGS` | Recomendado | Activacion de logs HTTP |
-| `PNPU_ACCEPTANCE_BASE_URL` | Solo verificacion | URL base para pruebas de aceptacion v0.1 |
+| Variable                        |         Requerida | Uso                                          |
+| ------------------------------- | ----------------: | -------------------------------------------- |
+| `NODE_ENV`                      |                Si | Entorno de ejecucion                         |
+| `PORT`                          |                Si | Puerto local del proceso Next.js             |
+| `PNPU_PUBLIC_BASE_URL`          |                Si | URL publica canonica                         |
+| `PNPU_COMMIT_SHA`               |       Recomendado | Trazabilidad de despliegue                   |
+| `PNPU_LOG_LEVEL`                |       Recomendado | Nivel de logs                                |
+| `PNPU_ENABLE_REQUEST_LOGS`      |       Recomendado | Activacion de logs HTTP                      |
+| `PNPU_ACCEPTANCE_BASE_URL`      | Solo verificacion | URL base para pruebas de aceptacion v0.1     |
 | `PNPU_ACCEPTANCE_REQUIRE_OMEKA` | Solo verificacion | Exige repositorio Omeka en `/health/catalog` |
-| `PNPU_ACCEPTANCE_TIMEOUT_MS` | Solo verificacion | Timeout de pruebas de aceptacion |
+| `PNPU_ACCEPTANCE_TIMEOUT_MS`    | Solo verificacion | Timeout de pruebas de aceptacion             |
 
 ### Catalogo Omeka S
 
-| Variable | Requerida | Uso |
-|---|---:|---|
-| `PNPU_CATALOG_REPOSITORY` | Si | Debe ser `omeka` para v0.1 operativa con catalogo real |
-| `PNPU_OMEKA_BASE_URL` | Si | URL base de Omeka S |
-| `PNPU_OMEKA_TIMEOUT_MS` | Recomendado | Timeout de API Omeka |
-| `PNPU_OMEKA_PAGE_SIZE` | Recomendado | Tamano de pagina Omeka |
-| `PNPU_OMEKA_MAX_PAGES` | Recomendado | Limite de paginacion defensivo |
-| `PNPU_OMEKA_CACHE_TTL_SECONDS` | Recomendado | TTL del snapshot en memoria |
-| `PNPU_OMEKA_REQUIRE_APPROVED_MAPPING` | Si | Exige perfil PNPU aprobado |
-| `PNPU_CATALOG_REFRESH_TOKEN` | Si | Refresco controlado de snapshot |
+| Variable                              |   Requerida | Uso                                                    |
+| ------------------------------------- | ----------: | ------------------------------------------------------ |
+| `PNPU_CATALOG_REPOSITORY`             |          Si | Debe ser `omeka` para v0.1 operativa con catalogo real |
+| `PNPU_OMEKA_BASE_URL`                 |          Si | URL base de Omeka S                                    |
+| `PNPU_OMEKA_TIMEOUT_MS`               | Recomendado | Timeout de API Omeka                                   |
+| `PNPU_OMEKA_PAGE_SIZE`                | Recomendado | Tamano de pagina Omeka                                 |
+| `PNPU_OMEKA_MAX_PAGES`                | Recomendado | Limite de paginacion defensivo                         |
+| `PNPU_OMEKA_CACHE_TTL_SECONDS`        | Recomendado | TTL del snapshot en memoria                            |
+| `PNPU_OMEKA_REQUIRE_APPROVED_MAPPING` |          Si | Exige perfil PNPU aprobado                             |
+| `PNPU_CATALOG_REFRESH_TOKEN`          |          Si | Refresco controlado de snapshot                        |
 
 ### Escritura Omeka S
 
-| Variable | Requerida | Uso |
-|---|---:|---|
-| `PNPU_OMEKA_KEY_IDENTITY` | Si para escritura | Clave API Omeka S |
-| `PNPU_OMEKA_KEY_CREDENTIAL` | Si para escritura | Credencial API Omeka S |
-| `PNPU_OMEKA_IMPORT_ENABLED` | Si para commit | Habilita escritura controlada |
-| `PNPU_OMEKA_ROLLBACK_ENABLED` | Si para rollback | Habilita rollback controlado |
+| Variable                      |         Requerida | Uso                           |
+| ----------------------------- | ----------------: | ----------------------------- |
+| `PNPU_OMEKA_KEY_IDENTITY`     | Si para escritura | Clave API Omeka S             |
+| `PNPU_OMEKA_KEY_CREDENTIAL`   | Si para escritura | Credencial API Omeka S        |
+| `PNPU_OMEKA_IMPORT_ENABLED`   |    Si para commit | Habilita escritura controlada |
+| `PNPU_OMEKA_ROLLBACK_ENABLED` |  Si para rollback | Habilita rollback controlado  |
 
 ### Identidad
 
-| Variable | Requerida | Uso |
-|---|---:|---|
-| `PNPU_ADMIN_AUTH_MODE` | Si | `oidc` en produccion, `hybrid` en transicion |
-| `PNPU_ADMIN_REQUIRED_ROLE` | Si | Administrador nacional |
-| `PNPU_ADMIN_IMPORT_READ_ROLE` | Si | Lectura/importacion no destructiva |
-| `PNPU_ADMIN_IMPORT_WRITE_ROLE` | Si | Commit hacia Omeka |
-| `PNPU_ADMIN_IMPORT_ROLLBACK_ROLE` | Si | Rollback controlado |
-| `PNPU_EDITORIAL_COORDINATOR_ROLE` | Si | Responsable principal editorial |
-| `PNPU_EDITORIAL_METADATA_EDITOR_ROLE` | Si | Editor de metadatos editorial |
-| `PNPU_EDITORIAL_REVIEWER_ROLE` | Si | Revisor editorial |
-| `PNPU_EDITORIAL_VIEWER_ROLE` | Si | Consulta editorial |
-| `PNPU_OIDC_ISSUER` | Si | Realm/proveedor OIDC |
-| `PNPU_OIDC_AUDIENCE` | Si | Audiencia esperada del JWT |
-| `PNPU_OIDC_CLIENT_ID` | Si | Cliente OIDC |
-| `PNPU_OIDC_CLIENT_SECRET` | Segun cliente | Secreto si el cliente lo requiere |
-| `PNPU_OIDC_SCOPES` | Recomendado | `openid profile email` |
-| `PNPU_PUBLICATION_IMPORT_TOKEN` | Solo local/transicion | Token temporal de desarrollo |
+| Variable                                 |             Requerida | Uso                                          |
+| ---------------------------------------- | --------------------: | -------------------------------------------- |
+| `PNPU_ADMIN_AUTH_MODE`                   |                    Si | `oidc` en produccion, `hybrid` en transicion |
+| `PNPU_ADMIN_REQUIRED_ROLE`               |                    Si | Administrador nacional                       |
+| `PNPU_ADMIN_IMPORT_READ_ROLE`            |                    Si | Lectura/importacion no destructiva           |
+| `PNPU_ADMIN_IMPORT_WRITE_ROLE`           |                    Si | Commit hacia Omeka                           |
+| `PNPU_ADMIN_IMPORT_ROLLBACK_ROLE`        |                    Si | Rollback controlado                          |
+| `PNPU_EDITORIAL_COORDINATOR_ROLE`        |                    Si | Responsable principal editorial              |
+| `PNPU_EDITORIAL_METADATA_EDITOR_ROLE`    |                    Si | Editor de metadatos editorial                |
+| `PNPU_EDITORIAL_REVIEWER_ROLE`           |                    Si | Revisor editorial                            |
+| `PNPU_EDITORIAL_VIEWER_ROLE`             |                    Si | Consulta editorial                           |
+| `PNPU_OIDC_ISSUER`                       |                    Si | Realm/proveedor OIDC                         |
+| `PNPU_OIDC_AUDIENCE`                     |                    Si | Audiencia esperada del JWT                   |
+| `PNPU_OIDC_CLIENT_ID`                    |                    Si | Cliente OIDC                                 |
+| `PNPU_OIDC_CLIENT_SECRET`                |         Segun cliente | Secreto si el cliente lo requiere            |
+| `PNPU_OIDC_SCOPES`                       |           Recomendado | `openid profile email`                       |
+| `PNPU_PUBLICATION_IMPORT_TOKEN`          | Solo local/transicion | Token temporal de desarrollo                 |
+| `PNPU_PUBLICATION_IMPORT_RETENTION_DAYS` |           Recomendado | Retencion operativa de XLSX subidos          |
 
 ## Criterios de aceptacion
 

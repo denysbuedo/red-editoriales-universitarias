@@ -15,6 +15,7 @@ export * from "./application/services/publication-import-dry-run-service";
 export * from "./application/services/publication-import-mapping-preview-service";
 export * from "./application/services/publication-import-rollback-plan-service";
 export * from "./application/services/publication-import-rollback-service";
+export * from "./application/services/publication-import-retention-service";
 export * from "./application/services/publication-import-template-service";
 export * from "./application/services/publication-import-workflow-service";
 export * from "./domain/entities/publication-import-batch";

@@ -3,6 +3,7 @@ export interface PublicationImportPublisherAuthorityDto {
   readonly label: string;
   readonly acronym?: string;
   readonly country: string;
+  readonly publisherCode?: string;
 }
 
 export interface PublicationImportContributorAuthorityDto {

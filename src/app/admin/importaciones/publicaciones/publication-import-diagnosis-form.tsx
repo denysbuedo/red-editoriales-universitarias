@@ -12,6 +12,7 @@ import {
   PublicationImportMappingPreviewDto,
   PublicationImportRollbackDto,
   PublicationImportRollbackPlanDto,
+  PublicationImportRetentionPlanDto,
   PublicationImportWorkflowBatchDetailDto,
   PublicationImportWorkflowListDto,
 } from "@/modules/publication-import";
@@ -74,6 +75,13 @@ interface PublicationImportRollbackPlanApiResponse {
 
 interface PublicationImportRollbackApiResponse {
   readonly data: PublicationImportRollbackDto;
+  readonly meta: {
+    readonly apiVersion: "v1";
+  };
+}
+
+interface PublicationImportRetentionPlanApiResponse {
+  readonly data: PublicationImportRetentionPlanDto;
   readonly meta: {
     readonly apiVersion: "v1";
   };
@@ -153,7 +161,11 @@ export function PublicationImportDiagnosisForm() {
   const [preview, setPreview] = useState<PublicationImportMappingPreviewDto | null>(null);
   const [rollback, setRollback] = useState<PublicationImportRollbackDto | null>(null);
   const [rollbackPlan, setRollbackPlan] = useState<PublicationImportRollbackPlanDto | null>(null);
+  const [retentionPlan, setRetentionPlan] = useState<PublicationImportRetentionPlanDto | null>(
+    null,
+  );
   const [error, setError] = useState<PublicationImportDiagnosisApiError | null>(null);
+  const publisherSuggestions = buildPublisherIdSuggestions(authorities, workflow);
 
   async function uploadSpreadsheet(event: SyntheticEvent<HTMLInputElement>): Promise<void> {
     const file = event.currentTarget.files?.[0];
@@ -449,6 +461,7 @@ export function PublicationImportDiagnosisForm() {
     setPreview(null);
     setRollback(null);
     setRollbackPlan(null);
+    setRetentionPlan(null);
     setError(null);
     const selectedAction = readSubmitAction(event);
     setAction(selectedAction);
@@ -463,25 +476,24 @@ export function PublicationImportDiagnosisForm() {
       }
 
       const response = await fetch(endpointForAction(selectedAction), {
-        method: selectedAction === "authorities" || selectedAction === "history" ? "GET" : "POST",
+        method: isGetPublicationImportAction(selectedAction) ? "GET" : "POST",
         headers,
-        body:
-          selectedAction === "authorities" || selectedAction === "history"
-            ? undefined
-            : JSON.stringify({
-                sourcePath,
-                sheet,
-                packageJson:
-                  selectedAction === "commitPlan" || selectedAction === "commit"
-                    ? packageJson
-                    : undefined,
-                enrichmentCsv: selectedAction === "dryRun" ? enrichmentCsv : undefined,
-                auditId:
-                  selectedAction === "rollbackPlan" || selectedAction === "rollback"
-                    ? rollbackAuditId
-                    : undefined,
-                maxRows: selectedAction === "preview" ? 25 : undefined,
-              }),
+        body: isGetPublicationImportAction(selectedAction)
+          ? undefined
+          : JSON.stringify({
+              sourcePath,
+              sheet,
+              packageJson:
+                selectedAction === "commitPlan" || selectedAction === "commit"
+                  ? packageJson
+                  : undefined,
+              enrichmentCsv: selectedAction === "dryRun" ? enrichmentCsv : undefined,
+              auditId:
+                selectedAction === "rollbackPlan" || selectedAction === "rollback"
+                  ? rollbackAuditId
+                  : undefined,
+              maxRows: selectedAction === "preview" ? 25 : undefined,
+            }),
       });
       const payload = (await response.json()) as unknown;
 
@@ -506,6 +518,8 @@ export function PublicationImportDiagnosisForm() {
         setRollbackPlan(readRollbackPlanApiResponse(payload).data);
       } else if (selectedAction === "rollback") {
         setRollback(readRollbackApiResponse(payload).data);
+      } else if (selectedAction === "retentionPlan") {
+        setRetentionPlan(readRetentionPlanApiResponse(payload).data);
       } else {
         setBatch(readApiResponse(payload).data);
       }
@@ -575,7 +589,16 @@ export function PublicationImportDiagnosisForm() {
                   required
                   type="text"
                   value={publisherId}
+                  list="pnpu-publisher-id-suggestions"
                 />
+                <datalist id="pnpu-publisher-id-suggestions">
+                  {publisherSuggestions.map((suggestion) => (
+                    <option key={suggestion.id} label={suggestion.label} value={suggestion.id} />
+                  ))}
+                </datalist>
+                <span className="text-xs font-normal leading-5 text-neutral-600">
+                  Debe coincidir con el claim OIDC `pnpu_editorial_ids`.
+                </span>
               </label>
               <label className={labelClassName}>
                 Lote
@@ -697,6 +720,15 @@ export function PublicationImportDiagnosisForm() {
                 value="history"
               >
                 {isSubmitting && action === "history" ? "Cargando" : "Historial"}
+              </button>
+              <button
+                className={neutralButtonClassName}
+                disabled={isSubmitting}
+                name="intent"
+                type="submit"
+                value="retentionPlan"
+              >
+                {isSubmitting && action === "retentionPlan" ? "Calculando" : "Retención"}
               </button>
             </div>
           </section>
@@ -910,6 +942,7 @@ export function PublicationImportDiagnosisForm() {
         {preview !== null ? <MappingPreview preview={preview} /> : null}
         {rollback !== null ? <RollbackResult rollback={rollback} /> : null}
         {rollbackPlan !== null ? <RollbackPlanResult rollbackPlan={rollbackPlan} /> : null}
+        {retentionPlan !== null ? <RetentionPlanResult retentionPlan={retentionPlan} /> : null}
         {error === null &&
         authorities === null &&
         batch === null &&
@@ -919,7 +952,8 @@ export function PublicationImportDiagnosisForm() {
         history === null &&
         preview === null &&
         rollback === null &&
-        rollbackPlan === null ? (
+        rollbackPlan === null &&
+        retentionPlan === null ? (
           <p className="mt-3 text-sm leading-6 text-neutral-700">
             Ejecute un diagnóstico para ver el estado del lote, errores de planilla y campos
             pendientes antes de cualquier mapeo.
@@ -1250,6 +1284,50 @@ function RollbackResult({ rollback }: { readonly rollback: PublicationImportRoll
   );
 }
 
+function RetentionPlanResult({
+  retentionPlan,
+}: {
+  readonly retentionPlan: PublicationImportRetentionPlanDto;
+}) {
+  return (
+    <div className="mt-5">
+      <p className="text-sm leading-6 text-neutral-700">
+        Plan no destructivo de retención para archivos XLSX cargados por editoriales. No elimina
+        archivos; solo identifica vencimientos según la política configurada.
+      </p>
+      <dl className="mt-5 grid gap-3 md:grid-cols-4">
+        <Metric label="Retención" value={`${String(retentionPlan.retentionDays)} días`} />
+        <Metric label="Archivos" value={retentionPlan.summary.files} />
+        <Metric label="Vencidos" value={retentionPlan.summary.expiredFiles} />
+        <Metric
+          label="MB vencidos"
+          value={formatBytesAsMegabytes(retentionPlan.summary.expiredBytes)}
+        />
+      </dl>
+      <section className="mt-6 rounded-md border border-neutral-200 bg-neutral-50 p-4">
+        <h3 className="text-base font-semibold text-neutral-950">Archivos evaluados</h3>
+        {retentionPlan.files.length === 0 ? (
+          <p className="mt-3 text-sm text-neutral-700">
+            No existen XLSX cargados en la ruta operativa.
+          </p>
+        ) : (
+          <ul className="mt-3 space-y-2 text-sm text-neutral-700">
+            {retentionPlan.files.slice(0, 20).map((file) => (
+              <li className="rounded-md bg-white px-3 py-2" key={file.relativePath}>
+                <span className="font-semibold text-neutral-950">{file.relativePath}</span>
+                <span className="block text-xs text-neutral-600">
+                  {file.expired ? "vencido" : "vigente"} · {file.modifiedAt} ·{" "}
+                  {formatBytesAsMegabytes(file.size)} MB
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    </div>
+  );
+}
+
 function AuthoritiesResult({
   authorities,
 }: {
@@ -1282,7 +1360,7 @@ function AuthoritiesResult({
           items={authorities.publishers.map((publisher) => ({
             id: publisher.id,
             label: publisher.acronym
-              ? `${publisher.label} (${publisher.acronym})`
+              ? `${publisher.label} (${publisher.acronym})${publisher.publisherCode ? ` | ${publisher.publisherCode}` : ""}`
               : publisher.label,
           }))}
           title="Editoriales"
@@ -1879,6 +1957,7 @@ type PublicationImportAction =
   | "dryRun"
   | "history"
   | "preview"
+  | "retentionPlan"
   | "rollback"
   | "rollbackPlan";
 
@@ -1904,6 +1983,10 @@ function readSubmitAction(event: SyntheticEvent<HTMLFormElement>): PublicationIm
 
   if (submitter instanceof HTMLButtonElement && submitter.value === "history") {
     return "history";
+  }
+
+  if (submitter instanceof HTMLButtonElement && submitter.value === "retentionPlan") {
+    return "retentionPlan";
   }
 
   if (submitter instanceof HTMLButtonElement && submitter.value === "preview") {
@@ -1942,6 +2025,10 @@ function endpointForAction(action: PublicationImportAction): string {
     return "/api/admin/publication-imports/history";
   }
 
+  if (action === "retentionPlan") {
+    return "/api/admin/publication-imports/retention-plan";
+  }
+
   if (action === "rollbackPlan") {
     return "/api/admin/publication-imports/rollback-plan";
   }
@@ -1953,6 +2040,62 @@ function endpointForAction(action: PublicationImportAction): string {
   return action === "preview"
     ? "/api/admin/publication-imports/mapping-preview"
     : "/api/admin/publication-imports/diagnose";
+}
+
+function isGetPublicationImportAction(action: PublicationImportAction): boolean {
+  return action === "authorities" || action === "history" || action === "retentionPlan";
+}
+
+function buildPublisherIdSuggestions(
+  authorities: PublicationImportAuthoritiesDto | null,
+  workflow: PublicationImportWorkflowListDto | null,
+): readonly { readonly id: string; readonly label: string }[] {
+  const suggestions = new Map<string, string>();
+
+  for (const batch of workflow?.batches ?? []) {
+    suggestions.set(batch.publisherId, `Usado en lote: ${batch.publisherId}`);
+  }
+
+  for (const publisher of authorities?.publishers ?? []) {
+    const suggestedId = suggestPublisherOperationalId(publisher.label, publisher.acronym);
+
+    if (suggestedId !== null) {
+      suggestions.set(
+        suggestedId,
+        `${publisher.label}${publisher.publisherCode ? ` | ${publisher.publisherCode}` : ""}`,
+      );
+    }
+  }
+
+  return Array.from(suggestions.entries())
+    .map(([id, label]) => ({ id, label }))
+    .sort((left, right) => left.label.localeCompare(right.label, "es"));
+}
+
+function suggestPublisherOperationalId(label: string, acronym: string | undefined): string | null {
+  const labelSlug = slugifyAscii(label);
+  const acronymSlug = acronym === undefined ? "" : slugifyAscii(acronym);
+  const candidate =
+    labelSlug.startsWith("editorial-") || labelSlug.startsWith("ediciones-")
+      ? labelSlug
+      : acronymSlug.length > 0
+        ? `editorial-${acronymSlug}`
+        : labelSlug;
+
+  return /^[a-z0-9][a-z0-9._-]{1,79}$/u.test(candidate) ? candidate : null;
+}
+
+function slugifyAscii(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/gu, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/gu, "-")
+    .replace(/^-+|-+$/gu, "");
+}
+
+function formatBytesAsMegabytes(bytes: number): string {
+  return (bytes / (1024 * 1024)).toFixed(2);
 }
 
 function formatDryRunDecision(
@@ -2090,24 +2233,27 @@ function exportReadyImportPackage(dryRun: PublicationImportDryRunDto): void {
 
 function exportAuthoritiesCsv(authorities: PublicationImportAuthoritiesDto): void {
   const rows = [
-    ["kind", "id", "label", "extra"],
+    ["kind", "id", "label", "extra", "publisherCode"],
     ...authorities.publishers.map((publisher) => [
       "publisher",
       publisher.id,
       publisher.label,
       publisher.acronym ?? "",
+      publisher.publisherCode ?? "",
     ]),
     ...authorities.contributors.map((contributor) => [
       "contributor",
       contributor.id,
       contributor.label,
       contributor.roles.join("|"),
+      "",
     ]),
     ...authorities.subjects.map((subject) => [
       "subject",
       subject.id,
       subject.label,
       subject.uri ?? "",
+      "",
     ]),
   ];
   const csv = rows.map((row) => row.map(escapeCsvCell).join(",")).join("\r\n");
@@ -2267,6 +2413,14 @@ function readRollbackApiResponse(payload: unknown): PublicationImportRollbackApi
   }
 
   throw new Error("Invalid publication import rollback response.");
+}
+
+function readRetentionPlanApiResponse(payload: unknown): PublicationImportRetentionPlanApiResponse {
+  if (typeof payload === "object" && payload !== null && "data" in payload && "meta" in payload) {
+    return payload as PublicationImportRetentionPlanApiResponse;
+  }
+
+  throw new Error("Invalid publication import retention-plan response.");
 }
 
 function readAuthoritiesApiResponse(payload: unknown): PublicationImportAuthoritiesApiResponse {

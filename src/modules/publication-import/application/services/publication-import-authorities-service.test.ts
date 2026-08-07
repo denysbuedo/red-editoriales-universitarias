@@ -22,6 +22,7 @@ describe("PublicationImportAuthoritiesService", () => {
 
     expect(authorities.generatedAt).toBe("2026-07-20T14:00:00.000Z");
     expect(authorities.publishers[0]).toHaveProperty("id");
+    expect(authorities.publishers[0]).toHaveProperty("publisherCode");
     expect(authorities.contributors[0]).toHaveProperty("roles");
     expect(authorities.subjects[0]).toHaveProperty("label");
   });

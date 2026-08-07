@@ -22,6 +22,40 @@ await checkJson("health/catalog", "/health/catalog", (payload) => {
 await check("admin page protection", "/admin/importaciones/publicaciones", {
   expectedStatuses: [200, 307, 403],
 });
+await check(
+  "base publication template",
+  "/api/admin/publication-imports/templates/publications.csv",
+  {
+    expectedStatuses: [200],
+    headers: adminHeaders,
+    validate: async (response) => {
+      assert(
+        response.headers.get("content-type")?.includes("text/csv") === true,
+        "base template must be CSV.",
+      );
+    },
+  },
+);
+await check("enrichment template", "/api/admin/publication-imports/templates/enrichment.csv", {
+  expectedStatuses: [200],
+  headers: adminHeaders,
+  validate: async (response) => {
+    assert(
+      response.headers.get("content-type")?.includes("text/csv") === true,
+      "enrichment template must be CSV.",
+    );
+  },
+});
+await checkJson(
+  "catalog authorities",
+  "/api/admin/publication-imports/authorities",
+  (payload) => {
+    assert(payload.meta?.apiVersion === "v1", "authorities must expose API metadata.");
+    assert(payload.data?.summary?.publishers > 0, "authorities must include publishers.");
+    assert(payload.data?.summary?.subjects > 0, "authorities must include subjects.");
+  },
+  adminHeaders,
+);
 await checkJson(
   "editorial batch list",
   `/api/admin/publication-imports/batches?publisherId=${encodeURIComponent(publisherId)}`,
@@ -29,6 +63,27 @@ await checkJson(
     assert(payload.meta?.apiVersion === "v1", "batch list must expose API metadata.");
     assert(Array.isArray(payload.data?.batches), "batch list must expose batches.");
     assert(payload.data?.publisherId === publisherId, "batch list must be scoped to publisher.");
+  },
+  adminHeaders,
+);
+await checkJson(
+  "national review queue",
+  "/api/admin/publication-imports/review-queue",
+  (payload) => {
+    assert(payload.meta?.apiVersion === "v1", "review queue must expose API metadata.");
+    assert(Array.isArray(payload.data?.batches), "review queue must expose batches.");
+  },
+  adminHeaders,
+);
+await checkJson(
+  "retention plan",
+  "/api/admin/publication-imports/retention-plan",
+  (payload) => {
+    assert(payload.meta?.apiVersion === "v1", "retention plan must expose API metadata.");
+    assert(
+      Number.isInteger(payload.data?.summary?.files),
+      "retention plan must expose file summary.",
+    );
   },
   adminHeaders,
 );
