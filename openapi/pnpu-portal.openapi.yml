@@ -469,6 +469,74 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /api/admin/publication-imports/templates/publications.csv:
+    get:
+      operationId: downloadPublicationImportBaseTemplate
+      summary: Descarga la plantilla CSV base de publicaciones.
+      description: >
+        Devuelve la plantilla oficial con las columnas que el diagnóstico XLSX espera antes del
+        enriquecimiento PNPU.
+      tags:
+        - Admin
+      security:
+        - PublicationImportToken: []
+        - PublicationImportOidcBearer: []
+      x-required-roles:
+        - pnpu-admin
+        - pnpu-import-reader
+      responses:
+        "200":
+          description: Plantilla CSV base.
+          content:
+            text/csv:
+              schema:
+                type: string
+        "403":
+          description: Token administrativo inválido.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Endpoint no configurado o plantilla no disponible.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/admin/publication-imports/templates/enrichment.csv:
+    get:
+      operationId: downloadPublicationImportEnrichmentTemplate
+      summary: Descarga la plantilla CSV de enriquecimiento PNPU.
+      description: >
+        Devuelve la plantilla oficial con campos PNPU requeridos para pasar de preview a dry-run y
+        preparar el paquete de commit.
+      tags:
+        - Admin
+      security:
+        - PublicationImportToken: []
+        - PublicationImportOidcBearer: []
+      x-required-roles:
+        - pnpu-admin
+        - pnpu-import-reader
+      responses:
+        "200":
+          description: Plantilla CSV de enriquecimiento.
+          content:
+            text/csv:
+              schema:
+                type: string
+        "403":
+          description: Token administrativo inválido.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Endpoint no configurado o plantilla no disponible.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /api/admin/publication-imports/diagnose:
     post:
       operationId: diagnosePublicationImport

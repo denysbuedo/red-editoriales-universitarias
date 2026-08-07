@@ -13,7 +13,7 @@ Incluido:
 - diagnostico automatico de estructura y calidad minima;
 - registro persistente de lotes por editorial;
 - preview de mapeo PNPU;
-- descarga de plantilla de enriquecimiento;
+- descarga de plantilla base y plantilla de enriquecimiento;
 - dry-run con datos enriquecidos;
 - plan de commit;
 - escritura controlada en Omeka S;
@@ -41,7 +41,7 @@ Fuera de alcance:
 1. El administrador nacional crea o confirma la editorial piloto en Omeka.
 2. El administrador nacional configura en Keycloak el claim `pnpu_editorial_ids` para los usuarios
    responsables de esa editorial.
-3. Se entrega a la editorial la plantilla XLSX/CSV aprobada.
+3. La editorial descarga la plantilla base desde `/admin/importaciones/publicaciones`.
 4. La editorial completa datos de 20 a 50 publicaciones iniciales.
 5. En `/admin/importaciones/publicaciones` se sube el XLSX indicando:
 
@@ -60,7 +60,7 @@ PNPU_PUBLICATION_IMPORT_ROOT/publishers/<editorial>/<lote>/archivo.xlsx
    `PNPU_PUBLICATION_IMPORT_WORKFLOW_DIR`.
 8. Se ejecuta diagnostico.
 9. Se ejecuta preview de mapeo.
-10. Se descarga y completa la plantilla de enriquecimiento.
+10. Se descarga y completa la plantilla de enriquecimiento PNPU.
 11. Se ejecuta dry-run.
 12. La editorial envia el lote a revision nacional desde la seccion "Lotes de la editorial".
 13. El administrador nacional carga la cola en "Revision nacional" y aprueba o rechaza el lote.
@@ -85,6 +85,18 @@ PNPU_PUBLICATION_IMPORT_ROOT/publishers/<editorial>/<lote>/archivo.xlsx
 - La ficha publica muestra ISBN/DOI, licencia, contribuyentes, coleccion y recursos.
 - Existe rollback probado para un lote pequeno.
 
+## Plantillas Oficiales
+
+Desde la pantalla administrativa se pueden descargar:
+
+- `Plantilla base`: CSV con columnas `isbn`, `title`, `primaryContributor`, `publisher`,
+  `genreOrPublicationType`, `format`, `publicationDate`.
+- `Plantilla PNPU`: CSV de enriquecimiento con autoridades, materias, licencia, idioma y recurso
+  digital.
+
+Para el piloto, la editorial puede abrir el CSV base en LibreOffice/Excel, completar los datos y
+guardar como XLSX antes de subirlo. El nombre de la hoja esperado por defecto es `EDUNIV`.
+
 ## Verificacion Rapida Despues de Cada Update
 
 Ejecutar desde el entorno de desarrollo con acceso al dominio publicado:
@@ -105,4 +117,3 @@ con un access token emitido por Keycloak para un usuario con alcance sobre la ed
 - Configurar en Keycloak el mapper que emite `pnpu_editorial_ids` por usuario/grupo editorial.
 - Reemplazar identificador manual de editorial por selector desde autoridades.
 - Definir retencion de archivos XLSX subidos.
-- Formalizar plantilla oficial con nombres de columnas estables.

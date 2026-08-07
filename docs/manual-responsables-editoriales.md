@@ -31,12 +31,12 @@ El acceso de responsables editoriales se gestiona mediante el proveedor instituc
 
 Cada responsable debe tener un rol editorial y una editorial asignada:
 
-| Rol | Uso previsto |
-|---|---|
-| `pnpu-editorial-coordinator` | Responsable principal de la editorial |
-| `pnpu-editorial-metadata-editor` | Preparacion y correccion de metadatos |
-| `pnpu-editorial-reviewer` | Revision de diagnosticos y observaciones |
-| `pnpu-editorial-viewer` | Consulta de estado y resultados |
+| Rol                              | Uso previsto                             |
+| -------------------------------- | ---------------------------------------- |
+| `pnpu-editorial-coordinator`     | Responsable principal de la editorial    |
+| `pnpu-editorial-metadata-editor` | Preparacion y correccion de metadatos    |
+| `pnpu-editorial-reviewer`        | Revision de diagnosticos y observaciones |
+| `pnpu-editorial-viewer`          | Consulta de estado y resultados          |
 
 La asignacion de editorial debe viajar en una claim OIDC como `pnpu_editorial_ids`. Un responsable
 solo debe operar registros de su propia editorial. La aprobacion final de escritura en Omeka S sigue
@@ -44,15 +44,27 @@ siendo una responsabilidad administrativa nacional hasta que se active el flujo 
 
 ## Conceptos basicos
 
-| Concepto en Omeka | Uso en PNPU |
-|---|---|
-| Item `PNPU Publication` | Publicacion del catalogo |
-| Item `PNPU Contributor` | Autor, editor, revisor u otra persona/entidad participante |
-| Item `PNPU Publisher` | Editorial universitaria |
-| Item `PNPU University` | Universidad asociada |
-| Item `PNPU Subject` | Materia o termino controlado |
-| Item Set `PNPU Collection` | Coleccion editorial |
-| Media | PDF, EPUB, enlace, cubierta u otro recurso digital |
+| Concepto en Omeka          | Uso en PNPU                                                |
+| -------------------------- | ---------------------------------------------------------- |
+| Item `PNPU Publication`    | Publicacion del catalogo                                   |
+| Item `PNPU Contributor`    | Autor, editor, revisor u otra persona/entidad participante |
+| Item `PNPU Publisher`      | Editorial universitaria                                    |
+| Item `PNPU University`     | Universidad asociada                                       |
+| Item `PNPU Subject`        | Materia o termino controlado                               |
+| Item Set `PNPU Collection` | Coleccion editorial                                        |
+| Media                      | PDF, EPUB, enlace, cubierta u otro recurso digital         |
+
+## Plantillas de carga para el piloto
+
+En PNPU, entrar a `Administración -> Importación de publicaciones`.
+
+Descargar:
+
+- `Plantilla base`: datos bibliograficos iniciales;
+- `Plantilla PNPU`: enriquecimiento con idioma, licencia, materias, autoridades y recurso digital.
+
+La plantilla base se entrega como CSV para facilitar revision. Para subirla a la plataforma, abrirla
+en LibreOffice Calc o Excel y guardarla como XLSX. La hoja esperada por defecto es `EDUNIV`.
 
 ## Orden recomendado de carga
 
@@ -245,16 +257,16 @@ Si no aparece, probablemente falte un campo obligatorio o exista un valor invali
 
 ## Errores comunes
 
-| Error | Consecuencia |
-|---|---|
-| Crear publicacion sin template PNPU | PNPU puede ignorarla |
-| Escribir editorial como texto libre | PNPU no puede relacionarla correctamente |
-| No adjuntar Media | La publicacion puede quedar excluida |
-| Usar ORCID invalido | PNPU puede omitir el ORCID |
-| No asignar materia | La publicacion puede quedar excluida |
-| Crear coleccion como Item en vez de Item Set | La coleccion puede no aparecer |
-| Repetir autores con nombres distintos | Se duplica la autoridad |
-| Escribir ISBN con errores | El identificador puede ser rechazado |
+| Error                                        | Consecuencia                             |
+| -------------------------------------------- | ---------------------------------------- |
+| Crear publicacion sin template PNPU          | PNPU puede ignorarla                     |
+| Escribir editorial como texto libre          | PNPU no puede relacionarla correctamente |
+| No adjuntar Media                            | La publicacion puede quedar excluida     |
+| Usar ORCID invalido                          | PNPU puede omitir el ORCID               |
+| No asignar materia                           | La publicacion puede quedar excluida     |
+| Crear coleccion como Item en vez de Item Set | La coleccion puede no aparecer           |
+| Repetir autores con nombres distintos        | Se duplica la autoridad                  |
+| Escribir ISBN con errores                    | El identificador puede ser rechazado     |
 
 ## Buenas practicas
 

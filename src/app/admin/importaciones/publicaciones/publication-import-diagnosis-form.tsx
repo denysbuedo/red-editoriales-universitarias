@@ -609,6 +609,20 @@ export function PublicationImportDiagnosisForm() {
                 {uploadStatus}
               </p>
             )}
+            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              <a
+                className="inline-flex min-h-9 items-center justify-center rounded-md border border-blue-800 bg-white px-3 py-2 text-center text-sm font-semibold leading-5 text-blue-900 hover:bg-blue-50"
+                href="/api/admin/publication-imports/templates/publications.csv"
+              >
+                Plantilla base
+              </a>
+              <a
+                className="inline-flex min-h-9 items-center justify-center rounded-md border border-blue-800 bg-white px-3 py-2 text-center text-sm font-semibold leading-5 text-blue-900 hover:bg-blue-50"
+                href="/api/admin/publication-imports/templates/enrichment.csv"
+              >
+                Plantilla PNPU
+              </a>
+            </div>
           </section>
 
           <section className="rounded-md border border-neutral-200 bg-neutral-50 p-4">
