@@ -82,6 +82,21 @@ PNPU_PUBLICATION_IMPORT_ROOT/publishers/<editorial>/<lote>/archivo.xlsx
 - La ficha publica muestra ISBN/DOI, licencia, contribuyentes, coleccion y recursos.
 - Existe rollback probado para un lote pequeno.
 
+## Verificacion Rapida Despues de Cada Update
+
+Ejecutar desde el entorno de desarrollo con acceso al dominio publicado:
+
+```powershell
+$env:PNPU_PILOT_BASE_URL="https://editorial.reduniv.edu.cu"
+$env:PNPU_PILOT_PUBLISHER_ID="editorial-uh"
+$env:PNPU_PILOT_IMPORT_TOKEN="TOKEN_LOCAL_SOLO_SI_SIGUE_ACTIVO"
+# Alternativa OIDC: $env:PNPU_PILOT_BEARER_TOKEN="ACCESS_TOKEN_DE_KEYCLOAK"
+npm run acceptance:pilot-import
+```
+
+Si `PNPU_ADMIN_AUTH_MODE=oidc` y el token local ya no esta activo, usar `PNPU_PILOT_BEARER_TOKEN`
+con un access token emitido por Keycloak para un usuario con alcance sobre la editorial piloto.
+
 ## Pendientes Antes de Abrir a Usuarios Editoriales
 
 - Configurar en Keycloak el mapper que emite `pnpu_editorial_ids` por usuario/grupo editorial.
