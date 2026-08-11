@@ -35,34 +35,72 @@ function SiteHeader({
   readonly session: PublicationImportAdminSessionSummary | null;
 }) {
   return (
-    <header className="border-b border-slate-200 bg-white">
-      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-4 lg:flex-row lg:items-center lg:justify-between">
-        <Link className="group inline-flex flex-col" href="/">
-          <span className="text-lg font-bold text-slate-950 group-hover:text-blue-900">PNPU</span>
-        </Link>
-        <div className="flex flex-wrap items-center gap-3">
-          <nav className="flex flex-wrap items-center gap-2" aria-label="Navegación principal">
-            {navigationItems.map((item) => (
-              <Link
-                className="rounded-md px-2.5 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 hover:text-blue-950"
-                href={item.href}
-                key={item.href}
+    <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
+      <div className="mx-auto max-w-6xl px-4 py-3 sm:px-6">
+        <div className="flex min-w-0 items-center justify-between gap-3">
+          <Link className="group inline-flex min-w-0 flex-col" href="/">
+            <span className="text-lg font-bold text-slate-950 group-hover:text-blue-900">PNPU</span>
+            <span className="hidden text-xs font-semibold uppercase tracking-normal text-slate-500 sm:block">
+              Plataforma nacional
+            </span>
+          </Link>
+
+          <div className="hidden min-w-0 items-center gap-3 lg:flex">
+            <nav className="flex items-center gap-1" aria-label="Navegación principal">
+              {navigationItems.map((item) => (
+                <HeaderNavLink href={item.href} key={item.href}>
+                  {item.label}
+                </HeaderNavLink>
+              ))}
+            </nav>
+            {session === null ? null : <AdminSessionMenu session={session} variant="header" />}
+          </div>
+
+          <div className="flex min-w-0 items-center gap-2 lg:hidden">
+            {session === null ? null : <AdminSessionMenu session={session} variant="header" />}
+            <details className="relative">
+              <summary className="inline-flex min-h-10 cursor-pointer list-none items-center rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-900 shadow-sm hover:border-blue-800">
+                Menú
+              </summary>
+              <nav
+                aria-label="Navegación principal"
+                className="absolute right-0 z-40 mt-2 grid w-[min(18rem,calc(100vw-2rem))] gap-1 rounded-md border border-slate-200 bg-white p-2 shadow-lg"
               >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-          {session === null ? null : <AdminSessionMenu session={session} variant="header" />}
+                {navigationItems.map((item) => (
+                  <HeaderNavLink href={item.href} key={item.href}>
+                    {item.label}
+                  </HeaderNavLink>
+                ))}
+              </nav>
+            </details>
+          </div>
         </div>
       </div>
     </header>
   );
 }
 
+function HeaderNavLink({
+  children,
+  href,
+}: {
+  readonly children: ReactNode;
+  readonly href: string;
+}) {
+  return (
+    <Link
+      className="rounded-md px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 hover:text-blue-950"
+      href={href}
+    >
+      {children}
+    </Link>
+  );
+}
+
 function SiteFooter() {
   return (
     <footer className="border-t border-slate-200 bg-slate-950 text-white">
-      <div className="mx-auto max-w-6xl px-6 py-8">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
         <div>
           <p className="text-sm font-semibold uppercase tracking-normal text-blue-200">PNPU</p>
           <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-200">

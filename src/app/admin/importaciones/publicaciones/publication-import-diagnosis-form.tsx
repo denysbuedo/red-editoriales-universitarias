@@ -543,9 +543,9 @@ export function PublicationImportDiagnosisForm() {
   }
 
   return (
-    <div className="mt-6 grid min-w-0 gap-6 xl:grid-cols-[minmax(360px,460px)_minmax(0,1fr)]">
+    <div className="mt-4 grid min-w-0 gap-5 sm:mt-6 xl:grid-cols-[minmax(360px,460px)_minmax(0,1fr)]">
       <form
-        className="min-w-0 rounded-md border border-neutral-200 bg-white p-4 shadow-sm sm:p-5"
+        className="min-w-0 rounded-md border border-neutral-200 bg-white p-4 shadow-sm sm:p-5 xl:sticky xl:top-24 xl:max-h-[calc(100vh-8rem)] xl:overflow-y-auto"
         onSubmit={(event) => {
           void submitImportAction(event);
         }}
@@ -557,7 +557,7 @@ export function PublicationImportDiagnosisForm() {
               Carga, validación y escritura controlada por lote.
             </p>
           </div>
-          <div className="grid grid-cols-2 gap-2 sm:w-56">
+          <div className="grid w-full grid-cols-2 gap-2 sm:w-56">
             <a
               className="inline-flex min-h-9 items-center justify-center rounded-md border border-blue-800 bg-white px-3 py-2 text-center text-sm font-semibold leading-5 text-blue-900 hover:bg-blue-50"
               href="/api/admin/auth/login?returnTo=/admin/importaciones/publicaciones"
@@ -576,7 +576,7 @@ export function PublicationImportDiagnosisForm() {
         <div className="mt-5 grid min-w-0 gap-4">
           <section className="rounded-md border border-blue-200 bg-blue-50 p-4">
             <h3 className="text-sm font-semibold text-blue-950">1. Lote editorial</h3>
-            <div className="mt-3 grid min-w-0 gap-3 sm:grid-cols-2">
+            <div className="mt-3 grid min-w-0 gap-3 md:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
               <label className={labelClassName}>
                 Editorial piloto
                 <input
@@ -632,7 +632,7 @@ export function PublicationImportDiagnosisForm() {
                 {uploadStatus}
               </p>
             )}
-            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
               <a
                 className="inline-flex min-h-9 items-center justify-center rounded-md border border-blue-800 bg-white px-3 py-2 text-center text-sm font-semibold leading-5 text-blue-900 hover:bg-blue-50"
                 href="/api/admin/publication-imports/templates/publications.csv"
@@ -678,7 +678,7 @@ export function PublicationImportDiagnosisForm() {
                 />
               </label>
             </div>
-            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
               <button
                 className={primaryButtonClassName}
                 disabled={isSubmitting}
@@ -702,7 +702,7 @@ export function PublicationImportDiagnosisForm() {
 
           <section className="rounded-md border border-neutral-200 bg-white p-4">
             <h3 className="text-sm font-semibold text-neutral-950">3. Catálogo de apoyo</h3>
-            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
               <button
                 className={neutralButtonClassName}
                 disabled={isSubmitting}
@@ -864,7 +864,7 @@ export function PublicationImportDiagnosisForm() {
                 value={packageJson}
               />
             </label>
-            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
               <button
                 className="inline-flex min-h-10 w-full items-center justify-center rounded-md border border-amber-800 bg-white px-4 py-2 text-center text-sm font-semibold leading-5 text-amber-950 hover:bg-amber-100 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:text-neutral-400"
                 disabled={isSubmitting}
@@ -931,7 +931,7 @@ export function PublicationImportDiagnosisForm() {
         aria-live="polite"
         className="min-w-0 overflow-hidden rounded-md border border-neutral-200 bg-white p-4 shadow-sm sm:p-5"
       >
-        <h2 className="text-xl font-semibold text-neutral-950">Resultado</h2>
+        <h2 className="text-lg font-semibold text-neutral-950 sm:text-xl">Resultado</h2>
         {error !== null ? <ErrorPanel error={error} /> : null}
         {authorities !== null ? <AuthoritiesResult authorities={authorities} /> : null}
         {batch !== null ? <BatchDiagnostics batch={batch} /> : null}

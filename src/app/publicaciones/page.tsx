@@ -66,7 +66,7 @@ export default async function PublicationsPage({ searchParams }: PublicationsPag
 
       <form
         action="/publicaciones"
-        className="mx-auto mt-0 grid max-w-6xl gap-4 border-b border-slate-200 bg-white px-6 py-6 shadow-sm md:grid-cols-2 xl:grid-cols-4"
+        className="mx-auto mt-0 grid max-w-6xl gap-4 border-b border-slate-200 bg-white px-4 py-5 shadow-sm sm:px-6 md:grid-cols-2 xl:grid-cols-4"
       >
         <label className="grid min-w-0 gap-1 text-sm font-medium text-neutral-800 md:col-span-2">
           Buscar
@@ -165,15 +165,15 @@ export default async function PublicationsPage({ searchParams }: PublicationsPag
             <option value="publisherAsc">Editorial A-Z</option>
           </select>
         </label>
-        <div className="flex min-w-0 items-end gap-2">
+        <div className="grid min-w-0 gap-2 sm:flex sm:items-end">
           <button
-            className="h-10 rounded-md bg-blue-900 px-4 text-sm font-semibold text-white hover:bg-blue-950"
+            className="h-10 w-full rounded-md bg-blue-900 px-4 text-sm font-semibold text-white hover:bg-blue-950 sm:w-auto"
             type="submit"
           >
             Filtrar
           </button>
           <Link
-            className="inline-flex h-10 items-center rounded-md border border-neutral-300 px-4 text-sm font-semibold text-neutral-800 hover:bg-neutral-50"
+            className="inline-flex h-10 w-full items-center justify-center rounded-md border border-neutral-300 px-4 text-sm font-semibold text-neutral-800 hover:bg-neutral-50 sm:w-auto"
             href="/publicaciones"
           >
             Limpiar
@@ -181,7 +181,10 @@ export default async function PublicationsPage({ searchParams }: PublicationsPag
         </div>
       </form>
 
-      <section className="mx-auto max-w-6xl px-6 py-8" aria-label="Listado de publicaciones">
+      <section
+        className="mx-auto max-w-6xl px-4 py-8 sm:px-6"
+        aria-label="Listado de publicaciones"
+      >
         <ActiveFilters
           collectionOptions={collectionOptions}
           contributorOptions={contributorOptions}
@@ -243,7 +246,7 @@ export default async function PublicationsPage({ searchParams }: PublicationsPag
                       <span>{publication.language.toUpperCase()}</span>
                       <span>{publication.type}</span>
                     </div>
-                    <h2 className="mt-2 text-xl font-semibold text-neutral-950">
+                    <h2 className="mt-2 break-words text-lg font-semibold text-neutral-950 sm:text-xl">
                       <Link
                         className="hover:text-blue-800"
                         href={`/publicaciones/${publication.id}`}
@@ -287,7 +290,7 @@ export default async function PublicationsPage({ searchParams }: PublicationsPag
                     ) : null}
                   </div>
                   <Link
-                    className="inline-flex rounded-md border border-blue-800 px-3 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-50"
+                    className="inline-flex w-full justify-center rounded-md border border-blue-800 px-3 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-50 md:w-auto"
                     href={`/publicaciones/${publication.id}`}
                   >
                     Ver ficha
@@ -394,7 +397,7 @@ function PaginationControls({
   return (
     <nav
       aria-label="Paginación de publicaciones"
-      className="mt-8 flex flex-wrap items-center gap-2"
+      className="mt-8 flex flex-wrap items-center justify-center gap-2 sm:justify-start"
     >
       <PaginationLink
         disabled={currentPage <= 1}
@@ -466,12 +469,12 @@ function ActiveFilters({
       <div className="mt-3 flex flex-wrap gap-2">
         {activeFilters.map((filter) => (
           <Link
-            className="inline-flex items-center gap-2 rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-800 hover:bg-neutral-100"
+            className="inline-flex max-w-full items-center gap-2 rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-800 hover:bg-neutral-100"
             href={filter.href}
             key={filter.key}
           >
             <span className="font-semibold">{filter.label}:</span>
-            <span>{filter.value}</span>
+            <span className="min-w-0 break-words">{filter.value}</span>
             <span aria-hidden="true" className="text-neutral-500">
               x
             </span>

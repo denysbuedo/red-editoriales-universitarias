@@ -18,7 +18,7 @@ export default function AboutPage() {
         title="Acerca de PNPU"
       />
 
-      <section className="mx-auto grid max-w-6xl gap-6 px-6 py-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
+      <section className="mx-auto grid max-w-6xl gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="grid gap-4">
           <InfoSection title="Qué integra">
             <p>

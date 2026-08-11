@@ -28,7 +28,7 @@ export default async function CollectionsPage() {
         title="Colecciones editoriales"
       />
 
-      <section className="mx-auto max-w-6xl px-6 py-8" aria-label="Listado de colecciones">
+      <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6" aria-label="Listado de colecciones">
         <div className="grid gap-4 md:grid-cols-2">
           {summaries.map((collection) => (
             <article
@@ -39,7 +39,7 @@ export default async function CollectionsPage() {
                 {collection.publicationCount} publicación
                 {collection.publicationCount === 1 ? "" : "es"}
               </p>
-              <h2 className="mt-2 text-xl font-semibold text-neutral-950">
+              <h2 className="mt-2 break-words text-lg font-semibold text-neutral-950 sm:text-xl">
                 <Link className="hover:text-blue-800" href={`/colecciones/${collection.id}`}>
                   {collection.title}
                 </Link>
@@ -71,7 +71,7 @@ export default async function CollectionsPage() {
                 </div>
               )}
               <Link
-                className="mt-5 inline-flex rounded-md border border-blue-800 px-3 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-50"
+                className="mt-5 inline-flex w-full justify-center rounded-md border border-blue-800 px-3 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-50 sm:w-auto"
                 href={`/colecciones/${collection.id}`}
               >
                 Ver colección

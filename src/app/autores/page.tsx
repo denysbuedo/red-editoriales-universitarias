@@ -29,7 +29,7 @@ export default async function ContributorsPage() {
       />
 
       <section
-        className="mx-auto max-w-6xl px-6 py-8"
+        className="mx-auto max-w-6xl px-4 py-8 sm:px-6"
         aria-label="Listado de autores y contribuyentes"
       >
         <div className="grid gap-4 md:grid-cols-2">
@@ -42,7 +42,7 @@ export default async function ContributorsPage() {
                 {contributor.publicationCount} publicación
                 {contributor.publicationCount === 1 ? "" : "es"}
               </p>
-              <h2 className="mt-2 text-xl font-semibold text-neutral-950">
+              <h2 className="mt-2 break-words text-lg font-semibold text-neutral-950 sm:text-xl">
                 <Link className="hover:text-blue-800" href={`/autores/${contributor.id}`}>
                   {contributor.name}
                 </Link>
@@ -69,7 +69,7 @@ export default async function ContributorsPage() {
                 <p className="mt-2 break-all text-sm text-blue-800">{contributor.orcid}</p>
               )}
               <Link
-                className="mt-5 inline-flex rounded-md border border-blue-800 px-3 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-50"
+                className="mt-5 inline-flex w-full justify-center rounded-md border border-blue-800 px-3 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-50 sm:w-auto"
                 href={`/autores/${contributor.id}`}
               >
                 Ver ficha

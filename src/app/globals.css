@@ -11,6 +11,7 @@
 
 html {
   min-height: 100%;
+  overflow-x: hidden;
 }
 
 body {
@@ -18,4 +19,33 @@ body {
   margin: 0;
   background: var(--pnpu-background);
   color: var(--pnpu-foreground);
+  overflow-x: hidden;
+}
+
+main {
+  min-width: 0;
+}
+
+.grid > *,
+.flex > * {
+  min-width: 0;
+}
+
+h1,
+h2,
+h3,
+p,
+li,
+dt,
+dd,
+a,
+span {
+  overflow-wrap: anywhere;
+}
+
+button,
+input,
+select,
+textarea {
+  max-width: 100%;
 }

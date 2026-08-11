@@ -69,16 +69,16 @@ export default async function PublicationDetailPage({ params }: PublicationPageP
         maxWidth="max-w-5xl"
         title={publication.title}
       >
-        <div className="flex flex-wrap gap-3">
+        <div className="grid gap-3 sm:flex sm:flex-wrap">
           <Link
-            className="inline-flex rounded-md bg-white px-4 py-2 text-sm font-semibold text-blue-950 hover:bg-blue-50"
+            className="inline-flex justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-blue-950 hover:bg-blue-50"
             href={`/publicaciones?publisherId=${publication.publisher.id}`}
           >
             Ver catálogo de la editorial
           </Link>
           {publication.collection === undefined ? null : (
             <Link
-              className="inline-flex rounded-md border border-white/40 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10"
+              className="inline-flex justify-center rounded-md border border-white/40 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10"
               href={`/publicaciones?collectionId=${publication.collection.id}`}
             >
               Ver colección en catálogo
@@ -87,7 +87,7 @@ export default async function PublicationDetailPage({ params }: PublicationPageP
         </div>
       </PageHero>
 
-      <article className="mx-auto max-w-5xl px-6 py-8">
+      <article className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
         <dl className="mt-8 grid gap-4 rounded-md border border-neutral-200 bg-white p-5 shadow-sm md:grid-cols-2">
           <div>
             <dt className="text-sm font-semibold text-neutral-600">Editorial</dt>
@@ -111,12 +111,12 @@ export default async function PublicationDetailPage({ params }: PublicationPageP
                   {publication.collection.title}
                 </Link>
                 {publication.collection.collectionCode === undefined ? null : (
-                  <span className="ml-2 text-sm text-neutral-600">
+                  <span className="ml-0 mt-1 block text-sm text-neutral-600 sm:ml-2 sm:mt-0 sm:inline">
                     {publication.collection.collectionCode}
                   </span>
                 )}
                 {publication.collection.editorialSeries === undefined ? null : (
-                  <span className="ml-2 text-sm text-neutral-600">
+                  <span className="ml-0 mt-1 block text-sm text-neutral-600 sm:ml-2 sm:mt-0 sm:inline">
                     {publication.collection.editorialSeries}
                   </span>
                 )}
@@ -166,7 +166,9 @@ export default async function PublicationDetailPage({ params }: PublicationPageP
 
         <section className="mt-8 rounded-md border border-neutral-200 bg-white p-5 shadow-sm">
           <h2 className="text-xl font-semibold text-neutral-950">Citación</h2>
-          <p className="mt-3 text-sm leading-6 text-neutral-700">{buildCitation(publication)}</p>
+          <p className="mt-3 break-words text-sm leading-6 text-neutral-700">
+            {buildCitation(publication)}
+          </p>
         </section>
 
         <section className="mt-8">
@@ -183,7 +185,7 @@ export default async function PublicationDetailPage({ params }: PublicationPageP
                 >
                   {contributor.name}
                 </Link>
-                <span className="ml-2 text-sm text-neutral-600">
+                <span className="ml-0 mt-1 block text-sm text-neutral-600 sm:ml-2 sm:mt-0 sm:inline">
                   {contributor.roles.join(", ")}
                 </span>
                 {contributor.orcid === undefined ? null : (
@@ -208,7 +210,9 @@ export default async function PublicationDetailPage({ params }: PublicationPageP
                 key={subject.identifier}
               >
                 <span className="font-medium text-neutral-950">{subject.preferredLabel}</span>
-                <span className="ml-2 text-sm text-neutral-600">{subject.identifier}</span>
+                <span className="ml-0 mt-1 block break-all text-sm text-neutral-600 sm:ml-2 sm:mt-0 sm:inline">
+                  {subject.identifier}
+                </span>
                 <Link
                   className="ml-0 mt-1 block text-sm text-blue-800 hover:text-blue-950 md:ml-2 md:inline"
                   href={`/publicaciones?subject=${encodeURIComponent(subject.identifier)}`}
@@ -243,7 +247,7 @@ export default async function PublicationDetailPage({ params }: PublicationPageP
                 key={identifier.value}
               >
                 <span className="font-semibold uppercase text-neutral-600">{identifier.type}</span>
-                <span className="ml-3">
+                <span className="mt-1 block sm:ml-3 sm:mt-0 sm:inline">
                   <IdentifierValue identifier={identifier} />
                 </span>
               </li>
@@ -277,7 +281,7 @@ export default async function PublicationDetailPage({ params }: PublicationPageP
                     )}
                   </div>
                   <a
-                    className="inline-flex rounded-md border border-blue-800 px-3 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-50"
+                    className="inline-flex w-full justify-center rounded-md border border-blue-800 px-3 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-50 md:w-auto"
                     href={resource.url}
                   >
                     Abrir recurso

@@ -63,16 +63,16 @@ export default async function SubjectDetailPage({ params }: SubjectPageProps) {
         maxWidth="max-w-5xl"
         title={subject.preferredLabel}
       >
-        <div className="flex flex-wrap gap-3">
+        <div className="grid gap-3 sm:flex sm:flex-wrap">
           <Link
-            className="inline-flex rounded-md bg-white px-4 py-2 text-sm font-semibold text-blue-950 hover:bg-blue-50"
+            className="inline-flex justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-blue-950 hover:bg-blue-50"
             href={`/publicaciones?subject=${encodeURIComponent(subject.identifier)}`}
           >
             Ver catálogo filtrado
           </Link>
           {subject.uri === undefined ? null : (
             <a
-              className="inline-flex rounded-md border border-white/40 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10"
+              className="inline-flex justify-center rounded-md border border-white/40 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10"
               href={subject.uri}
             >
               Ver vocabulario
@@ -81,7 +81,7 @@ export default async function SubjectDetailPage({ params }: SubjectPageProps) {
         </div>
       </PageHero>
 
-      <article className="mx-auto max-w-5xl px-6 py-8">
+      <article className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
         <dl className="mt-8 grid gap-4 rounded-md border border-neutral-200 bg-white p-5 shadow-sm md:grid-cols-2">
           <div>
             <dt className="text-sm font-semibold text-neutral-600">Identificador</dt>
@@ -124,7 +124,7 @@ export default async function SubjectDetailPage({ params }: SubjectPageProps) {
               </p>
             </div>
             <Link
-              className="inline-flex rounded-md border border-blue-800 px-3 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-50"
+              className="inline-flex w-full justify-center rounded-md border border-blue-800 px-3 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-50 sm:w-auto"
               href={`/publicaciones?subject=${encodeURIComponent(subject.identifier)}`}
             >
               Ver en catálogo
@@ -146,7 +146,7 @@ export default async function SubjectDetailPage({ params }: SubjectPageProps) {
                   · {publication.publicationDate}
                 </p>
                 <Link
-                  className="mt-1 block font-semibold text-neutral-950 hover:text-blue-800"
+                  className="mt-1 block break-words font-semibold text-neutral-950 hover:text-blue-800"
                   href={`/publicaciones/${publication.id}`}
                 >
                   {publication.title}
@@ -161,7 +161,7 @@ export default async function SubjectDetailPage({ params }: SubjectPageProps) {
                     </span>
                   )}
                   {publication.primaryIdentifier === undefined ? null : (
-                    <span className="rounded-md bg-neutral-100 px-2 py-1">
+                    <span className="min-w-0 break-words rounded-md bg-neutral-100 px-2 py-1">
                       {publication.primaryIdentifier.type.toUpperCase()}:{" "}
                       {publication.primaryIdentifier.value}
                     </span>

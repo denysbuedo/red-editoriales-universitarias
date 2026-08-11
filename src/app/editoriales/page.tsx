@@ -53,7 +53,7 @@ export default async function PublishersPage() {
       />
 
       <section className="border-b border-slate-200 bg-white" aria-label="Resumen de editoriales">
-        <div className="mx-auto max-w-6xl px-6 py-5">
+        <div className="mx-auto max-w-6xl px-4 py-5 sm:px-6">
           <dl className="grid gap-3 md:grid-cols-3">
             <Metric label="Editoriales" value={publishers.pagination.total} />
             <Metric label="Publicaciones" value={totalPublications} />
@@ -62,7 +62,7 @@ export default async function PublishersPage() {
         </div>
       </section>
 
-      <div className="mx-auto max-w-6xl px-6 py-8">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
         <section className="mt-8" aria-label="Listado de editoriales">
           <div className="grid gap-4">
             {directoryItems.map((publisher) => (
@@ -79,7 +79,7 @@ function PublisherDirectoryCard({ publisher }: { readonly publisher: PublisherDi
   return (
     <article className="grid gap-5 overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm transition hover:border-blue-300 hover:shadow-md lg:grid-cols-[minmax(0,1fr)_230px]">
       <div className="min-w-0">
-        <div className="grid gap-4 p-5 sm:grid-cols-[72px_minmax(0,1fr)]">
+        <div className="grid gap-4 p-4 sm:grid-cols-[72px_minmax(0,1fr)] sm:p-5">
           <PublisherMark publisher={publisher} />
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-normal">
@@ -98,7 +98,7 @@ function PublisherDirectoryCard({ publisher }: { readonly publisher: PublisherDi
               </span>
             </div>
 
-            <h2 className="mt-3 text-xl font-semibold leading-snug text-slate-950">
+            <h2 className="mt-3 break-words text-lg font-semibold leading-snug text-slate-950 sm:text-xl">
               <Link className="hover:text-blue-900" href={`/editoriales/${publisher.id}`}>
                 {publisher.officialName}
               </Link>
@@ -112,7 +112,7 @@ function PublisherDirectoryCard({ publisher }: { readonly publisher: PublisherDi
           </div>
         </div>
 
-        <dl className="grid gap-3 border-t border-slate-100 bg-slate-50 px-5 py-4 text-sm sm:grid-cols-3">
+        <dl className="grid gap-3 border-t border-slate-100 bg-slate-50 px-4 py-4 text-sm sm:grid-cols-3 sm:px-5">
           <DescriptionPair label="Universidad" value={publisher.university.officialName} />
           <DescriptionPair label="Provincia" value={publisher.province ?? "No registrada"} />
           <DescriptionPair
@@ -122,7 +122,7 @@ function PublisherDirectoryCard({ publisher }: { readonly publisher: PublisherDi
         </dl>
       </div>
 
-      <div className="flex flex-col justify-between gap-4 border-t border-slate-100 bg-blue-50 p-5 lg:border-l lg:border-t-0">
+      <div className="flex flex-col justify-between gap-4 border-t border-slate-100 bg-blue-50 p-4 sm:p-5 lg:border-l lg:border-t-0">
         <div>
           <p className="text-4xl font-bold text-blue-950">{publisher.publicationCount}</p>
           <p className="mt-1 text-sm text-blue-900">

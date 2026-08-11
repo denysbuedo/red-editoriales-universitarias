@@ -61,15 +61,15 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
         maxWidth="max-w-5xl"
         title={collection.title}
       >
-        <div className="flex flex-wrap gap-3">
+        <div className="grid gap-3 sm:flex sm:flex-wrap">
           <Link
-            className="inline-flex rounded-md bg-white px-4 py-2 text-sm font-semibold text-blue-950 hover:bg-blue-50"
+            className="inline-flex justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-blue-950 hover:bg-blue-50"
             href={`/publicaciones?collectionId=${collection.id}`}
           >
             Ver publicaciones de la colección
           </Link>
           <Link
-            className="inline-flex rounded-md border border-white/40 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10"
+            className="inline-flex justify-center rounded-md border border-white/40 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10"
             href={`/editoriales/${collection.publisher.id}`}
           >
             Ver editorial
@@ -77,7 +77,7 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
         </div>
       </PageHero>
 
-      <article className="mx-auto max-w-5xl px-6 py-8">
+      <article className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
         <dl className="mt-8 grid gap-4 rounded-md border border-neutral-200 bg-white p-5 shadow-sm md:grid-cols-2">
           <div>
             <dt className="text-sm font-semibold text-neutral-600">Editorial</dt>
@@ -93,7 +93,7 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
           {collection.collectionCode === undefined ? null : (
             <div>
               <dt className="text-sm font-semibold text-neutral-600">Código de colección</dt>
-              <dd className="mt-1 text-neutral-950">{collection.collectionCode}</dd>
+              <dd className="mt-1 break-words text-neutral-950">{collection.collectionCode}</dd>
             </div>
           )}
           <div>
@@ -139,7 +139,7 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
               >
                 <p className="text-sm text-neutral-600">{publication.publicationDate}</p>
                 <Link
-                  className="mt-1 block font-semibold text-neutral-950 hover:text-blue-800"
+                  className="mt-1 block break-words font-semibold text-neutral-950 hover:text-blue-800"
                   href={`/publicaciones/${publication.id}`}
                 >
                   {publication.title}
@@ -158,7 +158,7 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
                     </span>
                   )}
                   {publication.primaryIdentifier === undefined ? null : (
-                    <span className="rounded-md bg-neutral-100 px-2 py-1">
+                    <span className="min-w-0 break-words rounded-md bg-neutral-100 px-2 py-1">
                       {publication.primaryIdentifier.type.toUpperCase()}:{" "}
                       {publication.primaryIdentifier.value}
                     </span>

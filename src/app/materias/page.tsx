@@ -28,7 +28,7 @@ export default async function SubjectsPage() {
         title="Materias del catálogo"
       />
 
-      <section className="mx-auto max-w-6xl px-6 py-8" aria-label="Listado de materias">
+      <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6" aria-label="Listado de materias">
         <div className="grid gap-4 md:grid-cols-2">
           {summaries.map((subject) => (
             <article
@@ -36,7 +36,7 @@ export default async function SubjectsPage() {
               key={subject.identifier}
             >
               <p className="break-all text-sm text-neutral-600">{subject.identifier}</p>
-              <h2 className="mt-2 text-xl font-semibold text-neutral-950">
+              <h2 className="mt-2 break-words text-lg font-semibold text-neutral-950 sm:text-xl">
                 <Link
                   className="hover:text-blue-800"
                   href={`/materias/${encodeURIComponent(subject.identifier)}`}
@@ -64,13 +64,13 @@ export default async function SubjectsPage() {
                 <p className="mt-2 break-all text-sm text-blue-800">{subject.uri}</p>
               )}
               <Link
-                className="mt-3 mr-2 inline-flex rounded-md border border-neutral-300 px-3 py-2 text-sm font-semibold text-neutral-800 hover:bg-neutral-50"
+                className="mt-3 inline-flex w-full justify-center rounded-md border border-neutral-300 px-3 py-2 text-sm font-semibold text-neutral-800 hover:bg-neutral-50 sm:mr-2 sm:w-auto"
                 href={`/publicaciones?subject=${encodeURIComponent(subject.identifier)}`}
               >
                 Ver publicaciones
               </Link>
               <Link
-                className="mt-3 inline-flex rounded-md border border-blue-800 px-3 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-50"
+                className="mt-3 inline-flex w-full justify-center rounded-md border border-blue-800 px-3 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-50 sm:w-auto"
                 href={`/materias/${encodeURIComponent(subject.identifier)}`}
               >
                 Ver materia

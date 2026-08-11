@@ -18,7 +18,7 @@ export default function AdminPage() {
       />
 
       <section
-        className="mx-auto grid max-w-6xl gap-4 px-6 py-8 md:grid-cols-3"
+        className="mx-auto grid max-w-6xl gap-4 px-4 py-8 sm:px-6 md:grid-cols-3"
         aria-label="Herramientas administrativas"
       >
         <AdminToolCard
@@ -55,7 +55,7 @@ function AdminToolCard({
       <h2 className="text-lg font-semibold text-slate-950">{title}</h2>
       <p className="mt-2 text-sm leading-6 text-slate-700">{description}</p>
       <Link
-        className="mt-5 inline-flex h-10 items-center rounded-md bg-blue-950 px-4 text-sm font-semibold text-white hover:bg-blue-900"
+        className="mt-5 inline-flex h-10 w-full items-center justify-center rounded-md bg-blue-950 px-4 text-sm font-semibold text-white hover:bg-blue-900 sm:w-auto"
         href={href}
       >
         Abrir

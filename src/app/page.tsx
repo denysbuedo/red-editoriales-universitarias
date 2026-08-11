@@ -43,7 +43,7 @@ export default async function HomePage() {
       />
 
       <section className="border-b border-slate-200 bg-white" aria-label="Estructura del catálogo">
-        <div className="mx-auto grid max-w-6xl gap-3 px-6 py-5 md:grid-cols-5">
+        <div className="mx-auto grid max-w-6xl gap-3 px-4 py-5 sm:px-6 md:grid-cols-5">
           <StructureLink
             description="Obras académicas, libros, folletos y memorias con metadatos normalizados."
             href="/publicaciones"
@@ -72,7 +72,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-6xl gap-8 px-6 py-10 lg:grid-cols-[minmax(0,1fr)_22rem]">
+      <section className="mx-auto grid max-w-6xl gap-8 px-4 py-8 sm:px-6 md:py-10 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="min-w-0">
           <SectionHeader
             eyebrow="Catálogo nacional"
@@ -120,7 +120,7 @@ export default async function HomePage() {
       </section>
 
       <section className="border-y border-slate-200 bg-white">
-        <div className="mx-auto max-w-6xl px-6 py-10">
+        <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 md:py-10">
           <SectionHeader
             eyebrow="Organización editorial"
             href="/colecciones"
@@ -135,7 +135,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 py-10">
+      <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6 md:py-10">
         <div className="grid gap-4 md:grid-cols-3">
           <ProcessPanel
             label="Fuente descriptiva"
@@ -190,10 +190,10 @@ function SectionHeader({
   readonly title: string;
 }) {
   return (
-    <div className="flex items-end justify-between gap-4">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div>
         <p className="text-xs font-bold uppercase tracking-normal text-blue-800">{eyebrow}</p>
-        <h2 className="mt-2 text-2xl font-bold text-slate-950">{title}</h2>
+        <h2 className="mt-2 text-xl font-bold text-slate-950 sm:text-2xl">{title}</h2>
       </div>
       <Link className="text-sm font-bold text-blue-800 hover:text-blue-950" href={href}>
         {linkLabel}
@@ -207,14 +207,14 @@ function PublicationCard({ publication }: { readonly publication: PublicationSum
   const TypeIcon = typePresentation.Icon;
 
   return (
-    <article className="grid min-h-56 grid-cols-[7rem_minmax(0,1fr)] overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm">
+    <article className="grid min-h-56 grid-cols-1 overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm sm:grid-cols-[7rem_minmax(0,1fr)]">
       <div
-        className={`flex h-full flex-col items-center justify-center p-3 text-center text-white ${typePresentation.accentClass}`}
+        className={`flex min-h-24 flex-row items-center justify-center gap-3 p-3 text-center text-white sm:h-full sm:flex-col sm:gap-0 ${typePresentation.accentClass}`}
       >
-        <span className="flex h-14 w-14 items-center justify-center rounded-md border border-white/20 bg-white/15">
+        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md border border-white/20 bg-white/15 sm:h-14 sm:w-14">
           <TypeIcon />
         </span>
-        <span className="mt-3 text-xs font-bold uppercase tracking-normal text-white/90">
+        <span className="max-w-40 text-xs font-bold uppercase tracking-normal text-white/90 sm:mt-3">
           {typePresentation.label}
         </span>
       </div>
@@ -223,7 +223,7 @@ function PublicationCard({ publication }: { readonly publication: PublicationSum
           {publication.publicationDate} ·{" "}
           {publication.publisher.acronym ?? publication.publisher.officialName}
         </p>
-        <h3 className="mt-2 text-lg font-bold leading-snug text-slate-950">
+        <h3 className="mt-2 break-words text-base font-bold leading-snug text-slate-950 sm:text-lg">
           <Link className="hover:text-blue-800" href={`/publicaciones/${publication.id}`}>
             {publication.title}
           </Link>

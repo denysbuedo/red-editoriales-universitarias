@@ -88,7 +88,7 @@ export default async function PublisherDetailPage({ params }: PublisherPageProps
         </div>
       </PageHero>
 
-      <div className="mx-auto max-w-6xl px-6 py-8">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
         <article>
           <dl className="grid gap-3 md:grid-cols-3">
             <Metric label="Publicaciones" value={publicationCount} />
@@ -98,10 +98,12 @@ export default async function PublisherDetailPage({ params }: PublisherPageProps
 
           <section className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
             <div className="overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm">
-              <div className="border-l-4 border-blue-900 bg-white px-5 py-4">
-                <h2 className="text-xl font-semibold text-slate-950">Datos institucionales</h2>
+              <div className="border-l-4 border-blue-900 bg-white px-4 py-4 sm:px-5">
+                <h2 className="text-lg font-semibold text-slate-950 sm:text-xl">
+                  Datos institucionales
+                </h2>
               </div>
-              <div className="border-t border-slate-100 px-5 pb-5">
+              <div className="border-t border-slate-100 px-4 pb-5 sm:px-5">
                 <dl className="mt-5 grid gap-4 md:grid-cols-2">
                   <DescriptionPair label="ID PNPU editorial" value={publisher.id} />
                   <DescriptionPair
@@ -123,10 +125,12 @@ export default async function PublisherDetailPage({ params }: PublisherPageProps
             </div>
 
             <div className="overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm">
-              <div className="border-l-4 border-sky-500 bg-white px-5 py-4">
-                <h2 className="text-xl font-semibold text-slate-950">Contacto y enlaces</h2>
+              <div className="border-l-4 border-sky-500 bg-white px-4 py-4 sm:px-5">
+                <h2 className="text-lg font-semibold text-slate-950 sm:text-xl">
+                  Contacto y enlaces
+                </h2>
               </div>
-              <div className="border-t border-slate-100 px-5 pb-5">
+              <div className="border-t border-slate-100 px-4 pb-5 sm:px-5">
                 <dl className="mt-5 grid gap-4 text-sm">
                   <EmailPair label="Correo de contacto" value={publisher.contactPoint?.email} />
                   <DescriptionPair
@@ -151,7 +155,7 @@ export default async function PublisherDetailPage({ params }: PublisherPageProps
                 </p>
               </div>
               <Link
-                className="inline-flex min-h-10 items-center justify-center rounded-md border border-blue-800 px-3 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-50"
+                className="inline-flex min-h-10 w-full items-center justify-center rounded-md border border-blue-800 px-3 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-50 sm:w-auto"
                 href={`/publicaciones?publisherId=${publisher.id}`}
               >
                 Ver catálogo filtrado
@@ -264,7 +268,7 @@ function PublicationRow({ publication }: { readonly publication: PublicationSumm
           {publication.license === undefined ? "" : ` · ${publication.license}`}
         </p>
         <Link
-          className="mt-1 block text-base font-semibold leading-6 text-slate-950 hover:text-blue-900"
+          className="mt-1 block break-words text-base font-semibold leading-6 text-slate-950 hover:text-blue-900"
           href={`/publicaciones/${publication.id}`}
         >
           {publication.title}
@@ -284,7 +288,7 @@ function PublicationRow({ publication }: { readonly publication: PublicationSumm
       </div>
       <div className="text-left text-sm text-slate-600 md:text-right">
         {publication.primaryIdentifier === undefined ? null : (
-          <p className="font-medium text-slate-800">
+          <p className="break-words font-medium text-slate-800">
             {publication.primaryIdentifier.type.toUpperCase()}:{" "}
             {publication.primaryIdentifier.value}
           </p>

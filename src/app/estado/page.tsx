@@ -40,7 +40,7 @@ export default async function CatalogStatusPage() {
         title="Estado del catálogo"
       />
 
-      <div className="mx-auto max-w-6xl px-6 py-8">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
         <section className="grid gap-4 md:grid-cols-3" aria-label="Resumen operativo">
           <MetricCard label="Repositorio" value={mode} />
           <MetricCard

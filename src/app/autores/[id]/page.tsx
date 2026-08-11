@@ -65,16 +65,16 @@ export default async function ContributorDetailPage({ params }: ContributorPageP
         maxWidth="max-w-5xl"
         title={contributor.name}
       >
-        <div className="flex flex-wrap gap-3">
+        <div className="grid gap-3 sm:flex sm:flex-wrap">
           <Link
-            className="inline-flex rounded-md bg-white px-4 py-2 text-sm font-semibold text-blue-950 hover:bg-blue-50"
+            className="inline-flex justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-blue-950 hover:bg-blue-50"
             href={`/publicaciones?contributorId=${contributor.id}`}
           >
             Ver publicaciones del autor
           </Link>
           {contributor.orcid === undefined ? null : (
             <a
-              className="inline-flex rounded-md border border-white/40 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10"
+              className="inline-flex justify-center rounded-md border border-white/40 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10"
               href={contributor.orcid}
             >
               Ver ORCID
@@ -83,7 +83,7 @@ export default async function ContributorDetailPage({ params }: ContributorPageP
         </div>
       </PageHero>
 
-      <article className="mx-auto max-w-5xl px-6 py-8">
+      <article className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
         <dl className="mt-8 grid gap-4 rounded-md border border-neutral-200 bg-white p-5 shadow-sm md:grid-cols-2">
           <div>
             <dt className="text-sm font-semibold text-neutral-600">Roles</dt>
@@ -151,7 +151,7 @@ export default async function ContributorDetailPage({ params }: ContributorPageP
                   · {publication.publicationDate}
                 </p>
                 <Link
-                  className="mt-1 block font-semibold text-neutral-950 hover:text-blue-800"
+                  className="mt-1 block break-words font-semibold text-neutral-950 hover:text-blue-800"
                   href={`/publicaciones/${publication.id}`}
                 >
                   {publication.title}
@@ -166,7 +166,7 @@ export default async function ContributorDetailPage({ params }: ContributorPageP
                     </span>
                   )}
                   {publication.primaryIdentifier === undefined ? null : (
-                    <span className="rounded-md bg-neutral-100 px-2 py-1">
+                    <span className="min-w-0 break-words rounded-md bg-neutral-100 px-2 py-1">
                       {publication.primaryIdentifier.type.toUpperCase()}:{" "}
                       {publication.primaryIdentifier.value}
                     </span>
