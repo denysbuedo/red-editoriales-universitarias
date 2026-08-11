@@ -23,6 +23,9 @@ describe("HomePage", () => {
     expect(html).toContain("Arquitectura empresarial para universidades");
     expect(html).toContain("Editoriales integradas");
     expect(html).toContain("Materias principales");
+    expect(html).toContain("Colecciones activas");
+    expect(html).toContain("Omeka S");
+    expect(html).toContain("Portal PNPU");
     expect(html).not.toContain("Consultar catálogo");
     expect(html).not.toContain("Directorio de editoriales");
     expect(html).not.toContain("Estado del catálogo");

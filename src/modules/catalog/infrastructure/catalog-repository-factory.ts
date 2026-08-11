@@ -38,6 +38,8 @@ interface CatalogRepositoryEnvironment {
   readonly PNPU_OMEKA_PAGE_SIZE?: string;
   readonly PNPU_OMEKA_CACHE_TTL_SECONDS?: string;
   readonly PNPU_OMEKA_REQUIRE_APPROVED_MAPPING?: string;
+  readonly PNPU_SAMPLE_CATALOG_SHOWCASE?: string;
+  readonly NODE_ENV?: string;
 }
 
 export function createCatalogRepositories(
@@ -51,7 +53,9 @@ export function createCatalogRepositories(
     );
   }
 
-  const sampleData = createSampleCatalogData();
+  const sampleData = createSampleCatalogData({
+    includePublicationTypeShowcase: shouldIncludeSampleCatalogShowcase(environment),
+  });
 
   return {
     mode,
@@ -61,6 +65,18 @@ export function createCatalogRepositories(
     publisherRepository: new InMemoryPublisherRepository(sampleData.publishers),
     subjectRepository: new InMemorySubjectRepository(sampleData.subjects),
   };
+}
+
+function shouldIncludeSampleCatalogShowcase(environment: CatalogRepositoryEnvironment): boolean {
+  if (environment.PNPU_SAMPLE_CATALOG_SHOWCASE === "true") {
+    return true;
+  }
+
+  if (environment.PNPU_SAMPLE_CATALOG_SHOWCASE === "false") {
+    return false;
+  }
+
+  return environment.NODE_ENV === "development";
 }
 
 export async function createCatalogRepositoriesAsync(

@@ -4,6 +4,8 @@ import Link from "next/link";
 import { toContributorAuthoritySummary } from "@/modules/catalog/application";
 import { createCatalogServices } from "@/modules/catalog/interfaces/http/catalog-services";
 
+import { PageHero } from "../page-hero";
+
 export const metadata: Metadata = {
   title: "Autores | PNPU",
   description: "Autoridades públicas de autores y contribuyentes integrados en la PNPU.",
@@ -19,21 +21,17 @@ export default async function ContributorsPage() {
   );
 
   return (
-    <main className="mx-auto min-h-screen max-w-6xl px-6 py-12">
-      <Link className="text-sm font-medium text-blue-800 hover:text-blue-950" href="/">
-        PNPU
-      </Link>
-      <header className="mt-8 border-b border-neutral-200 pb-8">
-        <p className="text-sm font-semibold uppercase tracking-normal text-blue-800">Autoridades</p>
-        <h1 className="mt-3 text-3xl font-bold text-neutral-950 md:text-4xl">
-          Autores y contribuyentes
-        </h1>
-        <p className="mt-4 max-w-3xl text-base leading-7 text-neutral-700">
-          Directorio público de personas y entidades vinculadas a publicaciones universitarias.
-        </p>
-      </header>
+    <main className="min-h-screen bg-[#eef3f8]">
+      <PageHero
+        description="Directorio público de personas y entidades vinculadas a publicaciones universitarias."
+        eyebrow="Autoridades"
+        title="Autores y contribuyentes"
+      />
 
-      <section className="mt-8" aria-label="Listado de autores y contribuyentes">
+      <section
+        className="mx-auto max-w-6xl px-6 py-8"
+        aria-label="Listado de autores y contribuyentes"
+      >
         <div className="grid gap-4 md:grid-cols-2">
           {summaries.map((contributor) => (
             <article

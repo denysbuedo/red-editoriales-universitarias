@@ -5,14 +5,21 @@ import {
   LanguageCode,
   Orcid,
   PnpuUuid,
+  PUBLICATION_TYPES,
   Publication,
+  PublicationType,
   Publisher,
   Resource,
+  ResourceType,
   Subject,
   University,
 } from "../../domain";
 
-export function createSampleCatalogData(): {
+export interface SampleCatalogDataOptions {
+  readonly includePublicationTypeShowcase?: boolean;
+}
+
+export function createSampleCatalogData(options: SampleCatalogDataOptions = {}): {
   readonly contributors: readonly Contributor[];
   readonly collections: readonly Collection[];
   readonly publications: readonly Publication[];
@@ -102,12 +109,196 @@ export function createSampleCatalogData(): {
     license: "CC BY",
     keywords: ["arquitectura empresarial", "universidades", "gobierno de datos"],
   });
+  const publications =
+    options.includePublicationTypeShowcase === true
+      ? [
+          publication,
+          ...createPublicationTypeShowcase({
+            collection,
+            contributor,
+            publisher,
+            subject,
+          }),
+        ]
+      : [publication];
 
   return {
     collections: [collection],
     contributors: [contributor],
-    publications: [publication],
+    publications,
     publishers: [publisher],
     subjects: [subject],
   };
+}
+
+function createPublicationTypeShowcase({
+  collection,
+  contributor,
+  publisher,
+  subject,
+}: {
+  readonly collection: Collection;
+  readonly contributor: Contributor;
+  readonly publisher: Publisher;
+  readonly subject: Subject;
+}): readonly Publication[] {
+  const entries: readonly PublicationShowcaseEntry[] = [
+    {
+      id: "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c10",
+      identifier: "10.1234/pnpu.ebook.01",
+      title: "Guía digital de aprendizaje universitario",
+      type: "ebook",
+    },
+    {
+      id: "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c11",
+      identifier: "10.1234/pnpu.manual.01",
+      title: "Manual práctico de edición académica",
+      type: "manual",
+    },
+    {
+      id: "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c12",
+      identifier: "10.1234/pnpu.monograph.01",
+      title: "Monografía sobre gestión del conocimiento",
+      type: "monograph",
+    },
+    {
+      id: "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c13",
+      identifier: "10.1234/pnpu.proceedings.01",
+      title: "Memorias del seminario de innovación universitaria",
+      type: "conferenceProceedings",
+    },
+    {
+      id: "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c14",
+      identifier: "10.1234/pnpu.report.01",
+      title: "Informe técnico de interoperabilidad editorial",
+      type: "technicalReport",
+    },
+    {
+      id: "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c15",
+      identifier: "10.1234/pnpu.dataset.01",
+      title: "Conjunto de datos de producción editorial universitaria",
+      type: "dataset",
+    },
+    {
+      id: "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c16",
+      identifier: "10.1234/pnpu.oer.01",
+      title: "Recurso educativo abierto para gestión bibliográfica",
+      type: "openEducationalResource",
+    },
+    {
+      id: "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c17",
+      identifier: "10.1234/pnpu.podcast.01",
+      title: "Podcast sobre edición universitaria cubana",
+      type: "podcast",
+    },
+    {
+      id: "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c18",
+      identifier: "10.1234/pnpu.video.01",
+      title: "Video docente sobre metadatos editoriales",
+      type: "video",
+    },
+    {
+      id: "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c19",
+      identifier: "10.1234/pnpu.thesis.01",
+      title: "Tesis doctoral sobre plataformas editoriales",
+      type: "thesis",
+    },
+    {
+      id: "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c1a",
+      identifier: "https://pnpu.mes.gob.cu/revistas/0000-0001",
+      title: "Revista universitaria de publicaciones académicas",
+      type: "journal",
+    },
+    {
+      id: "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c1b",
+      identifier: "10.1234/pnpu.chapter.01",
+      title: "Capítulo sobre preservación digital editorial",
+      type: "bookChapter",
+    },
+  ];
+
+  return entries.map((entry, index) =>
+    Publication.create({
+      id: PnpuUuid.create(entry.id),
+      title: entry.title,
+      subtitle: "Registro de demostración para validar la representación visual por tipo",
+      abstract:
+        "Publicación de prueba utilizada para revisar la presentación visual de tipos documentales en el catálogo PNPU.",
+      publicationDate: `2026-08-${String(index + 1).padStart(2, "0")}`,
+      language: LanguageCode.create("es"),
+      publisher,
+      contributors: [contributor],
+      identifiers: [Identifier.create(resolveIdentifierType(entry.identifier), entry.identifier)],
+      subjects: [subject],
+      collection,
+      resources: [
+        Resource.create({
+          type: resolveResourceType(entry.type),
+          url: `https://pnpu.mes.gob.cu/recursos/${entry.id}`,
+          format: resolveResourceFormat(entry.type),
+          language: LanguageCode.create("es"),
+          license: "CC BY",
+        }),
+      ],
+      type: entry.type,
+      format: resolveResourceFormat(entry.type),
+      license: "CC BY",
+      keywords: ["demostración", "tipo de publicación", entry.type],
+    }),
+  );
+}
+
+interface PublicationShowcaseEntry {
+  readonly id: string;
+  readonly identifier: string;
+  readonly title: string;
+  readonly type: Exclude<PublicationType, "book">;
+}
+
+function resolveIdentifierType(identifier: string): "doi" | "isbn" | "uri" {
+  if (identifier.startsWith("10.")) {
+    return "doi";
+  }
+
+  if (identifier.startsWith("978")) {
+    return "isbn";
+  }
+
+  return "uri";
+}
+
+function resolveResourceType(type: PublicationType): ResourceType {
+  if (type === "podcast") {
+    return "audio";
+  }
+
+  if (type === "video") {
+    return "video";
+  }
+
+  if (type === "dataset") {
+    return "externalLink";
+  }
+
+  return "pdf";
+}
+
+function resolveResourceFormat(type: PublicationType): string {
+  if (type === "podcast") {
+    return "audio/mpeg";
+  }
+
+  if (type === "video") {
+    return "video/mp4";
+  }
+
+  if (type === "dataset") {
+    return "application/json";
+  }
+
+  return "application/pdf";
+}
+
+export function listSamplePublicationTypes(): readonly PublicationType[] {
+  return PUBLICATION_TYPES;
 }

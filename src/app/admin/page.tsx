@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { PageHero } from "../page-hero";
+
 export const metadata: Metadata = {
   title: "Administración | PNPU",
   description: "Panel administrativo de la Plataforma Nacional de Publicaciones Universitarias.",
@@ -8,19 +10,17 @@ export const metadata: Metadata = {
 
 export default function AdminPage() {
   return (
-    <main className="mx-auto min-h-screen max-w-6xl px-6 py-12">
-      <header className="border-b border-slate-200 pb-8">
-        <p className="text-sm font-semibold uppercase tracking-normal text-blue-900">
-          Administración
-        </p>
-        <h1 className="mt-3 text-3xl font-bold text-slate-950 md:text-4xl">Panel operativo PNPU</h1>
-        <p className="mt-4 max-w-3xl text-base leading-7 text-slate-700">
-          Acceso a herramientas administrativas protegidas por Keycloak, roles institucionales y
-          doble factor de autenticación.
-        </p>
-      </header>
+    <main className="min-h-screen bg-[#eef3f8]">
+      <PageHero
+        description="Acceso a herramientas administrativas protegidas por Keycloak, roles institucionales y doble factor de autenticación."
+        eyebrow="Administración"
+        title="Panel operativo PNPU"
+      />
 
-      <section className="grid gap-4 py-8 md:grid-cols-3" aria-label="Herramientas administrativas">
+      <section
+        className="mx-auto grid max-w-6xl gap-4 px-6 py-8 md:grid-cols-3"
+        aria-label="Herramientas administrativas"
+      >
         <AdminToolCard
           description="Diagnóstico, previsualización, escritura controlada en Omeka S y rollback de cargas editoriales."
           href="/admin/importaciones/publicaciones"

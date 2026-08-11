@@ -11,6 +11,8 @@ import {
 } from "@/modules/catalog/application";
 import { createCatalogServices } from "@/modules/catalog/interfaces/http/catalog-services";
 
+import { PageHero } from "../page-hero";
+
 interface PublicationsPageProps {
   readonly searchParams?: Promise<Record<string, string | readonly string[] | undefined>>;
 }
@@ -55,24 +57,16 @@ export default async function PublicationsPage({ searchParams }: PublicationsPag
   );
 
   return (
-    <main className="mx-auto min-h-screen max-w-6xl px-6 py-12">
-      <Link className="text-sm font-medium text-blue-800 hover:text-blue-950" href="/">
-        PNPU
-      </Link>
-      <header className="mt-8 border-b border-neutral-200 pb-8">
-        <p className="text-sm font-semibold uppercase tracking-normal text-blue-800">Catálogo</p>
-        <h1 className="mt-3 text-3xl font-bold text-neutral-950 md:text-4xl">
-          Publicaciones universitarias
-        </h1>
-        <p className="mt-4 max-w-3xl text-base leading-7 text-neutral-700">
-          Obras editoriales universitarias integradas por la Plataforma Nacional de Publicaciones
-          Universitarias.
-        </p>
-      </header>
+    <main className="min-h-screen bg-[#eef3f8]">
+      <PageHero
+        description="Obras editoriales universitarias integradas por la Plataforma Nacional de Publicaciones Universitarias."
+        eyebrow="Catálogo"
+        title="Publicaciones universitarias"
+      />
 
       <form
         action="/publicaciones"
-        className="mt-8 grid gap-4 border-b border-neutral-200 pb-6 md:grid-cols-2 xl:grid-cols-4"
+        className="mx-auto mt-0 grid max-w-6xl gap-4 border-b border-slate-200 bg-white px-6 py-6 shadow-sm md:grid-cols-2 xl:grid-cols-4"
       >
         <label className="grid min-w-0 gap-1 text-sm font-medium text-neutral-800 md:col-span-2">
           Buscar
@@ -187,7 +181,7 @@ export default async function PublicationsPage({ searchParams }: PublicationsPag
         </div>
       </form>
 
-      <section className="mt-8" aria-label="Listado de publicaciones">
+      <section className="mx-auto max-w-6xl px-6 py-8" aria-label="Listado de publicaciones">
         <ActiveFilters
           collectionOptions={collectionOptions}
           contributorOptions={contributorOptions}

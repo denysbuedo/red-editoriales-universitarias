@@ -11,6 +11,8 @@ import { createCatalogServices } from "@/modules/catalog/interfaces/http/catalog
 import { getRuntimeConfig } from "@/shared/config/runtime-config";
 import { JsonLdObject, JsonLdScript } from "@/shared/seo/json-ld";
 
+import { PageHero } from "../../page-hero";
+
 interface CollectionPageProps {
   readonly params: Promise<{
     readonly id: string;
@@ -48,48 +50,34 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
   }
 
   return (
-    <main className="mx-auto min-h-screen max-w-5xl px-6 py-12">
+    <main className="min-h-screen bg-[#eef3f8]">
       <JsonLdScript
         data={buildCollectionJsonLd(collection, buildCollectionUrl(collection.id))}
         id="collection-jsonld"
       />
-      <nav className="flex flex-wrap gap-3 text-sm" aria-label="Breadcrumb">
-        <Link className="font-medium text-blue-800 hover:text-blue-950" href="/">
-          PNPU
-        </Link>
-        <span className="text-neutral-500">/</span>
-        <Link className="font-medium text-blue-800 hover:text-blue-950" href="/colecciones">
-          Colecciones
-        </Link>
-      </nav>
-
-      <article className="mt-8">
-        <p className="text-sm font-semibold uppercase tracking-normal text-blue-800">
-          {collection.editorialSeries ?? "Colección editorial"}
-        </p>
-        <h1 className="mt-3 text-3xl font-bold leading-tight text-neutral-950 md:text-5xl">
-          {collection.title}
-        </h1>
-        {collection.description === undefined ? null : (
-          <p className="mt-6 max-w-3xl text-base leading-7 text-neutral-700">
-            {collection.description}
-          </p>
-        )}
-        <div className="mt-6 flex flex-wrap gap-3">
+      <PageHero
+        description={collection.description ?? `Ficha pública de ${collection.title}.`}
+        eyebrow={collection.editorialSeries ?? "Colección editorial"}
+        maxWidth="max-w-5xl"
+        title={collection.title}
+      >
+        <div className="flex flex-wrap gap-3">
           <Link
-            className="inline-flex rounded-md bg-blue-900 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-950"
+            className="inline-flex rounded-md bg-white px-4 py-2 text-sm font-semibold text-blue-950 hover:bg-blue-50"
             href={`/publicaciones?collectionId=${collection.id}`}
           >
             Ver publicaciones de la colección
           </Link>
           <Link
-            className="inline-flex rounded-md border border-neutral-300 px-4 py-2 text-sm font-semibold text-neutral-900 hover:border-blue-800 hover:text-blue-900"
+            className="inline-flex rounded-md border border-white/40 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10"
             href={`/editoriales/${collection.publisher.id}`}
           >
             Ver editorial
           </Link>
         </div>
+      </PageHero>
 
+      <article className="mx-auto max-w-5xl px-6 py-8">
         <dl className="mt-8 grid gap-4 rounded-md border border-neutral-200 bg-white p-5 shadow-sm md:grid-cols-2">
           <div>
             <dt className="text-sm font-semibold text-neutral-600">Editorial</dt>

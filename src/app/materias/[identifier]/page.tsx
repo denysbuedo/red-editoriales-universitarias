@@ -7,6 +7,8 @@ import { createCatalogServices } from "@/modules/catalog/interfaces/http/catalog
 import { getRuntimeConfig } from "@/shared/config/runtime-config";
 import { JsonLdObject, JsonLdScript } from "@/shared/seo/json-ld";
 
+import { PageHero } from "../../page-hero";
+
 interface SubjectPageProps {
   readonly params: Promise<{
     readonly identifier: string;
@@ -50,49 +52,36 @@ export default async function SubjectDetailPage({ params }: SubjectPageProps) {
   }
 
   return (
-    <main className="mx-auto min-h-screen max-w-5xl px-6 py-12">
+    <main className="min-h-screen bg-[#eef3f8]">
       <JsonLdScript
         data={buildSubjectJsonLd(subject, buildSubjectUrl(subject.identifier))}
         id="subject-jsonld"
       />
-      <nav className="flex flex-wrap gap-3 text-sm" aria-label="Breadcrumb">
-        <Link className="font-medium text-blue-800 hover:text-blue-950" href="/">
-          PNPU
-        </Link>
-        <span className="text-neutral-500">/</span>
-        <Link className="font-medium text-blue-800 hover:text-blue-950" href="/materias">
-          Materias
-        </Link>
-      </nav>
-
-      <article className="mt-8">
-        <p className="break-all text-sm font-semibold uppercase tracking-normal text-blue-800">
-          {subject.identifier}
-        </p>
-        <h1 className="mt-3 text-3xl font-bold leading-tight text-neutral-950 md:text-5xl">
-          {subject.preferredLabel}
-        </h1>
-        <p className="mt-6 max-w-3xl text-base leading-7 text-neutral-700">
-          Materia normalizada del vocabulario público PNPU utilizada para clasificar publicaciones
-          universitarias y facilitar navegación temática.
-        </p>
-        <div className="mt-6 flex flex-wrap gap-3">
+      <PageHero
+        description="Materia normalizada del vocabulario público PNPU utilizada para clasificar publicaciones universitarias y facilitar navegación temática."
+        eyebrow={subject.identifier}
+        maxWidth="max-w-5xl"
+        title={subject.preferredLabel}
+      >
+        <div className="flex flex-wrap gap-3">
           <Link
-            className="inline-flex rounded-md bg-blue-900 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-950"
+            className="inline-flex rounded-md bg-white px-4 py-2 text-sm font-semibold text-blue-950 hover:bg-blue-50"
             href={`/publicaciones?subject=${encodeURIComponent(subject.identifier)}`}
           >
             Ver catálogo filtrado
           </Link>
           {subject.uri === undefined ? null : (
             <a
-              className="inline-flex rounded-md border border-neutral-300 px-4 py-2 text-sm font-semibold text-neutral-900 hover:border-blue-800 hover:text-blue-900"
+              className="inline-flex rounded-md border border-white/40 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10"
               href={subject.uri}
             >
               Ver vocabulario
             </a>
           )}
         </div>
+      </PageHero>
 
+      <article className="mx-auto max-w-5xl px-6 py-8">
         <dl className="mt-8 grid gap-4 rounded-md border border-neutral-200 bg-white p-5 shadow-sm md:grid-cols-2">
           <div>
             <dt className="text-sm font-semibold text-neutral-600">Identificador</dt>

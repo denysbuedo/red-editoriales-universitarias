@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { PublicationService, PublisherService } from "../../application";
-import { Identifier, PnpuUuid, Publication } from "../../domain";
+import { Identifier, PnpuUuid, PUBLICATION_TYPES, Publication } from "../../domain";
 import { createSampleCatalogData } from "./sample-catalog-data";
 import { InMemoryCollectionRepository } from "./in-memory-collection-repository";
 import { InMemoryContributorRepository } from "./in-memory-contributor-repository";
@@ -43,6 +43,16 @@ describe("in-memory catalog repositories", () => {
     await expect(
       publicationService.getPublication(sampleData.publications[0].id().value()),
     ).resolves.toBe(sampleData.publications[0]);
+  });
+
+  it("can include showcase publications for every supported publication type", () => {
+    const sampleData = createSampleCatalogData({ includePublicationTypeShowcase: true });
+    const publicationTypes = new Set(
+      sampleData.publications.map((publication) => publication.snapshot().type),
+    );
+
+    expect(sampleData.publications).toHaveLength(PUBLICATION_TYPES.length);
+    expect(publicationTypes).toEqual(new Set(PUBLICATION_TYPES));
   });
 
   it("filters publications by search text, language and subject", async () => {

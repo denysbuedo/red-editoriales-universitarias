@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import {
   buildOmekaCatalogOperationalDiagnostics,
@@ -9,6 +8,8 @@ import {
   readCatalogRepositoryMode,
   readOmekaConfig,
 } from "@/modules/catalog/infrastructure";
+
+import { PageHero } from "../page-hero";
 
 export const metadata: Metadata = {
   title: "Estado del catálogo | PNPU",
@@ -32,169 +33,167 @@ export default async function CatalogStatusPage() {
         );
 
   return (
-    <main className="mx-auto min-h-screen max-w-6xl px-6 py-12">
-      <Link className="text-sm font-medium text-blue-800 hover:text-blue-950" href="/">
-        PNPU
-      </Link>
-      <header className="mt-8 border-b border-neutral-200 pb-8">
-        <p className="text-sm font-semibold uppercase tracking-normal text-blue-800">Diagnóstico</p>
-        <h1 className="mt-3 text-3xl font-bold text-neutral-950 md:text-4xl">
-          Estado del catálogo
-        </h1>
-        <p className="mt-4 max-w-3xl text-base leading-7 text-neutral-700">
-          Estado operativo de la fuente de catálogo, plantillas PNPU y recursos reconocidos.
-        </p>
-      </header>
+    <main className="min-h-screen bg-[#eef3f8]">
+      <PageHero
+        description="Estado operativo de la fuente de catálogo, plantillas PNPU y recursos reconocidos."
+        eyebrow="Diagnóstico"
+        title="Estado del catálogo"
+      />
 
-      <section className="mt-8 grid gap-4 md:grid-cols-3" aria-label="Resumen operativo">
-        <MetricCard label="Repositorio" value={mode} />
-        <MetricCard
-          label="Perfil PNPU"
-          value={diagnostics?.installation.readyForPnpuMapping === true ? "listo" : "pendiente"}
-        />
-        <MetricCard label="Recursos" value={String(diagnostics?.snapshot.totals.resources ?? 0)} />
-      </section>
-
-      {diagnostics === null ? (
-        <section className="mt-8 rounded-md border border-neutral-200 bg-white p-5 shadow-sm">
-          <h2 className="text-xl font-semibold text-neutral-950">Omeka no configurado</h2>
-          <p className="mt-2 text-sm leading-6 text-neutral-700">
-            Defina `PNPU_OMEKA_BASE_URL` para activar el diagnóstico de integración Omeka S.
-          </p>
+      <div className="mx-auto max-w-6xl px-6 py-8">
+        <section className="grid gap-4 md:grid-cols-3" aria-label="Resumen operativo">
+          <MetricCard label="Repositorio" value={mode} />
+          <MetricCard
+            label="Perfil PNPU"
+            value={diagnostics?.installation.readyForPnpuMapping === true ? "listo" : "pendiente"}
+          />
+          <MetricCard
+            label="Recursos"
+            value={String(diagnostics?.snapshot.totals.resources ?? 0)}
+          />
         </section>
-      ) : (
-        <>
-          <section className="mt-8 rounded-md border border-neutral-200 bg-white p-5 shadow-sm">
-            <h2 className="text-xl font-semibold text-neutral-950">Cache Omeka</h2>
-            <dl className="mt-4 grid gap-3 md:grid-cols-2">
-              <MetricRow label="Habilitado" value={cache?.enabled === true ? "sí" : "no"} />
-              <MetricRow label="Disponible" value={cache?.present === true ? "sí" : "no"} />
-              <MetricRow label="Vigente" value={cache?.fresh === true ? "sí" : "no"} />
-              <MetricRow label="Actualizado" value={cache?.refreshedAt ?? "pendiente"} />
-              <MetricRow label="Expira" value={cache?.expiresAt ?? "pendiente"} />
-            </dl>
-          </section>
 
+        {diagnostics === null ? (
           <section className="mt-8 rounded-md border border-neutral-200 bg-white p-5 shadow-sm">
-            <h2 className="text-xl font-semibold text-neutral-950">Recursos PNPU reconocidos</h2>
-            <dl className="mt-4 grid gap-3 md:grid-cols-4">
-              {Object.entries(diagnostics.snapshot.recognizedByKind).map(([kind, count]) => (
-                <div key={kind}>
-                  <dt className="text-sm font-semibold text-neutral-600">{kind}</dt>
-                  <dd className="mt-1 text-2xl font-bold text-neutral-950">{count}</dd>
-                </div>
-              ))}
-            </dl>
+            <h2 className="text-xl font-semibold text-neutral-950">Omeka no configurado</h2>
+            <p className="mt-2 text-sm leading-6 text-neutral-700">
+              Defina `PNPU_OMEKA_BASE_URL` para activar el diagnóstico de integración Omeka S.
+            </p>
           </section>
-
-          <section className="mt-8 grid gap-4 md:grid-cols-2">
-            <div className="rounded-md border border-neutral-200 bg-white p-5 shadow-sm">
-              <h2 className="text-xl font-semibold text-neutral-950">Calidad de mapeo</h2>
-              <dl className="mt-4 grid gap-3">
-                <MetricRow label="Advertencias" value={diagnostics.snapshot.quality.warnings} />
-                <MetricRow label="Rechazos" value={diagnostics.snapshot.quality.rejected} />
-                <MetricRow
-                  label="Recursos desconocidos"
-                  value={diagnostics.snapshot.unknown.total}
-                />
-                <MetricRow
-                  label="Sin plantilla"
-                  value={diagnostics.snapshot.unknown.withoutTemplate}
-                />
+        ) : (
+          <>
+            <section className="mt-8 rounded-md border border-neutral-200 bg-white p-5 shadow-sm">
+              <h2 className="text-xl font-semibold text-neutral-950">Cache Omeka</h2>
+              <dl className="mt-4 grid gap-3 md:grid-cols-2">
+                <MetricRow label="Habilitado" value={cache?.enabled === true ? "sí" : "no"} />
+                <MetricRow label="Disponible" value={cache?.present === true ? "sí" : "no"} />
+                <MetricRow label="Vigente" value={cache?.fresh === true ? "sí" : "no"} />
+                <MetricRow label="Actualizado" value={cache?.refreshedAt ?? "pendiente"} />
+                <MetricRow label="Expira" value={cache?.expiresAt ?? "pendiente"} />
               </dl>
-            </div>
-            <div className="rounded-md border border-neutral-200 bg-white p-5 shadow-sm">
-              <h2 className="text-xl font-semibold text-neutral-950">Instalación Omeka</h2>
-              <dl className="mt-4 grid gap-3">
-                <MetricRow
-                  label="Vocabularios faltantes"
-                  value={diagnostics.installation.missingVocabularies.length}
-                />
-                <MetricRow
-                  label="Propiedades faltantes"
-                  value={diagnostics.installation.missingProperties.length}
-                />
-                <MetricRow
-                  label="Plantillas revisadas"
-                  value={diagnostics.installation.templates.length}
-                />
-              </dl>
-            </div>
-          </section>
+            </section>
 
-          <section className="mt-8 rounded-md border border-neutral-200 bg-white p-5 shadow-sm">
-            <h2 className="text-xl font-semibold text-neutral-950">
-              Incidencias de calidad detectadas
-            </h2>
-            {diagnostics.snapshot.quality.issues.length === 0 ? (
-              <p className="mt-3 text-sm leading-6 text-neutral-700">
-                No hay advertencias ni rechazos de mapeo en el snapshot Omeka actual.
-              </p>
-            ) : (
-              <>
+            <section className="mt-8 rounded-md border border-neutral-200 bg-white p-5 shadow-sm">
+              <h2 className="text-xl font-semibold text-neutral-950">Recursos PNPU reconocidos</h2>
+              <dl className="mt-4 grid gap-3 md:grid-cols-4">
+                {Object.entries(diagnostics.snapshot.recognizedByKind).map(([kind, count]) => (
+                  <div key={kind}>
+                    <dt className="text-sm font-semibold text-neutral-600">{kind}</dt>
+                    <dd className="mt-1 text-2xl font-bold text-neutral-950">{count}</dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+
+            <section className="mt-8 grid gap-4 md:grid-cols-2">
+              <div className="rounded-md border border-neutral-200 bg-white p-5 shadow-sm">
+                <h2 className="text-xl font-semibold text-neutral-950">Calidad de mapeo</h2>
+                <dl className="mt-4 grid gap-3">
+                  <MetricRow label="Advertencias" value={diagnostics.snapshot.quality.warnings} />
+                  <MetricRow label="Rechazos" value={diagnostics.snapshot.quality.rejected} />
+                  <MetricRow
+                    label="Recursos desconocidos"
+                    value={diagnostics.snapshot.unknown.total}
+                  />
+                  <MetricRow
+                    label="Sin plantilla"
+                    value={diagnostics.snapshot.unknown.withoutTemplate}
+                  />
+                </dl>
+              </div>
+              <div className="rounded-md border border-neutral-200 bg-white p-5 shadow-sm">
+                <h2 className="text-xl font-semibold text-neutral-950">Instalación Omeka</h2>
+                <dl className="mt-4 grid gap-3">
+                  <MetricRow
+                    label="Vocabularios faltantes"
+                    value={diagnostics.installation.missingVocabularies.length}
+                  />
+                  <MetricRow
+                    label="Propiedades faltantes"
+                    value={diagnostics.installation.missingProperties.length}
+                  />
+                  <MetricRow
+                    label="Plantillas revisadas"
+                    value={diagnostics.installation.templates.length}
+                  />
+                </dl>
+              </div>
+            </section>
+
+            <section className="mt-8 rounded-md border border-neutral-200 bg-white p-5 shadow-sm">
+              <h2 className="text-xl font-semibold text-neutral-950">
+                Incidencias de calidad detectadas
+              </h2>
+              {diagnostics.snapshot.quality.issues.length === 0 ? (
                 <p className="mt-3 text-sm leading-6 text-neutral-700">
-                  Se muestran hasta 20 incidencias para orientar la corrección de metadatos en Omeka
-                  S.
+                  No hay advertencias ni rechazos de mapeo en el snapshot Omeka actual.
                 </p>
-                <div className="mt-4 overflow-x-auto">
-                  <table className="min-w-full border-collapse text-sm">
-                    <thead>
-                      <tr className="border-b border-neutral-200 text-left text-neutral-600">
-                        <th className="py-2 pr-4 font-semibold">Severidad</th>
-                        <th className="py-2 pr-4 font-semibold">Omeka ID</th>
-                        <th className="py-2 pr-4 font-semibold">Plantilla</th>
-                        <th className="py-2 pr-4 font-semibold">Campo</th>
-                        <th className="py-2 pr-4 font-semibold">Mensaje</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {diagnostics.snapshot.quality.issues.map((issue, index) => (
-                        <tr
-                          className="border-b border-neutral-100 align-top last:border-0"
-                          key={`${issue.code}-${String(issue.omekaId ?? "none")}-${issue.field ?? "none"}-${String(index)}`}
-                        >
-                          <td className="py-2 pr-4">
-                            <span
-                              className={
-                                issue.severity === "rejected"
-                                  ? "rounded-md bg-red-50 px-2 py-1 text-xs font-semibold text-red-800"
-                                  : "rounded-md bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-800"
-                              }
-                            >
-                              {issue.severity === "rejected" ? "rechazo" : "advertencia"}
-                            </span>
-                          </td>
-                          <td className="py-2 pr-4 text-neutral-950">
-                            {issue.omekaId ?? "sin id"}
-                          </td>
-                          <td className="py-2 pr-4 text-neutral-700">
-                            {issue.templateLabel ?? "sin plantilla"}
-                          </td>
-                          <td className="py-2 pr-4 text-neutral-700">{issue.field ?? "n/a"}</td>
-                          <td className="py-2 pr-4 text-neutral-700">{issue.message}</td>
+              ) : (
+                <>
+                  <p className="mt-3 text-sm leading-6 text-neutral-700">
+                    Se muestran hasta 20 incidencias para orientar la corrección de metadatos en
+                    Omeka S.
+                  </p>
+                  <div className="mt-4 overflow-x-auto">
+                    <table className="min-w-full border-collapse text-sm">
+                      <thead>
+                        <tr className="border-b border-neutral-200 text-left text-neutral-600">
+                          <th className="py-2 pr-4 font-semibold">Severidad</th>
+                          <th className="py-2 pr-4 font-semibold">Omeka ID</th>
+                          <th className="py-2 pr-4 font-semibold">Plantilla</th>
+                          <th className="py-2 pr-4 font-semibold">Campo</th>
+                          <th className="py-2 pr-4 font-semibold">Mensaje</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </>
-            )}
-          </section>
+                      </thead>
+                      <tbody>
+                        {diagnostics.snapshot.quality.issues.map((issue, index) => (
+                          <tr
+                            className="border-b border-neutral-100 align-top last:border-0"
+                            key={`${issue.code}-${String(issue.omekaId ?? "none")}-${issue.field ?? "none"}-${String(index)}`}
+                          >
+                            <td className="py-2 pr-4">
+                              <span
+                                className={
+                                  issue.severity === "rejected"
+                                    ? "rounded-md bg-red-50 px-2 py-1 text-xs font-semibold text-red-800"
+                                    : "rounded-md bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-800"
+                                }
+                              >
+                                {issue.severity === "rejected" ? "rechazo" : "advertencia"}
+                              </span>
+                            </td>
+                            <td className="py-2 pr-4 text-neutral-950">
+                              {issue.omekaId ?? "sin id"}
+                            </td>
+                            <td className="py-2 pr-4 text-neutral-700">
+                              {issue.templateLabel ?? "sin plantilla"}
+                            </td>
+                            <td className="py-2 pr-4 text-neutral-700">{issue.field ?? "n/a"}</td>
+                            <td className="py-2 pr-4 text-neutral-700">{issue.message}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              )}
+            </section>
 
-          <section className="mt-8 grid gap-4 md:grid-cols-2">
-            <ListPanel
-              emptyText="Todas las plantillas PNPU esperadas tienen recursos reconocidos."
-              items={diagnostics.snapshot.missingPnpuTemplates}
-              title="Plantillas PNPU sin recursos"
-            />
-            <ListPanel
-              emptyText="No hay plantillas externas o desconocidas en el snapshot."
-              items={diagnostics.snapshot.unknown.templateLabels}
-              title="Plantillas no reconocidas"
-            />
-          </section>
-        </>
-      )}
+            <section className="mt-8 grid gap-4 md:grid-cols-2">
+              <ListPanel
+                emptyText="Todas las plantillas PNPU esperadas tienen recursos reconocidos."
+                items={diagnostics.snapshot.missingPnpuTemplates}
+                title="Plantillas PNPU sin recursos"
+              />
+              <ListPanel
+                emptyText="No hay plantillas externas o desconocidas en el snapshot."
+                items={diagnostics.snapshot.unknown.templateLabels}
+                title="Plantillas no reconocidas"
+              />
+            </section>
+          </>
+        )}
+      </div>
     </main>
   );
 }
