@@ -12,8 +12,8 @@ import { SiteShell } from "./site-chrome";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "PNPU",
-  description: "Plataforma Nacional de Publicaciones Universitarias.",
+  title: "Catálogo EDUNIV",
+  description: "Catálogo de la Red de Editoriales Universitarias Cubanas.",
 };
 
 interface RootLayoutProps {

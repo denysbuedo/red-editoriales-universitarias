@@ -18,6 +18,32 @@ Este documento fija una linea base para soporte, despliegues futuros y traspaso 
 
 El TLS publico termina en HAProxy remoto. PNPU y Omeka se exponen internamente por HTTP.
 
+### Propuesta de dominio publico EDUNIV
+
+Para la fase piloto publica se propone migrar la URL principal del portal a:
+
+```text
+https://catalogo.eduniv.cu
+```
+
+Esta direccion debe reservarse para el portal publico EDUNIV/PNPU. Omeka S debe mantenerse como
+servicio de catalogacion/backoffice en un dominio tecnico separado, por ejemplo:
+
+```text
+https://omeka.eduniv.cu
+https://catalogador.eduniv.cu
+```
+
+La migracion no debe aplicarse parcialmente. Antes del cambio deben actualizarse de forma
+coordinada:
+
+- DNS y HAProxy.
+- `PNPU_PUBLIC_BASE_URL`.
+- URL canonicas, sitemap y OpenAPI servers generados desde la configuracion runtime.
+- Redirect URI, post logout redirect URI y web origins del client `pnpu-portal` en Keycloak.
+- Validaciones de aceptacion y documentacion operativa que aun referencian
+  `https://editorial.reduniv.edu.cu`.
+
 ## Portal PNPU
 
 | Elemento               | Estado                     |
@@ -114,6 +140,7 @@ docs/keycloak-reduniv-theme.md
 - Ejecutar importacion con planilla real de una editorial.
 - Sustituir seed de prueba por datos reales cuando se apruebe la carga inicial.
 - Definir API institucional externa para datos maestros de editoriales.
+- Decidir y ejecutar migracion de dominio publico a `https://catalogo.eduniv.cu`.
 - Crear tarea programada nocturna para `scripts/backup-operational-state.sh` con `systemd timer`.
 - Completar Ansible para Keycloak y Omeka, no solo portal.
 - Revisar exposicion publica de `/metrics` con HAProxy o ACL institucional.

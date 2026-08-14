@@ -4,11 +4,9 @@ import {
   type CollectionSummary,
   type PublicationSummary,
   type PublisherSummary,
-  type SubjectSummary,
   toCollectionSummary,
   toPublisherSummary,
   toPublicationSummary,
-  toSubjectAuthoritySummary,
 } from "@/modules/catalog/application";
 import { createCatalogServices } from "@/modules/catalog/interfaces/http/catalog-services";
 
@@ -17,55 +15,52 @@ import { PageHero } from "./page-hero";
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const { collectionService, publicationService, publisherService, subjectService } =
-    await createCatalogServices();
-  const [publishers, featuredCollections, subjects, recentPublications] = await Promise.all([
+  const { collectionService, publicationService, publisherService } = await createCatalogServices();
+  const [publishers, featuredCollections, recentPublications] = await Promise.all([
     publisherService.listPublishers({ page: 1, pageSize: 5 }),
     collectionService.listCollections({ page: 1, pageSize: 3 }),
-    subjectService.listSubjects({ page: 1, pageSize: 8 }),
     publicationService.listRecentPublications({ limit: 13 }),
   ]);
   const publisherSummaries = publishers.data.map(toPublisherSummary);
   const collectionSummaries = featuredCollections.data.map((profile) =>
     toCollectionSummary(profile.collection, profile.publications.length),
   );
-  const subjectSummaries = subjects.data.map((profile) =>
-    toSubjectAuthoritySummary(profile.subject, profile.publications.length),
-  );
   const recentSummaries = recentPublications.map(toPublicationSummary);
 
   return (
     <main className="min-h-screen bg-[#eef3f8]">
       <PageHero
-        description="Punto de acceso público a la producción editorial universitaria cubana, organizado por editoriales, colecciones, autores, materias y recursos digitales verificables."
-        eyebrow="Plataforma nacional"
-        title="Catálogo nacional de editoriales universitarias"
-      />
+        description="Acceso nacional a libros, folletos, memorias, manuales y otras publicaciones producidas por las editoriales universitarias cubanas."
+        eyebrow="EDUNIV"
+        title="Catálogo de la Red de Editoriales Universitarias Cubanas"
+      >
+        <CatalogSearch />
+      </PageHero>
 
-      <section className="border-b border-slate-200 bg-white" aria-label="Estructura del catálogo">
+      <section className="border-b border-slate-200 bg-white" aria-label="Accesos al catálogo">
         <div className="mx-auto grid max-w-6xl gap-3 px-4 py-5 sm:px-6 md:grid-cols-5">
           <StructureLink
-            description="Obras académicas, libros, folletos y memorias con metadatos normalizados."
+            description="Libros, folletos, memorias y otras obras editoriales universitarias."
             href="/publicaciones"
             label="Publicaciones"
           />
           <StructureLink
-            description="Sellos universitarios integrados a la red nacional y sus catálogos."
+            description="Sellos universitarios integrados a la red nacional EDUNIV."
             href="/editoriales"
             label="Editoriales"
           />
           <StructureLink
-            description="Series y agrupaciones editoriales para organizar la producción."
+            description="Series y agrupaciones que organizan la producción editorial."
             href="/colecciones"
             label="Colecciones"
           />
           <StructureLink
-            description="Autorías, contribuciones, afiliaciones y vínculos con obras publicadas."
+            description="Autorías, editorías y contribuciones asociadas a las obras."
             href="/autores"
             label="Autores"
           />
           <StructureLink
-            description="Autoridades temáticas para mejorar búsqueda, navegación y SEO."
+            description="Temas y áreas de conocimiento para explorar el catálogo."
             href="/materias"
             label="Materias"
           />
@@ -74,12 +69,9 @@ export default async function HomePage() {
 
       <section className="mx-auto grid max-w-6xl gap-8 px-4 py-8 sm:px-6 md:py-10 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="min-w-0">
-          <SectionHeader
-            eyebrow="Catálogo nacional"
-            href="/publicaciones"
-            linkLabel="Ver todas"
-            title="Publicaciones recientes"
-          />
+          <div className="min-h-[4.25rem]">
+            <SectionHeader eyebrow="Novedades" title="Publicaciones recientes" />
+          </div>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             {recentSummaries.map((publication) => (
               <PublicationCard key={publication.id} publication={publication} />
@@ -87,46 +79,21 @@ export default async function HomePage() {
           </div>
         </div>
 
-        <aside className="grid content-start gap-4">
-          <section className="rounded-md border border-slate-200 bg-white p-5 shadow-sm">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-normal text-blue-800">
-                  Red editorial
-                </p>
-                <h2 className="mt-1 text-lg font-bold text-slate-950">Editoriales integradas</h2>
-              </div>
-              <span className="rounded-md bg-blue-50 px-2 py-1 text-xs font-bold text-blue-950">
-                {publishers.pagination.total}
-              </span>
-            </div>
-            <ul className="mt-4 grid gap-3">
-              {publisherSummaries.map((publisher) => (
-                <PublisherLink key={publisher.id} publisher={publisher} />
-              ))}
-            </ul>
-          </section>
-
-          <section className="rounded-md border border-slate-200 bg-white p-5 shadow-sm">
-            <p className="text-xs font-bold uppercase tracking-normal text-blue-800">Autoridades</p>
-            <h2 className="mt-1 text-lg font-bold text-slate-950">Materias principales</h2>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {subjectSummaries.map((subject) => (
-                <SubjectChip key={subject.identifier} subject={subject} />
-              ))}
-            </div>
-          </section>
+        <aside className="content-start">
+          <div className="min-h-[4.25rem]">
+            <SectionHeader eyebrow="Directorio editorial" title="Red de Editoriales" />
+          </div>
+          <div className="mt-5 grid gap-3">
+            {publisherSummaries.map((publisher) => (
+              <PublisherCard key={publisher.id} publisher={publisher} />
+            ))}
+          </div>
         </aside>
       </section>
 
       <section className="border-y border-slate-200 bg-white">
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 md:py-10">
-          <SectionHeader
-            eyebrow="Organización editorial"
-            href="/colecciones"
-            linkLabel="Ver colecciones"
-            title="Colecciones activas"
-          />
+          <SectionHeader eyebrow="Organización editorial" title="Colecciones destacadas" />
           <div className="mt-5 grid gap-4 md:grid-cols-3">
             {collectionSummaries.map((collection) => (
               <CollectionCard collection={collection} key={collection.id} />
@@ -134,27 +101,33 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-
-      <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6 md:py-10">
-        <div className="grid gap-4 md:grid-cols-3">
-          <ProcessPanel
-            label="Fuente descriptiva"
-            title="Omeka S"
-            value="Metadatos, recursos digitales, colecciones y relaciones editoriales."
-          />
-          <ProcessPanel
-            label="Experiencia pública"
-            title="Portal PNPU"
-            value="Navegación, fichas, filtros, SEO y consulta unificada de la red."
-          />
-          <ProcessPanel
-            label="Gobernanza"
-            title="Reduniv"
-            value="Identidad institucional, acceso seguro y coordinación nacional."
-          />
-        </div>
-      </section>
     </main>
+  );
+}
+
+function CatalogSearch() {
+  return (
+    <form
+      action="/publicaciones"
+      className="grid max-w-3xl gap-3 rounded-md border border-white/20 bg-white p-3 shadow-lg sm:grid-cols-[minmax(0,1fr)_auto]"
+    >
+      <label className="sr-only" htmlFor="home-catalog-search">
+        Buscar en el catálogo EDUNIV
+      </label>
+      <input
+        className="min-h-12 w-full rounded-md border border-slate-300 px-4 text-base text-slate-950 placeholder:text-slate-500"
+        id="home-catalog-search"
+        name="q"
+        placeholder="Buscar por título, autor, editorial, ISBN o materia"
+        type="search"
+      />
+      <button
+        className="min-h-12 rounded-md bg-blue-950 px-5 text-sm font-bold text-white hover:bg-blue-900"
+        type="submit"
+      >
+        Buscar
+      </button>
+    </form>
   );
 }
 
@@ -185,19 +158,23 @@ function SectionHeader({
   title,
 }: {
   readonly eyebrow: string;
-  readonly href: string;
-  readonly linkLabel: string;
+  readonly href?: string;
+  readonly linkLabel?: string;
   readonly title: string;
 }) {
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div>
         <p className="text-xs font-bold uppercase tracking-normal text-blue-800">{eyebrow}</p>
-        <h2 className="mt-2 text-xl font-bold text-slate-950 sm:text-2xl">{title}</h2>
+        <h2 className="mt-2 text-xl font-bold text-slate-950 sm:whitespace-nowrap sm:text-2xl">
+          {title}
+        </h2>
       </div>
-      <Link className="text-sm font-bold text-blue-800 hover:text-blue-950" href={href}>
-        {linkLabel}
-      </Link>
+      {href === undefined || linkLabel === undefined ? null : (
+        <Link className="text-sm font-bold text-blue-800 hover:text-blue-950" href={href}>
+          {linkLabel}
+        </Link>
+      )}
     </div>
   );
 }
@@ -209,12 +186,14 @@ function PublicationCard({ publication }: { readonly publication: PublicationSum
   return (
     <article className="grid min-h-56 grid-cols-1 overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm sm:grid-cols-[7rem_minmax(0,1fr)]">
       <div
-        className={`flex min-h-24 flex-row items-center justify-center gap-3 p-3 text-center text-white sm:h-full sm:flex-col sm:gap-0 ${typePresentation.accentClass}`}
+        className={`flex min-h-24 flex-row items-center justify-center gap-3 border-b p-3 text-center sm:h-full sm:flex-col sm:gap-0 sm:border-b-0 sm:border-r ${typePresentation.panelClass}`}
       >
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md border border-white/20 bg-white/15 sm:h-14 sm:w-14">
+        <span
+          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-md border bg-white sm:h-14 sm:w-14 ${typePresentation.iconClass}`}
+        >
           <TypeIcon />
         </span>
-        <span className="max-w-40 text-xs font-bold uppercase tracking-normal text-white/90 sm:mt-3">
+        <span className="max-w-40 text-xs font-bold uppercase tracking-normal sm:mt-3">
           {typePresentation.label}
         </span>
       </div>
@@ -255,9 +234,10 @@ function PublicationCard({ publication }: { readonly publication: PublicationSum
 }
 
 interface PublicationTypePresentation {
-  readonly accentClass: string;
   readonly Icon: () => React.JSX.Element;
+  readonly iconClass: string;
   readonly label: string;
+  readonly panelClass: string;
 }
 
 function getPublicationTypePresentation(type: string): PublicationTypePresentation {
@@ -265,112 +245,126 @@ function getPublicationTypePresentation(type: string): PublicationTypePresentati
 
   if (normalizedType === "book") {
     return {
-      accentClass: "bg-gradient-to-br from-blue-700 to-blue-950",
       Icon: BookIcon,
+      iconClass: "border-blue-200 text-blue-900",
       label: "Libro",
+      panelClass: "border-blue-100 bg-blue-50 text-blue-950",
     };
   }
 
   if (normalizedType === "ebook") {
     return {
-      accentClass: "bg-gradient-to-br from-cyan-700 to-blue-950",
       Icon: EbookIcon,
+      iconClass: "border-cyan-200 text-cyan-900",
       label: "Libro digital",
+      panelClass: "border-cyan-100 bg-cyan-50 text-cyan-950",
     };
   }
 
   if (normalizedType === "manual") {
     return {
-      accentClass: "bg-gradient-to-br from-emerald-700 to-blue-950",
       Icon: ManualIcon,
+      iconClass: "border-emerald-200 text-emerald-900",
       label: "Manual",
+      panelClass: "border-emerald-100 bg-emerald-50 text-emerald-950",
     };
   }
 
   if (normalizedType === "monograph") {
     return {
-      accentClass: "bg-gradient-to-br from-slate-700 to-blue-950",
       Icon: MonographIcon,
+      iconClass: "border-slate-200 text-slate-800",
       label: "Monografía",
+      panelClass: "border-slate-100 bg-slate-50 text-slate-800",
     };
   }
 
   if (normalizedType === "conferenceProceedings") {
     return {
-      accentClass: "bg-gradient-to-br from-amber-700 to-blue-950",
       Icon: ProceedingsIcon,
+      iconClass: "border-amber-200 text-amber-900",
       label: "Memorias",
+      panelClass: "border-amber-100 bg-amber-50 text-amber-950",
     };
   }
 
   if (normalizedType === "technicalReport") {
     return {
-      accentClass: "bg-gradient-to-br from-zinc-700 to-blue-950",
       Icon: ReportIcon,
+      iconClass: "border-zinc-200 text-zinc-800",
       label: "Informe técnico",
+      panelClass: "border-zinc-100 bg-zinc-50 text-zinc-800",
     };
   }
 
   if (normalizedType === "dataset") {
     return {
-      accentClass: "bg-gradient-to-br from-teal-700 to-blue-950",
       Icon: DatasetIcon,
+      iconClass: "border-teal-200 text-teal-900",
       label: "Datos",
+      panelClass: "border-teal-100 bg-teal-50 text-teal-950",
     };
   }
 
   if (normalizedType === "openEducationalResource") {
     return {
-      accentClass: "bg-gradient-to-br from-green-700 to-blue-950",
       Icon: OpenResourceIcon,
+      iconClass: "border-green-200 text-green-900",
       label: "Recurso educativo",
+      panelClass: "border-green-100 bg-green-50 text-green-950",
     };
   }
 
   if (normalizedType === "podcast") {
     return {
-      accentClass: "bg-gradient-to-br from-indigo-700 to-blue-950",
       Icon: PodcastIcon,
+      iconClass: "border-indigo-200 text-indigo-900",
       label: "Podcast",
+      panelClass: "border-indigo-100 bg-indigo-50 text-indigo-950",
     };
   }
 
   if (normalizedType === "video") {
     return {
-      accentClass: "bg-gradient-to-br from-red-700 to-blue-950",
       Icon: VideoIcon,
+      iconClass: "border-rose-200 text-rose-900",
       label: "Video",
+      panelClass: "border-rose-100 bg-rose-50 text-rose-950",
     };
   }
 
   if (normalizedType === "thesis") {
     return {
-      accentClass: "bg-gradient-to-br from-violet-700 to-blue-950",
       Icon: ThesisIcon,
+      iconClass: "border-violet-200 text-violet-900",
       label: "Tesis",
+      panelClass: "border-violet-100 bg-violet-50 text-violet-950",
     };
   }
 
   if (normalizedType === "journal") {
     return {
-      accentClass: "bg-gradient-to-br from-sky-700 to-blue-950",
       Icon: JournalIcon,
+      iconClass: "border-sky-200 text-sky-900",
       label: "Revista",
+      panelClass: "border-sky-100 bg-sky-50 text-sky-950",
     };
   }
 
   if (normalizedType === "bookChapter") {
     return {
-      accentClass: "bg-gradient-to-br from-orange-700 to-blue-950",
       Icon: ChapterIcon,
+      iconClass: "border-orange-200 text-orange-900",
       label: "Capítulo",
+      panelClass: "border-orange-100 bg-orange-50 text-orange-950",
     };
   }
 
   return {
-    accentClass: "bg-gradient-to-br from-slate-700 to-blue-950",
     Icon: PublicationIcon,
+    iconClass: "border-slate-200 text-slate-800",
     label: formatPublicationType(type),
+    panelClass: "border-slate-100 bg-slate-50 text-slate-800",
   };
 }
 
@@ -622,35 +616,43 @@ function PublicationIcon() {
   );
 }
 
-function PublisherLink({ publisher }: { readonly publisher: PublisherSummary }) {
+function PublisherCard({ publisher }: { readonly publisher: PublisherSummary }) {
   return (
-    <li>
+    <article className="overflow-hidden rounded-md border border-sky-200 bg-white shadow-sm">
+      <div className="border-b border-sky-500 bg-sky-700 px-4 py-2 text-xs font-bold uppercase tracking-normal text-white">
+        Editorial universitaria
+      </div>
       <Link
-        className="grid grid-cols-[2.5rem_minmax(0,1fr)] items-center gap-3 rounded-md border border-slate-100 p-2 hover:border-blue-200 hover:bg-blue-50"
+        className="grid grid-cols-[3.25rem_minmax(0,1fr)] gap-3 bg-sky-50 px-4 py-4 hover:text-sky-950"
         href={`/editoriales/${publisher.id}`}
       >
-        <span className="flex h-10 w-10 items-center justify-center rounded-md bg-blue-950 text-sm font-bold text-white">
+        <span className="flex h-12 w-12 items-center justify-center rounded-md border border-sky-300 bg-white text-sm font-bold text-sky-950 shadow-sm">
           {getInitials(publisher.acronym ?? publisher.officialName)}
         </span>
         <span className="min-w-0">
-          <span className="block truncate text-sm font-bold text-slate-950">
-            {publisher.acronym ?? publisher.officialName}
+          <span className="block break-words text-base font-bold leading-snug text-slate-950">
+            {publisher.officialName}
           </span>
-          <span className="block truncate text-xs text-slate-500">{publisher.country}</span>
+          <span className="mt-1 block text-xs font-semibold uppercase tracking-normal text-slate-500">
+            {publisher.acronym ?? "Editorial"} · {publisher.country}
+          </span>
         </span>
       </Link>
-    </li>
-  );
-}
-
-function SubjectChip({ subject }: { readonly subject: SubjectSummary }) {
-  return (
-    <Link
-      className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-950"
-      href={`/materias/${encodeURIComponent(subject.identifier)}`}
-    >
-      {subject.preferredLabel}
-    </Link>
+      <div className="px-4 py-3">
+        <p className="text-xs font-semibold uppercase tracking-normal text-sky-800">
+          Registro editorial
+        </p>
+        <p className="mt-1 text-sm leading-6 text-slate-600">
+          Editorial universitaria integrada a la red nacional EDUNIV.
+        </p>
+        <Link
+          className="mt-4 inline-flex text-sm font-bold text-blue-800 hover:text-blue-950"
+          href={`/editoriales/${publisher.id}`}
+        >
+          Ver ficha
+        </Link>
+      </div>
+    </article>
   );
 }
 
@@ -674,24 +676,6 @@ function CollectionCard({ collection }: { readonly collection: CollectionSummary
         {collection.publicationCount} publicaciones
       </p>
     </article>
-  );
-}
-
-function ProcessPanel({
-  label,
-  title,
-  value,
-}: {
-  readonly label: string;
-  readonly title: string;
-  readonly value: string;
-}) {
-  return (
-    <section className="border-l-4 border-blue-800 bg-white p-5 shadow-sm">
-      <p className="text-xs font-bold uppercase tracking-normal text-blue-800">{label}</p>
-      <h2 className="mt-2 text-lg font-bold text-slate-950">{title}</h2>
-      <p className="mt-2 text-sm leading-6 text-slate-600">{value}</p>
-    </section>
   );
 }
 

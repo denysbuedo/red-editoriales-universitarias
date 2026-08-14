@@ -11,21 +11,28 @@ describe("HomePage", () => {
   it("renders the institutional home with catalog data", async () => {
     const html = renderToStaticMarkup(await HomePage());
 
-    expect(html).toContain("Catálogo nacional de editoriales universitarias");
+    expect(html).toContain("Catálogo de la Red de Editoriales Universitarias Cubanas");
     expect(html).toContain(
-      "Punto de acceso público a la producción editorial universitaria cubana",
+      "Acceso nacional a libros, folletos, memorias, manuales y otras publicaciones",
     );
+    expect(html).toContain("Buscar por título, autor, editorial, ISBN o materia");
     expect(html).toContain("Publicaciones");
     expect(html).toContain("Editoriales");
     expect(html).toContain("Autores");
     expect(html).toContain("Colecciones");
+    expect(html).toContain("Novedades");
     expect(html).toContain("Publicaciones recientes");
     expect(html).toContain("Arquitectura empresarial para universidades");
-    expect(html).toContain("Editoriales integradas");
-    expect(html).toContain("Materias principales");
-    expect(html).toContain("Colecciones activas");
-    expect(html).toContain("Omeka S");
-    expect(html).toContain("Portal PNPU");
+    expect(html).not.toContain("Red EDUNIV");
+    expect(html).not.toContain("Conocer más");
+    expect(html).toContain("Red de Editoriales");
+    expect(html).toContain("Directorio editorial");
+    expect(html).not.toContain("Ver todas");
+    expect(html).not.toContain("Ver colecciones");
+    expect(html).not.toContain("Explorar por materias");
+    expect(html).toContain("Colecciones destacadas");
+    expect(html).not.toContain("Omeka S");
+    expect(html).not.toContain("Portal PNPU");
     expect(html).not.toContain("Consultar catálogo");
     expect(html).not.toContain("Directorio de editoriales");
     expect(html).not.toContain("Estado del catálogo");
