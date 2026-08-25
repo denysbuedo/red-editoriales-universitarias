@@ -57,7 +57,6 @@ function planCleanup(cleanupContext) {
   );
   const publicationIds = new Set(
     cleanupContext.items
-      .filter((item) => isTemplate(item, "PNPU Publication"))
       .filter((item) => publicationTitles.has(readFirstLiteral(item, "dcterms:title")))
       .map(readOmekaId),
   );
@@ -76,31 +75,31 @@ function planCleanup(cleanupContext) {
 }
 
 function isSampleItem(resource) {
-  if (matchesTemplateAndLiteral(resource, "PNPU Publication", "dcterms:title", sampleTitles("publications"))) {
+  if (matchesLiteral(resource, "dcterms:title", sampleTitles("publications"))) {
     return true;
   }
 
-  if (matchesTemplateAndLiteral(resource, "PNPU Contributor", "foaf:name", sampleNames("contributors"))) {
+  if (matchesLiteral(resource, "foaf:name", sampleNames("contributors"))) {
     return true;
   }
 
-  if (matchesTemplateAndLiteral(resource, "PNPU Subject", "skos:notation", sampleNotations())) {
+  if (matchesLiteral(resource, "skos:notation", sampleNotations())) {
     return true;
   }
 
-  if (matchesTemplateAndLiteral(resource, "PNPU Publisher", "schema:name", sampleNames("publishers"))) {
+  if (matchesLiteral(resource, "schema:name", sampleNames("publishers"))) {
     return true;
   }
 
-  return matchesTemplateAndLiteral(resource, "PNPU University", "schema:name", sampleNames("universities"));
+  return matchesLiteral(resource, "schema:name", sampleNames("universities"));
 }
 
 function isSampleItemSet(resource) {
-  return matchesTemplateAndLiteral(resource, "PNPU Collection", "dcterms:title", sampleTitles("collections"));
+  return matchesLiteral(resource, "dcterms:title", sampleTitles("collections"));
 }
 
-function matchesTemplateAndLiteral(resource, templateLabel, term, values) {
-  return isTemplate(resource, templateLabel) && values.has(readFirstLiteral(resource, term));
+function matchesLiteral(resource, term, values) {
+  return values.has(readFirstLiteral(resource, term));
 }
 
 function sampleNames(kind) {
@@ -215,10 +214,6 @@ async function fetchOmeka(path, options) {
   } finally {
     clearTimeout(timeout);
   }
-}
-
-function isTemplate(resource, templateLabel) {
-  return readTemplateLabel(resource) === templateLabel;
 }
 
 function readTemplateLabel(resource) {

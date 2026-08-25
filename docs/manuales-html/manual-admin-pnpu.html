@@ -194,7 +194,7 @@ npm run omeka:seed-sample</code></pre>
     <p>Antes de iniciar un piloto con datos reales, retirar el seed:</p>
     <pre><code>npm run omeka:cleanup-sample -- --dry-run
 PNPU_OMEKA_CLEANUP_CONFIRM=delete-sample-data npm run omeka:cleanup-sample</code></pre>
-    <p>La limpieza solo elimina recursos que coinciden con las plantillas y nombres/titulos del seed de prueba. No elimina vocabularios, propiedades ni Resource Templates.</p>
+    <p>La limpieza solo elimina recursos que coinciden con nombres, titulos o notaciones conocidos del seed de prueba. No elimina vocabularios, propiedades ni Resource Templates.</p>
     <h2>Validacion del mapeo Omeka a PNPU</h2>
     <p>Ejecutar:</p>
     <pre><code>npm run omeka:map</code></pre>

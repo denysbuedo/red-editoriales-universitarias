@@ -143,7 +143,7 @@ carga falla explicitamente si el perfil PNPU aun no esta instalado.
 
 Antes de iniciar un piloto con datos reales, retirar los recursos creados por el seed PNPU. La
 limpieza no toca vocabularios, propiedades ni Resource Templates. Tampoco borra recursos reales que
-no coincidan con las plantillas y nombres/titulos del seed de prueba.
+no coincidan con nombres, titulos o notaciones conocidos del seed de prueba.
 
 Ejecutar primero una simulacion:
 

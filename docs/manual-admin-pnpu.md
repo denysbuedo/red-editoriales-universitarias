@@ -146,8 +146,8 @@ npm run omeka:cleanup-sample -- --dry-run
 PNPU_OMEKA_CLEANUP_CONFIRM=delete-sample-data npm run omeka:cleanup-sample
 ```
 
-La limpieza solo elimina recursos que coinciden con las plantillas y nombres/titulos del seed de
-prueba. No elimina vocabularios, propiedades ni Resource Templates.
+La limpieza solo elimina recursos que coinciden con nombres, titulos o notaciones conocidos del
+seed de prueba. No elimina vocabularios, propiedades ni Resource Templates.
 
 ## Validacion del mapeo Omeka a PNPU
 
