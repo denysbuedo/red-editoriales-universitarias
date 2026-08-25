@@ -13,6 +13,7 @@ export {
 export {
   buildOmekaCatalogOperationalDiagnostics,
   checkOmekaHealth,
+  createOmekaCatalogRepositoriesFromApi,
   HttpOmekaApiClient,
   invalidateOmekaCatalogRepositoryCache,
   readOmekaCatalogRepositoryCacheSnapshot,

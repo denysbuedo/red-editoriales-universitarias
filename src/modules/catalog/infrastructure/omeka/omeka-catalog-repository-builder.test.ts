@@ -5,7 +5,13 @@ import {
   invalidateOmekaCatalogRepositoryCache,
   readOmekaCatalogRepositoryCacheSnapshot,
 } from "./omeka-catalog-repository-builder";
-import { createCompleteOmekaCatalogSnapshot } from "./omeka-test-fixtures";
+import {
+  createCompleteOmekaCatalogSnapshot,
+  linkedResource,
+  literals,
+  omekaResource,
+} from "./omeka-test-fixtures";
+import { OMEKA_PNPU_RESOURCE_TEMPLATES } from "./omeka-resource-template-classifier";
 
 class FakeOmekaApiClient implements OmekaApiClient {
   public itemListCalls = 0;
@@ -85,6 +91,29 @@ describe("createOmekaCatalogRepositoriesFromApi", () => {
     });
     expect(publications.pagination.total).toBe(1);
     expect(publications.data[0]?.title()).toBe("Gestion editorial universitaria");
+  });
+
+  it("omits rejected Omeka records without making the repository unusable", async () => {
+    const snapshot = createCompleteOmekaCatalogSnapshot();
+    const invalidPublisher = omekaResource(41, OMEKA_PNPU_RESOURCE_TEMPLATES.publisher, {
+      "pnpu:uuid": literals("01990f5a-0000-7000-8000-000000000501"),
+      "schema:name": literals("Editorial con pais invalido"),
+      "schema:parentOrganization": linkedResource(30),
+      "schema:addressCountry": literals("Cuba"),
+    });
+    const client = new FakeOmekaApiClient(
+      [...snapshot.items, invalidPublisher],
+      snapshot.itemSets,
+      snapshot.media,
+      snapshot.resourceTemplates,
+    );
+
+    const result = await createOmekaCatalogRepositoriesFromApi(client);
+    const publishers = await result.repositories.publishers.list({ page: 1, pageSize: 10 });
+
+    expect(result.catalog.quality.rejectedCount).toBe(1);
+    expect(publishers.pagination.total).toBe(1);
+    expect(publishers.data[0]?.officialName()).toBe("Editorial UH");
   });
 
   it("reuses a cached Omeka catalog while TTL is valid", async () => {

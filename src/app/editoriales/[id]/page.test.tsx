@@ -15,16 +15,20 @@ describe("PublisherDetailPage", () => {
     expect(html).toContain("Universidad de La Habana");
     expect(html).toContain("RNEU-UH");
     expect(html).toContain("editorial@uh.cu");
-    expect(html).toContain("ID PNPU editorial");
+    expect(html).toContain("Entidad responsable");
     expect(html).toContain("Datos institucionales");
     expect(html).toContain("Contacto y enlaces");
     expect(html).toContain("Materias");
     expect(html).toContain("País");
+    expect(html).not.toContain("ID PNPU editorial");
+    expect(html).not.toContain("ID PNPU universidad");
+    expect(html).not.toContain("Sigla universitaria");
+    expect(html).not.toContain("Código institucional");
     expect(html).not.toContain("Resumen institucional");
     expect(html).not.toContain("Logo de Editorial Universidad de La Habana");
     expect(html).toContain('type="application/ld+json"');
     expect(html).toContain('"@type":"Organization"');
-    expect(html).toContain('"@type":"CollegeOrUniversity"');
+    expect(html).not.toContain('"@type":"CollegeOrUniversity"');
     expect(html).toContain('"contactType":"institutional"');
   });
 

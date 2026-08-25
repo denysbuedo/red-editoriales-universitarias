@@ -54,6 +54,25 @@ siendo una responsabilidad administrativa nacional hasta que se active el flujo 
 | Item Set `PNPU Collection` | Coleccion editorial                                        |
 | Media                      | PDF, EPUB, enlace, cubierta u otro recurso digital         |
 
+## Tipos de valor en Omeka
+
+Omeka permite registrar un campo como texto literal, URI o recurso enlazado. PNPU depende de esa
+diferencia para mapear correctamente el catalogo.
+
+Reglas practicas:
+
+- nombres, titulos, correos y telefonos se registran como texto literal;
+- `schema:url`, `schema:logo` y `schema:contactPoint` se registran como URI completa, por ejemplo
+  `https://www.eduniv.cu/`;
+- `schema:parentOrganization`, `dcterms:publisher`, `dcterms:creator`, `dcterms:subject` y
+  `dcterms:isPartOf` se registran como recurso enlazado, no como texto escrito manualmente;
+- `schema:addressCountry` usa codigo ISO de dos letras, por ejemplo `CU`, no `Cuba`;
+- si un valor no existe o no esta confirmado, es preferible dejarlo vacio antes que escribir texto
+  que no corresponde al tipo esperado.
+
+Los registros que no cumplan estas reglas pueden quedar fuera del catalogo publico hasta que sean
+corregidos.
+
 ## Plantillas de carga para el piloto
 
 En PNPU, entrar a `Administración -> Importación de publicaciones`.

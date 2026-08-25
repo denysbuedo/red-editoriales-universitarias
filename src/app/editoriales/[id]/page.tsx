@@ -70,23 +70,7 @@ export default async function PublisherDetailPage({ params }: PublisherPageProps
         description={publisher.description ?? `Ficha pública de ${publisher.officialName}.`}
         eyebrow="Editorial universitaria"
         title={publisher.officialName}
-      >
-        <div className="flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-normal">
-          {publisher.acronym === undefined ? null : (
-            <span className="rounded-md bg-white px-2.5 py-1.5 text-blue-950">
-              {publisher.acronym}
-            </span>
-          )}
-          {publisher.publisherCode === undefined ? null : (
-            <span className="rounded-md bg-sky-100 px-2.5 py-1.5 text-sky-950">
-              {publisher.publisherCode}
-            </span>
-          )}
-          <span className="rounded-md border border-white/30 px-2.5 py-1.5 text-white">
-            {publisher.province ?? publisher.country}
-          </span>
-        </div>
-      </PageHero>
+      />
 
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
         <article>
@@ -105,21 +89,15 @@ export default async function PublisherDetailPage({ params }: PublisherPageProps
               </div>
               <div className="border-t border-slate-100 px-4 pb-5 sm:px-5">
                 <dl className="mt-5 grid gap-4 md:grid-cols-2">
-                  <DescriptionPair label="ID PNPU editorial" value={publisher.id} />
                   <DescriptionPair
-                    label="Código institucional"
-                    value={publisher.publisherCode ?? "No registrado"}
+                    label="Entidad responsable"
+                    value={formatResponsibleEntity(publisher)}
                   />
                   <DescriptionPair
-                    label="Sigla universitaria"
-                    value={publisher.university.acronym ?? "No registrada"}
+                    label="Ubicación"
+                    value={publisher.province ?? publisher.university.province ?? "No registrada"}
                   />
-                  <DescriptionPair label="ID PNPU universidad" value={publisher.university.id} />
-                  <DescriptionPair
-                    label="Provincia universidad"
-                    value={publisher.university.province ?? "No registrada"}
-                  />
-                  <DescriptionPair label="País universidad" value={publisher.university.country} />
+                  <DescriptionPair label="País" value={publisher.country} />
                 </dl>
               </div>
             </div>
@@ -139,7 +117,7 @@ export default async function PublisherDetailPage({ params }: PublisherPageProps
                   />
                   <LinkPair label="Sitio web" value={publisher.website} />
                   <LinkPair label="Contacto institucional" value={publisher.contactPoint?.url} />
-                  <LinkPair label="Universidad" value={publisher.university.website} />
+                  <OrganizationPair publisher={publisher} />
                 </dl>
               </div>
             </div>
@@ -259,6 +237,25 @@ function LinkPair({
   );
 }
 
+function OrganizationPair({ publisher }: { readonly publisher: PublisherDetail }) {
+  const name = publisher.university.officialName;
+
+  if (publisher.university.website === undefined) {
+    return <DescriptionPair label="Entidad responsable" value={name} />;
+  }
+
+  return (
+    <div className="min-w-0">
+      <dt className="font-semibold text-slate-500">Entidad responsable</dt>
+      <dd className="mt-1 break-words">
+        <a className="text-blue-800 hover:text-blue-950" href={publisher.university.website}>
+          {name}
+        </a>
+      </dd>
+    </div>
+  );
+}
+
 function PublicationRow({ publication }: { readonly publication: PublicationSummary }) {
   return (
     <li className="grid gap-3 p-4 transition hover:bg-blue-50 md:grid-cols-[minmax(0,1fr)_160px] md:items-start">
@@ -326,6 +323,12 @@ function countSubjects(publications: readonly PublicationSummary[]): number {
   ).size;
 }
 
+function formatResponsibleEntity(publisher: PublisherDetail): string {
+  return publisher.university.acronym === undefined
+    ? publisher.university.officialName
+    : `${publisher.university.officialName} (${publisher.university.acronym})`;
+}
+
 function buildPublisherJsonLd(publisher: PublisherDetail, url: string): JsonLdObject {
   return {
     "@context": "https://schema.org",
@@ -343,8 +346,8 @@ function buildPublisherJsonLd(publisher: PublisherDetail, url: string): JsonLdOb
     },
     sameAs: publisher.website,
     parentOrganization: {
-      "@type": "CollegeOrUniversity",
-      "@id": `${publisher.university.website ?? url}#university`,
+      "@type": "Organization",
+      "@id": `${publisher.university.website ?? url}#parent-organization`,
       name: publisher.university.officialName,
       alternateName: publisher.university.acronym,
       identifier: publisher.university.id,

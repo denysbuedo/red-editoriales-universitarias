@@ -98,16 +98,10 @@ export async function createCatalogRepositoriesAsync(
     );
   }
 
-  const { catalog, repositories } = await createOmekaCatalogRepositoriesFromApi(
+  const { repositories } = await createOmekaCatalogRepositoriesFromApi(
     new HttpOmekaApiClient(config),
     readOmekaCatalogRepositoryOptions(environment, config.baseUrl),
   );
-
-  if (catalog.quality.rejectedCount > 0) {
-    throw ApplicationError.serviceUnavailable(
-      "Omeka S catalog contains PNPU mapping errors and cannot be used as active repository.",
-    );
-  }
 
   return {
     mode,

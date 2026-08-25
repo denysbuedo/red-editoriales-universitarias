@@ -131,6 +131,20 @@
     <p>La asignacion de editorial debe viajar en una claim OIDC como <code>pnpu_editorial_ids</code>. Un responsable solo debe operar registros de su propia editorial. La aprobacion final de escritura en Omeka S sigue siendo una responsabilidad administrativa nacional hasta que se active el flujo editorial completo.</p>
     <h2>Conceptos basicos</h2>
     <table><thead><tr><th>Concepto en Omeka</th><th>Uso en PNPU</th></tr></thead><tbody><tr><td>Item <code>PNPU Publication</code></td><td>Publicacion del catalogo</td></tr><tr><td>Item <code>PNPU Contributor</code></td><td>Autor, editor, revisor u otra persona/entidad participante</td></tr><tr><td>Item <code>PNPU Publisher</code></td><td>Editorial universitaria</td></tr><tr><td>Item <code>PNPU University</code></td><td>Universidad asociada</td></tr><tr><td>Item <code>PNPU Subject</code></td><td>Materia o termino controlado</td></tr><tr><td>Item Set <code>PNPU Collection</code></td><td>Coleccion editorial</td></tr><tr><td>Media</td><td>PDF, EPUB, enlace, cubierta u otro recurso digital</td></tr></tbody></table>
+    <h2>Tipos de valor en Omeka</h2>
+    <p>Omeka permite registrar un campo como texto literal, URI o recurso enlazado. PNPU depende de esa diferencia para mapear correctamente el catalogo.</p>
+    <p>Reglas practicas:</p>
+    <ul>
+    <li>nombres, titulos, correos y telefonos se registran como texto literal;</li>
+    <li><code>schema:url</code>, <code>schema:logo</code> y <code>schema:contactPoint</code> se registran como URI completa, por ejemplo</li>
+    <p><code>https://www.eduniv.cu/</code>;</p>
+    <li><code>schema:parentOrganization</code>, <code>dcterms:publisher</code>, <code>dcterms:creator</code>, <code>dcterms:subject</code> y</li>
+    <p><code>dcterms:isPartOf</code> se registran como recurso enlazado, no como texto escrito manualmente;</p>
+    <li><code>schema:addressCountry</code> usa codigo ISO de dos letras, por ejemplo <code>CU</code>, no <code>Cuba</code>;</li>
+    <li>si un valor no existe o no esta confirmado, es preferible dejarlo vacio antes que escribir texto</li>
+    <p>que no corresponde al tipo esperado.</p>
+    </ul>
+    <p>Los registros que no cumplan estas reglas pueden quedar fuera del catalogo publico hasta que sean corregidos.</p>
     <h2>Plantillas de carga para el piloto</h2>
     <p>En PNPU, entrar a <code>Administración -&gt; Importación de publicaciones</code>.</p>
     <p>Descargar:</p>
