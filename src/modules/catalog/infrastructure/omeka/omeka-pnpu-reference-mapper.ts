@@ -201,12 +201,12 @@ export function mapOmekaPublisher(
         university,
         province: readFirstLiteral(resource, "schema:addressLocality") ?? undefined,
         country,
-        website: readFirstUri(resource, "schema:url") ?? undefined,
-        logo: readFirstUri(resource, "schema:logo") ?? undefined,
+        website: readFirstUrl(resource, "schema:url"),
+        logo: readFirstUrl(resource, "schema:logo"),
         contactPoint: {
           email: readFirstLiteral(resource, "schema:email") ?? undefined,
           telephone: readFirstLiteral(resource, "schema:telephone") ?? undefined,
-          url: readFirstUri(resource, "schema:contactPoint") ?? undefined,
+          url: readFirstUrl(resource, "schema:contactPoint"),
         },
       }),
   );
@@ -280,6 +280,34 @@ function readPnpuUuid(
   } catch (error) {
     rejectInvalid(resource, quality, templateLabel, "pnpu:uuid", error);
     return null;
+  }
+}
+
+function readFirstUrl(resource: OmekaJsonObject, term: string): string | undefined {
+  const rawValue = readFirstUri(resource, term) ?? readFirstLiteral(resource, term);
+
+  if (rawValue === null) {
+    return undefined;
+  }
+
+  return normalizeLooseUrl(rawValue);
+}
+
+function normalizeLooseUrl(value: string): string | undefined {
+  const trimmedValue = value.trim();
+
+  if (trimmedValue.length === 0) {
+    return undefined;
+  }
+
+  const candidate = /^[a-z][a-z\d+.-]*:/i.test(trimmedValue)
+    ? trimmedValue
+    : `https://${trimmedValue}`;
+
+  try {
+    return new URL(candidate).toString();
+  } catch {
+    return undefined;
   }
 }
 

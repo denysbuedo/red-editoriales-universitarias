@@ -139,6 +139,16 @@ La carga de prueba crea:
 
 La carga productiva no debe depender de estos datos de prueba.
 
+Antes de iniciar un piloto con datos reales, retirar el seed:
+
+```bash
+npm run omeka:cleanup-sample -- --dry-run
+PNPU_OMEKA_CLEANUP_CONFIRM=delete-sample-data npm run omeka:cleanup-sample
+```
+
+La limpieza solo elimina recursos que coinciden con las plantillas y nombres/titulos del seed de
+prueba. No elimina vocabularios, propiedades ni Resource Templates.
+
 ## Validacion del mapeo Omeka a PNPU
 
 Ejecutar:

@@ -16,10 +16,11 @@ describe("PublisherDetailPage", () => {
     expect(html).toContain("RNEU-UH");
     expect(html).toContain("editorial@uh.cu");
     expect(html).toContain("Entidad responsable");
-    expect(html).toContain("Datos institucionales");
-    expect(html).toContain("Contacto y enlaces");
+    expect(html).toContain("Información editorial");
     expect(html).toContain("Materias");
     expect(html).toContain("País");
+    expect(html).not.toContain("Datos institucionales");
+    expect(html).not.toContain("Contacto y enlaces");
     expect(html).not.toContain("ID PNPU editorial");
     expect(html).not.toContain("ID PNPU universidad");
     expect(html).not.toContain("Sigla universitaria");

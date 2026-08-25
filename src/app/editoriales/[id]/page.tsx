@@ -80,15 +80,15 @@ export default async function PublisherDetailPage({ params }: PublisherPageProps
             <Metric label="Materias" value={countSubjects(publications)} />
           </dl>
 
-          <section className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
+          <section className="mt-8">
             <div className="overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm">
               <div className="border-l-4 border-blue-900 bg-white px-4 py-4 sm:px-5">
                 <h2 className="text-lg font-semibold text-slate-950 sm:text-xl">
-                  Datos institucionales
+                  Información editorial
                 </h2>
               </div>
               <div className="border-t border-slate-100 px-4 pb-5 sm:px-5">
-                <dl className="mt-5 grid gap-4 md:grid-cols-2">
+                <dl className="mt-5 grid gap-x-6 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
                   <DescriptionPair
                     label="Entidad responsable"
                     value={formatResponsibleEntity(publisher)}
@@ -98,18 +98,6 @@ export default async function PublisherDetailPage({ params }: PublisherPageProps
                     value={publisher.province ?? publisher.university.province ?? "No registrada"}
                   />
                   <DescriptionPair label="País" value={publisher.country} />
-                </dl>
-              </div>
-            </div>
-
-            <div className="overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm">
-              <div className="border-l-4 border-sky-500 bg-white px-4 py-4 sm:px-5">
-                <h2 className="text-lg font-semibold text-slate-950 sm:text-xl">
-                  Contacto y enlaces
-                </h2>
-              </div>
-              <div className="border-t border-slate-100 px-4 pb-5 sm:px-5">
-                <dl className="mt-5 grid gap-4 text-sm">
                   <EmailPair label="Correo de contacto" value={publisher.contactPoint?.email} />
                   <DescriptionPair
                     label="Teléfono"
@@ -117,7 +105,6 @@ export default async function PublisherDetailPage({ params }: PublisherPageProps
                   />
                   <LinkPair label="Sitio web" value={publisher.website} />
                   <LinkPair label="Contacto institucional" value={publisher.contactPoint?.url} />
-                  <OrganizationPair publisher={publisher} />
                 </dl>
               </div>
             </div>
@@ -231,25 +218,6 @@ function LinkPair({
       <dd className="mt-1 break-words">
         <a className="text-blue-800 hover:text-blue-950" href={value}>
           {value}
-        </a>
-      </dd>
-    </div>
-  );
-}
-
-function OrganizationPair({ publisher }: { readonly publisher: PublisherDetail }) {
-  const name = publisher.university.officialName;
-
-  if (publisher.university.website === undefined) {
-    return <DescriptionPair label="Entidad responsable" value={name} />;
-  }
-
-  return (
-    <div className="min-w-0">
-      <dt className="font-semibold text-slate-500">Entidad responsable</dt>
-      <dd className="mt-1 break-words">
-        <a className="text-blue-800 hover:text-blue-950" href={publisher.university.website}>
-          {name}
         </a>
       </dd>
     </div>

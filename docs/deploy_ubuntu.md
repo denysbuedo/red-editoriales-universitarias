@@ -464,6 +464,20 @@ npm run omeka:seed-sample
 npm run omeka:map
 ```
 
+Para ambiente piloto o produccion inicial, no mantener datos del seed. Ejecutar primero la
+simulacion:
+
+```bash
+cd /opt/pnpu/tools/omeka
+npm run omeka:cleanup-sample -- --dry-run
+```
+
+Si el plan contiene solo recursos de prueba, ejecutar la limpieza:
+
+```bash
+PNPU_OMEKA_CLEANUP_CONFIRM=delete-sample-data npm run omeka:cleanup-sample
+```
+
 Refrescar el snapshot de la plataforma:
 
 ```bash

@@ -80,9 +80,11 @@ La composicion de repositorios se centraliza en `createCatalogRepositories` para
 `PNPU_CATALOG_REPOSITORY`.
 
 `PNPU_CATALOG_REPOSITORY=omeka` esta cableado solo en la composicion asincrona usada por las paginas
-y rutas HTTP. Requiere `PNPU_OMEKA_REQUIRE_APPROVED_MAPPING=true`, `PNPU_OMEKA_BASE_URL` configurado
-y un catalogo Omeka sin rechazos de calidad en el mapeo. Sin esas condiciones, la aplicacion falla
-de forma explicita y conserva el modo `in-memory` como valor por defecto.
+y rutas HTTP. Requiere `PNPU_OMEKA_REQUIRE_APPROVED_MAPPING=true` y `PNPU_OMEKA_BASE_URL`
+configurado. Los recursos Omeka con errores de mapeo se omiten del repositorio activo y quedan
+reportados en `/health/catalog`; el sitio publico no debe fallar completo por un registro invalido.
+Sin perfil aprobado o URL configurada, la aplicacion falla de forma explicita y conserva el modo
+`in-memory` como valor por defecto.
 
 ## Adaptador Omeka S
 

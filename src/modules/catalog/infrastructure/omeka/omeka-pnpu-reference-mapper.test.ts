@@ -117,6 +117,46 @@ describe("omeka-pnpu-reference-mapper", () => {
     expect(quality.snapshot()).toMatchObject({ rejectedCount: 0 });
   });
 
+  it("normalizes scheme-less publisher links and ignores non-URL contact point literals", () => {
+    const quality = new OmekaQualityReport();
+    const university = mapOmekaUniversity(
+      resource(32, {
+        "pnpu:uuid": literals("01990f5a-0000-7000-8000-000000000012"),
+        "schema:name": literals("Ministerio de Educación Superior"),
+        "schema:alternateName": literals("MES"),
+        "schema:addressCountry": literals("CU"),
+      }),
+      quality,
+    );
+
+    expect(university).not.toBeNull();
+
+    if (university === null) {
+      throw new Error("Expected valid university fixture.");
+    }
+
+    const publisher = mapOmekaPublisher(
+      resource(42, {
+        "pnpu:uuid": literals("01990f5a-0000-7000-8000-000000000013"),
+        "schema:name": literals("Editorial Universitaria"),
+        "schema:parentOrganization": linkedResource(32),
+        "schema:addressCountry": literals("CU"),
+        "schema:url": literals("www.eduniv.cu"),
+        "schema:contactPoint": literals("Raúl Gonzalo Toricella Morales"),
+      }),
+      {
+        universitiesByOmekaId: new Map([[32, university]]),
+      },
+      quality,
+    );
+
+    expect(publisher?.snapshot()).toMatchObject({
+      website: "https://www.eduniv.cu/",
+      contactPoint: {},
+    });
+    expect(quality.snapshot()).toMatchObject({ rejectedCount: 0 });
+  });
+
   it("rejects incomplete resources without throwing", () => {
     const quality = new OmekaQualityReport();
 

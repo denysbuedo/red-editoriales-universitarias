@@ -234,8 +234,8 @@ Estado de implementacion tecnica:
 - Mappers Omeka -> PNPU para referencias, publicaciones y recursos digitales: implementados con
   fixtures de integracion.
 - Repositorios Omeka como fuente activa: implementados mediante `createCatalogRepositoriesAsync`,
-  protegidos por `PNPU_OMEKA_REQUIRE_APPROVED_MAPPING=true` y por rechazo automatico cuando el
-  catalogo Omeka contiene errores de mapeo PNPU.
+  protegidos por `PNPU_OMEKA_REQUIRE_APPROVED_MAPPING=true`; los recursos con errores de mapeo PNPU
+  se omiten del repositorio activo y se reportan en diagnosticos operativos.
 
 ## 13. Variables de entorno
 

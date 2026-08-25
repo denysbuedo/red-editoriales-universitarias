@@ -139,6 +139,33 @@ El seed crea, si no existen:
 La deteccion de duplicados usa `pnpu:uuid` para recursos PNPU y `skos:notation` para materias. La
 carga falla explicitamente si el perfil PNPU aun no esta instalado.
 
+## Limpieza del seed de prueba
+
+Antes de iniciar un piloto con datos reales, retirar los recursos creados por el seed PNPU. La
+limpieza no toca vocabularios, propiedades ni Resource Templates. Tampoco borra recursos reales que
+no coincidan con las plantillas y nombres/titulos del seed de prueba.
+
+Ejecutar primero una simulacion:
+
+```bash
+npm run omeka:cleanup-sample -- --dry-run
+```
+
+Si el plan muestra solo recursos de prueba, ejecutar la limpieza confirmada:
+
+```bash
+PNPU_OMEKA_CLEANUP_CONFIRM=delete-sample-data npm run omeka:cleanup-sample
+```
+
+Despues de limpiar, ejecutar:
+
+```bash
+npm run omeka:map
+curl -X POST \
+  -H "X-PNPU-Refresh-Token: $PNPU_CATALOG_REFRESH_TOKEN" \
+  http://127.0.0.1:4307/health/catalog/refresh
+```
+
 ## Carga manual de vocabularios
 
 La instalacion base de Omeka S incluye `dcterms`, `dctype`, `bibo` y `foaf`. Para PNPU faltan tres
@@ -206,9 +233,9 @@ PNPU_CATALOG_REFRESH_TOKEN=...
 ```
 
 Con esas variables, las paginas y rutas `/v1` cargan el catalogo desde la API publica de Omeka S,
-lo convierten al modelo de dominio PNPU y lo exponen mediante los mismos servicios de aplicacion. Si
-el mapeo genera rechazos de calidad, la activacion falla con `PNPU-503` para evitar publicar datos
-incompletos.
+lo convierten al modelo de dominio PNPU y lo exponen mediante los mismos servicios de aplicacion.
+Los recursos con errores de mapeo se omiten del repositorio activo y se reportan en
+`/health/catalog` para correccion operativa.
 
 La navegacion publica consume las mismas consultas del dominio con filtros por texto, editorial,
 autor o contribuyente, coleccion, idioma, materia y ordenamiento. Los filtros y el orden se aplican

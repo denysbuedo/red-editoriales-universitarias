@@ -15,6 +15,7 @@ const checksumPath = `${packagePath}.sha256`;
 
 const toolPaths = [
   "scripts/check-omeka.mjs",
+  "scripts/cleanup-omeka-sample.mjs",
   "scripts/deploy-omeka-tools.sh",
   "scripts/install-omeka-profile.mjs",
   "scripts/map-omeka-catalog.mjs",
@@ -76,6 +77,7 @@ function writeToolsPackageJson() {
     type: "module",
     scripts: {
       "omeka:check": "node scripts/check-omeka.mjs",
+      "omeka:cleanup-sample": "node scripts/cleanup-omeka-sample.mjs",
       "omeka:install-profile": "node scripts/install-omeka-profile.mjs",
       "omeka:map": "node scripts/map-omeka-catalog.mjs",
       "omeka:seed-sample": "node scripts/seed-omeka-sample.mjs",

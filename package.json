@@ -25,6 +25,7 @@
     "omeka:install-profile": "node scripts/install-omeka-profile.mjs",
     "omeka:map": "node scripts/map-omeka-catalog.mjs",
     "omeka:seed-sample": "node scripts/seed-omeka-sample.mjs",
+    "omeka:cleanup-sample": "node scripts/cleanup-omeka-sample.mjs",
     "prepare": "husky",
     "lint": "eslint .",
     "format": "prettier --check \"*.{json,js,mjs,ts,yml}\" \"src/**/*.{ts,tsx,css}\" \".github/**/*.yml\" \"infrastructure/**/*.yml\" \"openapi/**/*.yml\"",
