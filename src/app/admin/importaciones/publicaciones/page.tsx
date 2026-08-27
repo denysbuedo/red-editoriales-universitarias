@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { AdminSectionNav } from "../../admin-section-nav";
 import { PageHero } from "../../../page-hero";
 
 import { PublicationImportDiagnosisForm } from "./publication-import-diagnosis-form";
@@ -18,8 +19,9 @@ export default function PublicationImportDiagnosisPage() {
         maxWidth="max-w-7xl"
         title="Carga y revisión de publicaciones"
       />
+      <AdminSectionNav />
 
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <PublicationImportDiagnosisForm />
       </div>
     </main>

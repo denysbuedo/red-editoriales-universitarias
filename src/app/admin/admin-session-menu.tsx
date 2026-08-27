@@ -39,6 +39,26 @@ export function AdminSessionMenu({
           <p className="mt-1 truncate text-sm text-slate-600">{session.email}</p>
         ) : null}
         <div className="mt-4 border-t border-slate-200 pt-3">
+          <div className="grid gap-1 pb-3">
+            <Link
+              className="rounded-md px-2 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 hover:text-blue-950"
+              href="/admin"
+            >
+              Panel administrativo
+            </Link>
+            <Link
+              className="rounded-md px-2 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 hover:text-blue-950"
+              href="/admin/importaciones/publicaciones"
+            >
+              Importaciones
+            </Link>
+            <Link
+              className="rounded-md px-2 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 hover:text-blue-950"
+              href="/admin/catalogo"
+            >
+              Diagnóstico del catálogo
+            </Link>
+          </div>
           <Link
             className="inline-flex h-9 w-full items-center justify-center rounded-md bg-blue-950 px-3 text-sm font-semibold text-white hover:bg-blue-900"
             href="/api/admin/auth/logout"

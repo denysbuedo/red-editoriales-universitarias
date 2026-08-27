@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { AdminSectionNav } from "./admin-section-nav";
 import { PageHero } from "../page-hero";
 
 export const metadata: Metadata = {
@@ -16,9 +17,10 @@ export default function AdminPage() {
         eyebrow="Administración"
         title="Panel operativo PNPU"
       />
+      <AdminSectionNav />
 
       <section
-        className="mx-auto grid max-w-6xl gap-4 px-4 py-8 sm:px-6 md:grid-cols-2 lg:grid-cols-4"
+        className="mx-auto grid max-w-6xl gap-4 px-4 py-6 sm:px-6 md:grid-cols-2 lg:grid-cols-4"
         aria-label="Herramientas administrativas"
       >
         <AdminToolCard

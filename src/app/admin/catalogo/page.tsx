@@ -12,6 +12,7 @@ import {
   readOmekaConfig,
 } from "@/modules/catalog/infrastructure";
 
+import { AdminSectionNav } from "../admin-section-nav";
 import { PageHero } from "../../page-hero";
 
 export const metadata: Metadata = {
@@ -55,8 +56,9 @@ export default async function AdminCatalogPage() {
         eyebrow="Administración"
         title="Diagnóstico del catálogo"
       />
+      <AdminSectionNav />
 
-      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
         <section className="grid gap-4 md:grid-cols-4" aria-label="Resumen del catálogo">
           <MetricCard
             label="Estado"
