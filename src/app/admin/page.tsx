@@ -18,7 +18,7 @@ export default function AdminPage() {
       />
 
       <section
-        className="mx-auto grid max-w-6xl gap-4 px-4 py-8 sm:px-6 md:grid-cols-3"
+        className="mx-auto grid max-w-6xl gap-4 px-4 py-8 sm:px-6 md:grid-cols-2 lg:grid-cols-4"
         aria-label="Herramientas administrativas"
       >
         <AdminToolCard
@@ -28,8 +28,13 @@ export default function AdminPage() {
         />
         <AdminToolCard
           description="Estado operativo del catálogo, disponibilidad de Omeka S, snapshot y validación del perfil PNPU."
-          href="/estado"
-          title="Estado del catálogo"
+          href="/admin/catalogo"
+          title="Diagnóstico del catálogo"
+        />
+        <AdminToolCard
+          description="Paquete candidato JSON de metadatos PNPU para revisión previa a integración con Zenodo."
+          href="/api/admin/catalog/zenodo-export"
+          title="Exportación Zenodo"
         />
         <AdminToolCard
           description="Contrato REST público y operativo para integraciones institucionales."

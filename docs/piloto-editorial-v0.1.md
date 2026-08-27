@@ -19,6 +19,8 @@ Incluido:
 - escritura controlada en Omeka S;
 - historial y rollback por lote;
 - cola nacional de revision;
+- diagnostico administrativo del catalogo activo;
+- exportacion candidata de metadatos para revision Zenodo;
 - plan no destructivo de retencion de XLSX cargados.
 
 Fuera de alcance:
@@ -75,7 +77,10 @@ PNPU_PUBLICATION_IMPORT_ROOT/publishers/<editorial>/<lote>/archivo.xlsx
     lote no esta en estado `approved`.
 16. Se valida navegacion publica.
 17. Se ejecuta backup antes y despues de la escritura.
-18. Se revisa el plan de retencion para confirmar XLSX vigentes y vencidos.
+18. Se revisa `/admin/catalogo` para confirmar advertencias y rechazos del mapeo activo.
+19. Se descarga el paquete candidato Zenodo para validar cobertura de DOI, autores, licencias y
+    recursos.
+20. Se revisa el plan de retencion para confirmar XLSX vigentes y vencidos.
 
 ## Criterios de Aceptacion del Piloto
 
@@ -91,6 +96,9 @@ PNPU_PUBLICATION_IMPORT_ROOT/publishers/<editorial>/<lote>/archivo.xlsx
 - Los filtros por editorial y materia funcionan.
 - La ficha publica muestra ISBN/DOI, licencia, contribuyentes, coleccion y recursos.
 - Existe rollback probado para un lote pequeno.
+- `/admin/catalogo` no presenta rechazos activos.
+- La exportacion candidata Zenodo contiene todas las publicaciones piloto y lista advertencias
+  pendientes.
 - El endpoint de retencion responde y no elimina archivos automaticamente.
 
 ## Plantillas Oficiales

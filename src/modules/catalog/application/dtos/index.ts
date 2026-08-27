@@ -10,3 +10,11 @@ export type {
   SubjectSummary,
 } from "./publication-dtos";
 export type { PublisherDetail, PublisherSummary } from "./publisher-dtos";
+export type {
+  ZenodoMetadataCreatorDto,
+  ZenodoMetadataExportPackageDto,
+  ZenodoMetadataExportWarningDto,
+  ZenodoMetadataFileDto,
+  ZenodoMetadataRecordDto,
+  ZenodoMetadataRelatedIdentifierDto,
+} from "./zenodo-export-dtos";

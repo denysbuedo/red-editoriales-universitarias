@@ -14,6 +14,7 @@ Este sitio reúne la documentación técnica operativa de la PNPU.
 - [Piloto editorial v0.1](piloto-editorial-v0.1.md).
 - [Runbook de identidad administrativa](identity-admin-runbook.md).
 - [Theme Reduniv para Keycloak](keycloak-reduniv-theme.md).
+- [Exportacion Zenodo](zenodo-export-roadmap.md).
 - [Documento de diseño de producto](PDD_Plataforma_Nacional_Publicaciones_Universitarias_v0.1.md).
 - [Especificación técnica del portal](Especificacion_Tecnica_Portal_RNEU.md).
 - [Manual del administrador PNPU](manual-admin-pnpu.md).

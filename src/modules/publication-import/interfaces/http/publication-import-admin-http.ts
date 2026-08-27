@@ -11,6 +11,7 @@ type AdminAuthMode = "hybrid" | "oidc" | "token";
 type PublicationImportAdminOperation =
   | "admin page"
   | "authorities"
+  | "catalog diagnostics"
   | "commit"
   | "commit-plan"
   | "diagnosis"
@@ -19,6 +20,7 @@ type PublicationImportAdminOperation =
   | "mapping preview"
   | "rollback"
   | "rollback-plan"
+  | "zenodo export"
   | "upload";
 
 interface AdminAuthEnvironment {

@@ -9,3 +9,5 @@ export { SitemapService } from "./sitemap-service";
 export type { SitemapEntry, SitemapServiceConfig } from "./sitemap-service";
 export { SubjectService } from "./subject-service";
 export type { SubjectProfile } from "./subject-service";
+export { ZenodoMetadataExportService } from "./zenodo-metadata-export-service";
+export type { ZenodoMetadataExportInput } from "./zenodo-metadata-export-service";

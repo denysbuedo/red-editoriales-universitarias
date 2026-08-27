@@ -804,6 +804,41 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /api/admin/catalog/zenodo-export:
+    get:
+      operationId: exportZenodoMetadataCandidate
+      summary: Exporta un paquete candidato de metadatos para Zenodo.
+      description: >
+        Endpoint administrativo de solo lectura. Devuelve todas las publicaciones del catálogo
+        activo en un paquete JSON candidato para revisión técnica previa a una integración formal
+        con Zenodo. No crea depósitos, no reserva DOI y no publica registros remotos.
+      tags:
+        - Admin
+      security:
+        - PublicationImportToken: []
+        - PublicationImportOidcBearer: []
+      x-required-roles:
+        - pnpu-admin
+        - pnpu-import-reader
+      responses:
+        "200":
+          description: Paquete candidato de metadatos para revisión Zenodo.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ZenodoMetadataExportResponse"
+        "403":
+          description: Token administrativo inválido o sesión OIDC sin rol autorizado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Catálogo activo no disponible.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /api/admin/publication-imports/batches:
     get:
       operationId: listPublicationImportWorkflowBatches
@@ -1776,6 +1811,206 @@ components:
               format: uri
         meta:
           $ref: "#/components/schemas/ApiMeta"
+    ZenodoMetadataCreator:
+      type: object
+      additionalProperties: false
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        affiliation:
+          type: string
+        orcid:
+          type: string
+    ZenodoMetadataRelatedIdentifier:
+      type: object
+      additionalProperties: false
+      required:
+        - identifier
+        - relation
+        - scheme
+      properties:
+        identifier:
+          type: string
+        relation:
+          type: string
+          enum:
+            - isIdenticalTo
+            - isReferencedBy
+        scheme:
+          type: string
+          enum:
+            - doi
+            - isbn
+            - url
+    ZenodoMetadataFile:
+      type: object
+      additionalProperties: false
+      required:
+        - url
+        - type
+        - format
+      properties:
+        url:
+          type: string
+          format: uri
+        type:
+          type: string
+        format:
+          type: string
+        checksum:
+          type: string
+        size:
+          type: integer
+          minimum: 0
+    ZenodoMetadataRecord:
+      type: object
+      additionalProperties: false
+      required:
+        - pnpuId
+        - metadata
+        - pnpu
+        - files
+      properties:
+        pnpuId:
+          $ref: "#/components/schemas/PnpuUuid"
+        metadata:
+          type: object
+          additionalProperties: false
+          required:
+            - title
+            - upload_type
+            - publication_date
+            - description
+            - creators
+            - keywords
+            - language
+            - related_identifiers
+          properties:
+            title:
+              type: string
+            upload_type:
+              type: string
+            publication_date:
+              type: string
+              format: date
+            description:
+              type: string
+            creators:
+              type: array
+              items:
+                $ref: "#/components/schemas/ZenodoMetadataCreator"
+            keywords:
+              type: array
+              items:
+                type: string
+            language:
+              type: string
+            license:
+              type: string
+            related_identifiers:
+              type: array
+              items:
+                $ref: "#/components/schemas/ZenodoMetadataRelatedIdentifier"
+        pnpu:
+          type: object
+          additionalProperties: false
+          required:
+            - publisherId
+            - publisherName
+            - publicationType
+            - subjects
+          properties:
+            publisherId:
+              $ref: "#/components/schemas/PnpuUuid"
+            publisherName:
+              type: string
+            publicationType:
+              type: string
+            subjects:
+              type: array
+              items:
+                type: string
+            collection:
+              type: string
+        files:
+          type: array
+          items:
+            $ref: "#/components/schemas/ZenodoMetadataFile"
+    ZenodoMetadataExportWarning:
+      type: object
+      additionalProperties: false
+      required:
+        - publicationId
+        - field
+        - message
+      properties:
+        publicationId:
+          $ref: "#/components/schemas/PnpuUuid"
+        field:
+          type: string
+        message:
+          type: string
+    ZenodoMetadataExportPackage:
+      type: object
+      additionalProperties: false
+      required:
+        - manifest
+        - records
+        - warnings
+      properties:
+        manifest:
+          type: object
+          additionalProperties: false
+          required:
+            - profile
+            - generatedAt
+            - totalPublications
+            - exportedPublications
+            - warningCount
+          properties:
+            profile:
+              type: string
+              const: PNPU_ZENODO_METADATA_CANDIDATE_V1
+            generatedAt:
+              type: string
+              format: date-time
+            totalPublications:
+              type: integer
+              minimum: 0
+            exportedPublications:
+              type: integer
+              minimum: 0
+            warningCount:
+              type: integer
+              minimum: 0
+        records:
+          type: array
+          items:
+            $ref: "#/components/schemas/ZenodoMetadataRecord"
+        warnings:
+          type: array
+          items:
+            $ref: "#/components/schemas/ZenodoMetadataExportWarning"
+    ZenodoMetadataExportResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          $ref: "#/components/schemas/ZenodoMetadataExportPackage"
+        meta:
+          allOf:
+            - $ref: "#/components/schemas/ApiMeta"
+            - type: object
+              additionalProperties: false
+              properties:
+                exportType:
+                  type: string
+                  const: zenodo-metadata-candidate
     PublisherListResponse:
       type: object
       additionalProperties: false

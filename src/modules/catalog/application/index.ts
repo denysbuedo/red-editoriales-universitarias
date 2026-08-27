@@ -14,6 +14,12 @@ export type {
   SubjectAuthoritySummary,
   SubjectDetail,
   SubjectSummary,
+  ZenodoMetadataCreatorDto,
+  ZenodoMetadataExportPackageDto,
+  ZenodoMetadataExportWarningDto,
+  ZenodoMetadataFileDto,
+  ZenodoMetadataRecordDto,
+  ZenodoMetadataRelatedIdentifierDto,
 } from "./dtos";
 export type { ApplicationErrorCode } from "./errors/application-error";
 export {
@@ -47,6 +53,7 @@ export {
   PublisherService,
   SitemapService,
   SubjectService,
+  ZenodoMetadataExportService,
 } from "./services";
 export type {
   CollectionProfile,
@@ -56,4 +63,5 @@ export type {
   SitemapEntry,
   SitemapServiceConfig,
   SubjectProfile,
+  ZenodoMetadataExportInput,
 } from "./services";
