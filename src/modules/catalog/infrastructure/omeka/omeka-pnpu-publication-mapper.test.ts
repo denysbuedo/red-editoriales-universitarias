@@ -127,6 +127,29 @@ describe("omeka-pnpu-publication-mapper", () => {
       field: "pnpu:fileSize",
     });
   });
+
+  it("maps uploaded Omeka media using the native top-level original URL", () => {
+    const quality = new OmekaQualityReport();
+
+    const digitalResource = mapOmekaDigitalResource(
+      resource(601, {
+        "pnpu:resourceType": literals("pdf"),
+        "o:original_url": "http://127.0.0.1/files/original/manual.pdf",
+        "o:source": "manual.pdf",
+        "dcterms:format": literals("application/pdf"),
+        "dcterms:language": literals("es"),
+      }),
+      quality,
+    );
+
+    expect(digitalResource?.snapshot()).toMatchObject({
+      type: "pdf",
+      url: "http://127.0.0.1/files/original/manual.pdf",
+      format: "application/pdf",
+      language: LanguageCode.create("es"),
+    });
+    expect(quality.snapshot()).toMatchObject({ rejectedCount: 0, warningCount: 0 });
+  });
 });
 
 function resource(id: number, values: Record<string, unknown>): OmekaJsonObject {

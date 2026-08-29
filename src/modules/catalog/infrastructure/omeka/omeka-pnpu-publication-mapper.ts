@@ -96,6 +96,7 @@ export function mapOmekaDigitalResource(
   const url =
     readFirstUri(media, "o:original_url") ??
     readFirstLiteral(media, "o:original_url") ??
+    readTopLevelString(media, "o:original_url") ??
     readFirstLiteral(media, "o:source") ??
     readTopLevelString(media, "o:source");
   const format =
