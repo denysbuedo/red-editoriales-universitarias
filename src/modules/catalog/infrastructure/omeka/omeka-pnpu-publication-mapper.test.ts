@@ -150,6 +150,28 @@ describe("omeka-pnpu-publication-mapper", () => {
     });
     expect(quality.snapshot()).toMatchObject({ rejectedCount: 0, warningCount: 0 });
   });
+
+  it("rewrites local Omeka media URLs to the configured public catalog base URL", () => {
+    const quality = new OmekaQualityReport();
+
+    const digitalResource = mapOmekaDigitalResource(
+      resource(602, {
+        "pnpu:resourceType": literals("pdf"),
+        "o:original_url": "http://127.0.0.1/files/original/manual.pdf",
+        "o:source": "manual.pdf",
+        "dcterms:format": literals("application/pdf"),
+      }),
+      quality,
+      {
+        publicBaseUrl: "https://catalogo.reduniv.edu.cu",
+      },
+    );
+
+    expect(digitalResource?.url()).toBe(
+      "https://catalogo.reduniv.edu.cu/files/original/manual.pdf",
+    );
+    expect(quality.snapshot()).toMatchObject({ rejectedCount: 0, warningCount: 0 });
+  });
 });
 
 function resource(id: number, values: Record<string, unknown>): OmekaJsonObject {

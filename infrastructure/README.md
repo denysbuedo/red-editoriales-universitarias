@@ -39,13 +39,13 @@ El repositorio de catálogo se selecciona con una variable explícita:
 ```yaml
 pnpu_catalog_repository: in-memory
 pnpu_omeka_base_url: ""
+pnpu_omeka_public_base_url: ""
 pnpu_omeka_timeout_ms: 2000
 ```
 
-`in-memory` es el único modo activo para Release 1 inicial. El valor futuro `omeka` está bloqueado
-en la aplicación hasta que exista un mapeo aprobado entre Resource Templates de Omeka S y el modelo
-canónico PNPU. `pnpu_omeka_base_url` debe configurarse fuera del repositorio cuando se use para
-health checks de integración.
+`pnpu_omeka_base_url` puede apuntar a la API interna de Omeka S. `pnpu_omeka_public_base_url` debe
+apuntar al dominio publico de Omeka S para publicar enlaces de archivos y recursos digitales sin
+exponer URLs locales del servidor.
 
 La validación completa de sintaxis Ansible se ejecuta en CI sobre Ubuntu:
 

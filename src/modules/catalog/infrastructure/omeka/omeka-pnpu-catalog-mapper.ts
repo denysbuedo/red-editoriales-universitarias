@@ -22,7 +22,14 @@ export interface OmekaPnpuCatalog {
   readonly quality: OmekaQualityReportSnapshot;
 }
 
-export function mapOmekaSnapshotToPnpuCatalog(snapshot: OmekaCatalogSnapshot): OmekaPnpuCatalog {
+export interface OmekaPnpuCatalogMappingOptions {
+  readonly resourcePublicBaseUrl?: string;
+}
+
+export function mapOmekaSnapshotToPnpuCatalog(
+  snapshot: OmekaCatalogSnapshot,
+  options: OmekaPnpuCatalogMappingOptions = {},
+): OmekaPnpuCatalog {
   const quality = new OmekaQualityReport();
   const subjectsByOmekaId = mapByOmekaId(
     selectOmekaResourcesByKind(snapshot.items, "subject"),
@@ -71,6 +78,7 @@ export function mapOmekaSnapshotToPnpuCatalog(snapshot: OmekaCatalogSnapshot): O
           subjectsByOmekaId,
           collectionsByOmekaId,
           mediaByItemOmekaId,
+          resourcePublicBaseUrl: options.resourcePublicBaseUrl,
         },
         quality,
       ),

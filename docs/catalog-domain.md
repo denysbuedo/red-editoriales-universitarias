@@ -93,6 +93,8 @@ Se agrega una base tecnica para `OmekaAdapter` en `src/modules/catalog/infrastru
 Incluye:
 
 - `readOmekaConfig`: lee `PNPU_OMEKA_BASE_URL` y `PNPU_OMEKA_TIMEOUT_MS`.
+- `PNPU_OMEKA_PUBLIC_BASE_URL`: define la base publica para reescribir enlaces locales de media
+  (`127.0.0.1`/`localhost`) antes de exponer recursos digitales al usuario.
 - `HttpOmekaApiClient`: consume `/api/items`, `/api/item_sets` y `/api/media`.
 - `checkOmekaHealth`: verifica disponibilidad básica de Omeka mediante API.
 - `OmekaCatalogSnapshotLoader`: carga snapshots paginados de Items, Item Sets y Media.

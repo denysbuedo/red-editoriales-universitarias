@@ -77,6 +77,7 @@ export type {
   OmekaCatalogRepositoryCacheOptions,
   OmekaCatalogRepositoryCacheSnapshot,
   OmekaCatalogRepositoryCacheStatus,
+  OmekaCatalogRepositoryMappingOptions,
 } from "./omeka-catalog-repository-builder";
 export { buildOmekaCatalogOperationalDiagnostics } from "./omeka-catalog-operational-diagnostics";
 export type { OmekaCatalogOperationalDiagnostics } from "./omeka-catalog-operational-diagnostics";

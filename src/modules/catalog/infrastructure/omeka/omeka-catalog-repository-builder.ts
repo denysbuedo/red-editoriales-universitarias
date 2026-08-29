@@ -36,9 +36,15 @@ export interface OmekaCatalogRepositoryCacheSnapshot {
   readonly expiresAt?: string;
 }
 
+export interface OmekaCatalogRepositoryMappingOptions {
+  readonly resourcePublicBaseUrl?: string;
+}
+
 export async function createOmekaCatalogRepositoriesFromApi(
   client: OmekaApiClient,
-  options: OmekaCatalogSnapshotLoaderOptions & OmekaCatalogRepositoryCacheOptions = {},
+  options: OmekaCatalogSnapshotLoaderOptions &
+    OmekaCatalogRepositoryCacheOptions &
+    OmekaCatalogRepositoryMappingOptions = {},
 ): Promise<OmekaCatalogRepositoryBuildResult> {
   const now = options.now ?? Date.now;
   const cacheKey = options.cacheKey;
@@ -61,7 +67,9 @@ export async function createOmekaCatalogRepositoriesFromApi(
   }
 
   const snapshot = await new OmekaCatalogSnapshotLoader(client, options).load();
-  const catalog = mapOmekaSnapshotToPnpuCatalog(snapshot);
+  const catalog = mapOmekaSnapshotToPnpuCatalog(snapshot, {
+    resourcePublicBaseUrl: options.resourcePublicBaseUrl,
+  });
   const refreshedAtEpochMs = now();
   const result: OmekaCatalogRepositoryBuildResult = {
     catalog,

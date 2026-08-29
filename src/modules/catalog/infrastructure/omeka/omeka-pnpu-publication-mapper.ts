@@ -31,6 +31,11 @@ export interface OmekaPublicationMappingContext {
   readonly subjectsByOmekaId: ReadonlyMap<number, Subject>;
   readonly collectionsByOmekaId?: ReadonlyMap<number, Collection>;
   readonly mediaByItemOmekaId: ReadonlyMap<number, readonly OmekaJsonObject[]>;
+  readonly resourcePublicBaseUrl?: string;
+}
+
+export interface OmekaDigitalResourceMappingOptions {
+  readonly publicBaseUrl?: string;
 }
 
 export function mapOmekaPublication(
@@ -91,6 +96,7 @@ export function mapOmekaPublication(
 export function mapOmekaDigitalResource(
   media: OmekaJsonObject,
   quality: OmekaQualityReport,
+  options: OmekaDigitalResourceMappingOptions = {},
 ): Resource | null {
   const type = readResourceType(media, quality);
   const url =
@@ -113,7 +119,7 @@ export function mapOmekaDigitalResource(
   return createOrReject(media, quality, "resource", () =>
     Resource.create({
       type,
-      url,
+      url: rewriteLocalOmekaResourceUrl(url, options.publicBaseUrl),
       format,
       fileSize: fileSize ?? undefined,
       checksum: readFirstLiteral(media, "pnpu:checksum") ?? undefined,
@@ -240,6 +246,28 @@ function inferResourceType(mediaType: string | null): ResourceType | null {
   return null;
 }
 
+function rewriteLocalOmekaResourceUrl(url: string, publicBaseUrl: string | undefined): string {
+  if (publicBaseUrl === undefined) {
+    return url;
+  }
+
+  try {
+    const parsedUrl = new URL(url);
+
+    if (parsedUrl.hostname !== "127.0.0.1" && parsedUrl.hostname !== "localhost") {
+      return url;
+    }
+
+    const publicBase = new URL(publicBaseUrl);
+
+    return new URL(`${parsedUrl.pathname}${parsedUrl.search}${parsedUrl.hash}`, publicBase)
+      .toString()
+      .replace(/\/$/, "");
+  } catch {
+    return url;
+  }
+}
+
 function readPublisher(
   resource: OmekaJsonObject,
   context: OmekaPublicationMappingContext,
@@ -348,7 +376,11 @@ function readResources(
   const media = omekaId === null ? [] : (context.mediaByItemOmekaId.get(omekaId) ?? []);
 
   return media
-    .map((mediaResource) => mapOmekaDigitalResource(mediaResource, quality))
+    .map((mediaResource) =>
+      mapOmekaDigitalResource(mediaResource, quality, {
+        publicBaseUrl: context.resourcePublicBaseUrl,
+      }),
+    )
     .filter((digitalResource): digitalResource is Resource => digitalResource !== null);
 }
 

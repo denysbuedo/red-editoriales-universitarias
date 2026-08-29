@@ -36,6 +36,7 @@ interface CatalogRepositoryEnvironment {
   readonly PNPU_CATALOG_REPOSITORY?: string;
   readonly PNPU_OMEKA_MAX_PAGES?: string;
   readonly PNPU_OMEKA_PAGE_SIZE?: string;
+  readonly PNPU_OMEKA_PUBLIC_BASE_URL?: string;
   readonly PNPU_OMEKA_CACHE_TTL_SECONDS?: string;
   readonly PNPU_OMEKA_REQUIRE_APPROVED_MAPPING?: string;
   readonly PNPU_SAMPLE_CATALOG_SHOWCASE?: string;
@@ -137,15 +138,22 @@ export function readOmekaCatalogRepositoryOptions(
   readonly maxPages?: number;
   readonly cacheKey: string;
   readonly ttlMs: number;
+  readonly resourcePublicBaseUrl?: string;
 } {
+  const resourcePublicBaseUrl = readOptionalBaseUrl(
+    environment.PNPU_OMEKA_PUBLIC_BASE_URL,
+    "PNPU_OMEKA_PUBLIC_BASE_URL",
+  );
+
   return {
     pageSize: readOptionalPositiveInteger(environment.PNPU_OMEKA_PAGE_SIZE, "PNPU_OMEKA_PAGE_SIZE"),
     maxPages: readOptionalPositiveInteger(environment.PNPU_OMEKA_MAX_PAGES, "PNPU_OMEKA_MAX_PAGES"),
-    cacheKey: buildOmekaCatalogCacheKey(environment, baseUrl),
+    cacheKey: buildOmekaCatalogCacheKey(environment, baseUrl, resourcePublicBaseUrl),
     ttlMs: readOptionalNonNegativeInteger(
       environment.PNPU_OMEKA_CACHE_TTL_SECONDS,
       "PNPU_OMEKA_CACHE_TTL_SECONDS",
     ),
+    resourcePublicBaseUrl,
   };
 }
 
@@ -185,12 +193,26 @@ function readOptionalNonNegativeInteger(value: string | undefined, name: string)
   return parsedValue * 1_000;
 }
 
+function readOptionalBaseUrl(value: string | undefined, name: string): string | undefined {
+  if (value === undefined || value.trim().length === 0) {
+    return undefined;
+  }
+
+  try {
+    return new URL(value).toString().replace(/\/$/, "");
+  } catch {
+    throw ApplicationError.validation(`${name} must be a valid URL.`);
+  }
+}
+
 function buildOmekaCatalogCacheKey(
   environment: CatalogRepositoryEnvironment,
   baseUrl: string,
+  resourcePublicBaseUrl: string | undefined,
 ): string {
   return [
     baseUrl,
+    resourcePublicBaseUrl ?? "",
     environment.PNPU_OMEKA_PAGE_SIZE?.trim() ?? "",
     environment.PNPU_OMEKA_MAX_PAGES?.trim() ?? "",
   ].join("|");

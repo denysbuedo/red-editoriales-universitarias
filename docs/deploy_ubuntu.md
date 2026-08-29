@@ -195,7 +195,8 @@ PNPU_LOG_LEVEL=info
 PNPU_ENABLE_REQUEST_LOGS=true
 
 PNPU_CATALOG_REPOSITORY=omeka
-PNPU_OMEKA_BASE_URL=https://catalogo.reduniv.edu.cu
+PNPU_OMEKA_BASE_URL=http://127.0.0.1
+PNPU_OMEKA_PUBLIC_BASE_URL=https://catalogo.reduniv.edu.cu
 PNPU_OMEKA_TIMEOUT_MS=5000
 PNPU_OMEKA_PAGE_SIZE=100
 PNPU_OMEKA_MAX_PAGES=100
@@ -253,8 +254,9 @@ Notas:
 - Los valores `CAMBIAR_*` son secretos operativos y no deben ir al repositorio.
 - Si Keycloak/OIDC ya esta disponible, cambiar `PNPU_ADMIN_AUTH_MODE=oidc` y completar las variables
   `PNPU_OIDC_*`.
-- Si el servidor no puede resolver o alcanzar `https://catalogo.reduniv.edu.cu`, usar temporalmente
-  `PNPU_OMEKA_BASE_URL=http://127.0.0.1` y documentar la excepcion operacional.
+- `PNPU_OMEKA_BASE_URL` puede apuntar a la API interna de Omeka en la misma VM.
+- `PNPU_OMEKA_PUBLIC_BASE_URL` debe apuntar al dominio publico de Omeka para que los recursos
+  digitales no se publiquen con enlaces locales como `http://127.0.0.1/files/...`.
 
 ## 7. Crear servicio systemd
 

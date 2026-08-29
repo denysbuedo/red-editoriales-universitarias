@@ -4,6 +4,7 @@ import { ApplicationError } from "../application";
 import {
   createCatalogRepositories,
   createCatalogRepositoriesAsync,
+  readOmekaCatalogRepositoryOptions,
   readCatalogRepositoryMode,
 } from "./catalog-repository-factory";
 
@@ -95,5 +96,32 @@ describe("createCatalogRepositoriesAsync", () => {
         PNPU_OMEKA_REQUIRE_APPROVED_MAPPING: "true",
       }),
     ).rejects.toThrow("PNPU_OMEKA_CACHE_TTL_SECONDS must be a non-negative integer.");
+  });
+});
+
+describe("readOmekaCatalogRepositoryOptions", () => {
+  it("normalizes Omeka public base URL for exposed digital resources", () => {
+    expect(
+      readOmekaCatalogRepositoryOptions(
+        {
+          PNPU_OMEKA_PUBLIC_BASE_URL: "https://catalogo.reduniv.edu.cu/",
+        },
+        "http://127.0.0.1",
+      ),
+    ).toMatchObject({
+      resourcePublicBaseUrl: "https://catalogo.reduniv.edu.cu",
+      cacheKey: "http://127.0.0.1|https://catalogo.reduniv.edu.cu||",
+    });
+  });
+
+  it("rejects invalid Omeka public base URL", () => {
+    expect(() =>
+      readOmekaCatalogRepositoryOptions(
+        {
+          PNPU_OMEKA_PUBLIC_BASE_URL: "not-a-url",
+        },
+        "http://127.0.0.1",
+      ),
+    ).toThrow("PNPU_OMEKA_PUBLIC_BASE_URL must be a valid URL.");
   });
 });

@@ -55,7 +55,8 @@ camino controlado para importar publicaciones.
 | Variable                              |   Requerida | Uso                                                    |
 | ------------------------------------- | ----------: | ------------------------------------------------------ |
 | `PNPU_CATALOG_REPOSITORY`             |          Si | Debe ser `omeka` para v0.1 operativa con catalogo real |
-| `PNPU_OMEKA_BASE_URL`                 |          Si | URL base de Omeka S                                    |
+| `PNPU_OMEKA_BASE_URL`                 |          Si | URL base interna/API de Omeka S                        |
+| `PNPU_OMEKA_PUBLIC_BASE_URL`          |          Si | URL publica para enlaces a recursos digitales Omeka    |
 | `PNPU_OMEKA_TIMEOUT_MS`               | Recomendado | Timeout de API Omeka                                   |
 | `PNPU_OMEKA_PAGE_SIZE`                | Recomendado | Tamano de pagina Omeka                                 |
 | `PNPU_OMEKA_MAX_PAGES`                | Recomendado | Limite de paginacion defensivo                         |
