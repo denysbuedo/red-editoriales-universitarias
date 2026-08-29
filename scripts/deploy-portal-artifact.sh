@@ -9,6 +9,7 @@ SERVICE_GROUP="${PNPU_PORTAL_SERVICE_GROUP:-pnpu}"
 NODE_NPM="${PNPU_NPM_BIN:-/usr/local/bin/npm}"
 HEALTH_BASE_URL="${PNPU_HEALTH_BASE_URL:-http://127.0.0.1:3000}"
 ALLOW_EXISTING_RELEASE="${PNPU_ALLOW_EXISTING_RELEASE:-false}"
+PORTAL_ENV_FILE="${PNPU_PORTAL_ENV_FILE:-/etc/pnpu/portal.env}"
 
 fail() {
   printf 'ERROR: %s\n' "$1" >&2
@@ -74,6 +75,33 @@ extract_version() {
   fi
 
   printf '%s' "$artifact_name"
+}
+
+sync_commit_sha_from_manifest() {
+  local manifest_path="${RELEASE_PATH}/manifest.json"
+  local commit_sha=""
+
+  if [ ! -f "$manifest_path" ]; then
+    return 0
+  fi
+
+  commit_sha="$(sed -n 's/^[[:space:]]*"commit":[[:space:]]*"\([^"]*\)".*/\1/p' "$manifest_path" | head -n 1)"
+
+  if [ -z "$commit_sha" ] || [ "$commit_sha" = "null" ]; then
+    return 0
+  fi
+
+  if ! sudo test -f "$PORTAL_ENV_FILE"; then
+    info "Skipping commit SHA sync because ${PORTAL_ENV_FILE} does not exist"
+    return 0
+  fi
+
+  info "Syncing PNPU_COMMIT_SHA from release manifest"
+  if sudo grep -q '^PNPU_COMMIT_SHA=' "$PORTAL_ENV_FILE"; then
+    sudo sed -i "s|^PNPU_COMMIT_SHA=.*|PNPU_COMMIT_SHA=${commit_sha}|" "$PORTAL_ENV_FILE"
+  else
+    printf '\nPNPU_COMMIT_SHA=%s\n' "$commit_sha" | sudo tee -a "$PORTAL_ENV_FILE" >/dev/null
+  fi
 }
 
 require_command sudo
@@ -146,6 +174,7 @@ info "Installing production dependencies"
 info "Activating release"
 sudo ln -sfn "$RELEASE_PATH" "${BASE_DIR}/current"
 sudo chown -h "${SERVICE_USER}:${SERVICE_GROUP}" "${BASE_DIR}/current"
+sync_commit_sha_from_manifest
 
 info "Restarting ${SERVICE_NAME}"
 sudo systemctl daemon-reload
