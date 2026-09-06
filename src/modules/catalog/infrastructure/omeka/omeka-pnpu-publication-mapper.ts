@@ -22,6 +22,7 @@ import {
   readLiterals,
   readOmekaId,
 } from "./omeka-json-reader";
+import { readTopLevelString, rewriteLocalOmekaResourceUrl } from "./omeka-media-url";
 import { OmekaQualityReport } from "./omeka-quality-report";
 import { OMEKA_PNPU_RESOURCE_TEMPLATES } from "./omeka-resource-template-classifier";
 
@@ -55,13 +56,21 @@ export function mapOmekaPublication(
   const identifiers = readIdentifiers(resource, quality);
   const resources = readResources(resource, context, quality);
   const collection = readCollection(resource, context);
+  const coverImageUrl = readCoverImageUrl(resource, context);
+  const abstract = readFirstLiteral(resource, "dcterms:abstract");
+  const license =
+    readFirstLiteral(resource, "dcterms:license") ?? readFirstUri(resource, "dcterms:license");
+  const keywords = readLiterals(resource, "schema:keywords");
 
   if (uuid === null) return null;
   if (title === null) return rejectMissing(resource, quality, "dcterms:title");
+  if (abstract === null) return rejectMissing(resource, quality, "dcterms:abstract");
   if (publicationDate === null) return rejectMissing(resource, quality, "dcterms:issued");
   if (language === null) return null;
   if (type === null) return null;
   if (format === null) return rejectMissing(resource, quality, "dcterms:format");
+  if (license === null) return rejectMissing(resource, quality, "dcterms:license");
+  if (keywords.length === 0) return rejectMissing(resource, quality, "schema:keywords");
   if (publisher === null) return null;
   if (contributors.length === 0) return rejectUnresolved(resource, quality, "dcterms:creator");
   if (subjects.length === 0) return rejectUnresolved(resource, quality, "dcterms:subject");
@@ -73,7 +82,7 @@ export function mapOmekaPublication(
       id: uuid,
       title,
       subtitle: readFirstLiteral(resource, "dcterms:alternative") ?? undefined,
-      abstract: readFirstLiteral(resource, "dcterms:abstract") ?? undefined,
+      abstract,
       publicationDate,
       language,
       publisher,
@@ -83,12 +92,10 @@ export function mapOmekaPublication(
       resources,
       type,
       format,
-      keywords: optionalArray(readLiterals(resource, "schema:keywords")),
-      license:
-        readFirstLiteral(resource, "dcterms:license") ??
-        readFirstUri(resource, "dcterms:license") ??
-        undefined,
+      keywords,
+      license,
       collection,
+      coverImageUrl,
     }),
   );
 }
@@ -246,28 +253,6 @@ function inferResourceType(mediaType: string | null): ResourceType | null {
   return null;
 }
 
-function rewriteLocalOmekaResourceUrl(url: string, publicBaseUrl: string | undefined): string {
-  if (publicBaseUrl === undefined) {
-    return url;
-  }
-
-  try {
-    const parsedUrl = new URL(url);
-
-    if (parsedUrl.hostname !== "127.0.0.1" && parsedUrl.hostname !== "localhost") {
-      return url;
-    }
-
-    const publicBase = new URL(publicBaseUrl);
-
-    return new URL(`${parsedUrl.pathname}${parsedUrl.search}${parsedUrl.hash}`, publicBase)
-      .toString()
-      .replace(/\/$/, "");
-  } catch {
-    return url;
-  }
-}
-
 function readPublisher(
   resource: OmekaJsonObject,
   context: OmekaPublicationMappingContext,
@@ -282,6 +267,51 @@ function readPublisher(
   }
 
   return publisher;
+}
+
+function readCoverImageUrl(
+  resource: OmekaJsonObject,
+  context: OmekaPublicationMappingContext,
+): string | undefined {
+  const omekaId = readOmekaId(resource);
+  const media = omekaId === null ? [] : (context.mediaByItemOmekaId.get(omekaId) ?? []);
+  const imageMedia = media.find(isImageMedia);
+  const imageUrl =
+    imageMedia === undefined
+      ? readThumbnailUrl(resource)
+      : (readMediaUrl(imageMedia) ?? readThumbnailUrl(imageMedia));
+
+  return imageUrl === undefined
+    ? undefined
+    : rewriteLocalOmekaResourceUrl(imageUrl, context.resourcePublicBaseUrl);
+}
+
+function isImageMedia(media: OmekaJsonObject): boolean {
+  const mediaType =
+    readFirstLiteral(media, "o:media_type") ?? readTopLevelString(media, "o:media_type");
+
+  return mediaType?.startsWith("image/") ?? false;
+}
+
+function readMediaUrl(media: OmekaJsonObject): string | undefined {
+  return (
+    readFirstUri(media, "o:original_url") ??
+    readFirstLiteral(media, "o:original_url") ??
+    readTopLevelString(media, "o:original_url") ??
+    undefined
+  );
+}
+
+function readThumbnailUrl(resource: OmekaJsonObject): string | undefined {
+  const thumbnails = resource.thumbnail_display_urls;
+
+  if (!isJsonObject(thumbnails)) {
+    return undefined;
+  }
+
+  return (
+    readString(thumbnails.large) ?? readString(thumbnails.medium) ?? readString(thumbnails.square)
+  );
 }
 
 function readContributors(
@@ -376,6 +406,7 @@ function readResources(
   const media = omekaId === null ? [] : (context.mediaByItemOmekaId.get(omekaId) ?? []);
 
   return media
+    .filter((mediaResource) => !isImageMedia(mediaResource))
     .map((mediaResource) =>
       mapOmekaDigitalResource(mediaResource, quality, {
         publicBaseUrl: context.resourcePublicBaseUrl,
@@ -414,18 +445,6 @@ function readOptionalInteger(
   return parsedValue;
 }
 
-function readTopLevelString(resource: OmekaJsonObject, field: string): string | null {
-  const value = resource[field];
-
-  if (typeof value !== "string") {
-    return null;
-  }
-
-  const normalizedValue = value.trim();
-
-  return normalizedValue.length === 0 ? null : normalizedValue;
-}
-
 function createOrReject<T>(
   resource: OmekaJsonObject,
   quality: OmekaQualityReport,
@@ -442,6 +461,14 @@ function createOrReject<T>(
 
     throw error;
   }
+}
+
+function readString(value: unknown): string | undefined {
+  return typeof value === "string" && value.trim().length > 0 ? value.trim() : undefined;
+}
+
+function isJsonObject(value: unknown): value is OmekaJsonObject {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function rejectMissing(
@@ -502,8 +529,4 @@ function rejectUnresolved(
     message: `Required Omeka reference "${field}" could not be resolved.`,
   });
   return null;
-}
-
-function optionalArray<T>(values: readonly T[]): readonly T[] | undefined {
-  return values.length === 0 ? undefined : [...values];
 }

@@ -62,6 +62,8 @@ function createPublication(overrides: Partial<Parameters<typeof Publication.crea
     resources: [createResource()],
     type: "book",
     format: "application/pdf",
+    abstract: "Resumen de la publicacion para catalogo publico.",
+    license: "CC BY",
     keywords: ["arquitectura empresarial", "universidades", "universidades"],
     ...overrides,
   });
@@ -93,12 +95,37 @@ describe("Publication", () => {
     expect(() => createPublication({ identifiers: [] })).toThrow(DomainValidationError);
   });
 
+  it("requires ISBN identifiers for book-like publication types", () => {
+    expect(() =>
+      createPublication({
+        identifiers: [Identifier.create("doi", "10.1234/pnpu.manual.01")],
+        type: "manual",
+      }),
+    ).toThrow("Publication type manual requires an ISBN identifier.");
+  });
+
+  it("allows DOI-only identifiers for non-book-like publication types", () => {
+    expect(() =>
+      createPublication({
+        identifiers: [Identifier.create("doi", "10.1234/pnpu.dataset.01")],
+        type: "dataset",
+      }),
+    ).not.toThrow();
+  });
+
   it("rejects publications without resources", () => {
     expect(() => createPublication({ resources: [] })).toThrow(DomainValidationError);
   });
 
   it("rejects publications without subjects", () => {
     expect(() => createPublication({ subjects: [] })).toThrow(DomainValidationError);
+  });
+
+  it("rejects publications without public catalog quality metadata", () => {
+    expect(() => createPublication({ abstract: undefined })).toThrow(DomainValidationError);
+    expect(() => createPublication({ license: undefined })).toThrow(DomainValidationError);
+    expect(() => createPublication({ keywords: undefined })).toThrow(DomainValidationError);
+    expect(() => createPublication({ keywords: [" "] })).toThrow(DomainValidationError);
   });
 
   it("rejects invalid publication dates", () => {

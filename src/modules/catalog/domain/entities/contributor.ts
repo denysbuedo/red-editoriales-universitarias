@@ -1,4 +1,9 @@
-import { normalizeOptionalText, requireCountryCode, requireNonEmptyText } from "./domain-guards";
+import {
+  normalizeOptionalText,
+  normalizeOptionalUrl,
+  requireCountryCode,
+  requireNonEmptyText,
+} from "./domain-guards";
 import { DomainValidationError } from "../errors/domain-validation-error";
 import { Orcid, PnpuUuid } from "../value-objects";
 
@@ -26,6 +31,7 @@ export interface ContributorProps {
   readonly affiliation?: string;
   readonly biography?: string;
   readonly country?: string;
+  readonly imageUrl?: string;
 }
 
 export class Contributor {
@@ -45,6 +51,7 @@ export class Contributor {
         props.country === undefined
           ? undefined
           : requireCountryCode(props.country, "Contributor country"),
+      imageUrl: normalizeOptionalUrl(props.imageUrl, "Contributor image URL"),
     });
   }
 

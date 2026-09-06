@@ -61,22 +61,27 @@ PNPU: `Publication`
 | `id`              | `pnpu:uuid`                                   | Si          | UUID v7                                |
 | `title`           | `dcterms:title`                               | Si          | texto no vacio                         |
 | `subtitle`        | `dcterms:alternative`                         | No          | texto                                  |
-| `abstract`        | `dcterms:abstract`                            | Recomendado | texto                                  |
+| `abstract`        | `dcterms:abstract`                            | Si          | texto no vacio                         |
 | `publicationDate` | `dcterms:issued`                              | Si          | fecha ISO `YYYY-MM-DD`                 |
 | `language`        | `dcterms:language`                            | Si          | ISO 639-1                              |
 | `type`            | `dcterms:type`                                | Si          | vocabulario controlado PNPU            |
 | `format`          | `dcterms:format`                              | Si          | MIME o formato normalizado             |
-| `license`         | `dcterms:license`                             | Recomendado | texto/URI de licencia                  |
+| `license`         | `dcterms:license`                             | Si          | texto/URI de licencia                  |
 | `publisher`       | `dcterms:publisher`                           | Si          | enlace a `PNPU Publisher`              |
 | `contributors`    | `dcterms:creator` / `dcterms:contributor`     | Si          | 1..n enlaces a Contributor             |
 | `identifiers`     | `dcterms:identifier`, `bibo:isbn`, `bibo:doi` | Si          | al menos ISBN/DOI/URI/UUID             |
 | `subjects`        | `dcterms:subject`                             | Si          | 1..n enlaces a Subject o terminos SKOS |
 | `collection`      | `dcterms:isPartOf`                            | No          | enlace a Item Set/Collection           |
-| `keywords`        | `schema:keywords`                             | No          | maximo 10 terminos                     |
+| `keywords`        | `schema:keywords`                             | Si          | maximo 10 terminos                     |
 | `resources`       | Media del Item                                | Si          | al menos un recurso digital            |
 
-Regla propuesta: una publicacion sin `pnpu:uuid` no entra al catalogo publico. El adaptador puede
-registrarla como error de calidad para correccion en Omeka.
+Regla propuesta: una publicacion sin `pnpu:uuid` no entra al catalogo publico. El adaptador debe
+rechazar solo ese registro, conservar el resto del catalogo sano y registrar el error de calidad
+para correccion en Omeka y visibilidad operativa en `/admin/catalogo`.
+
+Los media de imagen asociados a una publicacion se interpretan como portada publica y no como
+recurso digital descargable. Los media de imagen asociados a un Contributor se interpretan como foto
+representativa del autor o responsable.
 
 ## 6. Mapeo de Contributor
 

@@ -18,6 +18,7 @@ export interface PublicationImportDryRunCommand extends DiagnosePublicationImpor
 interface EnrichmentRow {
   readonly row: number;
   readonly pnpuUuid: string;
+  readonly abstract: string;
   readonly doi: string;
   readonly publicationDate: string;
   readonly contributorAuthorityIds: readonly string[];
@@ -26,6 +27,7 @@ interface EnrichmentRow {
   readonly digitalResourceUrl: string;
   readonly language: string;
   readonly subjects: readonly string[];
+  readonly keywords: readonly string[];
   readonly license: string;
 }
 
@@ -73,6 +75,7 @@ function buildCandidate(
       row: row.row,
       pnpuUuid: enrichment?.pnpuUuid ?? "",
       title: row.title,
+      abstract: enrichment?.abstract ?? "",
       isbn: row.normalizedIsbn,
       doi: enrichment?.doi,
       publisher: row.publisher,
@@ -84,6 +87,7 @@ function buildCandidate(
       digitalResourceUrl: enrichment?.digitalResourceUrl ?? "",
       language: enrichment?.language ?? "",
       subjects: enrichment?.subjects ?? [],
+      keywords: enrichment?.keywords ?? [],
       license: enrichment?.license ?? "",
       decision: "rejected",
       reasons: row.reasons,
@@ -96,6 +100,7 @@ function buildCandidate(
     row: row.row,
     pnpuUuid: enrichment?.pnpuUuid ?? "",
     title: row.title,
+    abstract: enrichment?.abstract ?? "",
     isbn: row.normalizedIsbn,
     doi: enrichment?.doi,
     publisher: row.publisher,
@@ -107,6 +112,7 @@ function buildCandidate(
     digitalResourceUrl: enrichment?.digitalResourceUrl ?? "",
     language: enrichment?.language ?? "",
     subjects: enrichment?.subjects ?? [],
+    keywords: enrichment?.keywords ?? [],
     license: enrichment?.license ?? "",
     decision: reasons.length === 0 ? "ready" : "incomplete",
     reasons,
@@ -120,6 +126,7 @@ function missingEnrichmentReasons(enrichment: EnrichmentRow | undefined): readon
 
   const reasons: string[] = [];
   appendMissing(reasons, "pnpuUuid", enrichment.pnpuUuid);
+  appendMissing(reasons, "abstract", enrichment.abstract);
   appendMissing(reasons, "publisherAuthorityId", enrichment.publisherAuthorityId);
   appendMissing(reasons, "publicationDate", enrichment.publicationDate);
   appendMissing(reasons, "contributorAuthorityIds", enrichment.contributorAuthorityIds.join("|"));
@@ -127,6 +134,7 @@ function missingEnrichmentReasons(enrichment: EnrichmentRow | undefined): readon
   appendMissing(reasons, "digitalResourceUrl", enrichment.digitalResourceUrl);
   appendMissing(reasons, "language", enrichment.language);
   appendMissing(reasons, "subjects", enrichment.subjects.join("|"));
+  appendMissing(reasons, "keywords", enrichment.keywords.join("|"));
   appendMissing(reasons, "license", enrichment.license);
 
   return reasons;
@@ -148,6 +156,7 @@ function parseEnrichmentCsv(csv: string): readonly EnrichmentRow[] {
   const requiredColumns = [
     "row",
     "pnpuUuid",
+    "abstract",
     "publisherAuthorityId",
     "publicationDate",
     "contributorAuthorityIds",
@@ -155,6 +164,7 @@ function parseEnrichmentCsv(csv: string): readonly EnrichmentRow[] {
     "digitalResourceUrl",
     "language",
     "subjects",
+    "keywords",
     "license",
   ];
 
@@ -179,6 +189,7 @@ function parseEnrichmentCsv(csv: string): readonly EnrichmentRow[] {
       return {
         row: rowNumber,
         pnpuUuid: readCsvCell(row, columnByName, "pnpuUuid"),
+        abstract: readCsvCell(row, columnByName, "abstract"),
         doi: readCsvCell(row, columnByName, "doi"),
         publicationDate: readCsvCell(row, columnByName, "publicationDate"),
         contributorAuthorityIds: readCsvCell(row, columnByName, "contributorAuthorityIds")
@@ -192,6 +203,10 @@ function parseEnrichmentCsv(csv: string): readonly EnrichmentRow[] {
         subjects: readCsvCell(row, columnByName, "subjects")
           .split("|")
           .map((subject) => subject.trim())
+          .filter(Boolean),
+        keywords: readCsvCell(row, columnByName, "keywords")
+          .split("|")
+          .map((keyword) => keyword.trim())
           .filter(Boolean),
         license: readCsvCell(row, columnByName, "license"),
       };

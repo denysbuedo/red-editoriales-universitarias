@@ -100,6 +100,7 @@ export class OmekaPublicationImportCommitWriter implements PublicationImportComm
     const values = [
       literal("pnpu:uuid", candidate.pnpuUuid, property),
       literal("dcterms:title", candidate.title, property),
+      literal("dcterms:abstract", candidate.abstract, property),
       literal("dcterms:issued", candidate.publicationDate, property),
       literal("dcterms:language", candidate.language, property),
       literal("dcterms:type", candidate.typeOrGenre, property),
@@ -115,6 +116,7 @@ export class OmekaPublicationImportCommitWriter implements PublicationImportComm
       resourceValue("dcterms:publisher", publisherId, property),
       ...contributorIds.map((id) => resourceValue("dcterms:creator", id, property)),
       ...subjectIds.map((id) => resourceValue("dcterms:subject", id, property)),
+      ...candidate.keywords.map((keyword) => literal("schema:keywords", keyword, property)),
     ].filter((value): value is PropertyValue => value !== null);
 
     return {

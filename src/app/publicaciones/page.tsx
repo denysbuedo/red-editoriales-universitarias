@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import Image from "next/image";
 import Link from "next/link";
 
 import {
@@ -233,7 +234,12 @@ export default async function PublicationsPage({ searchParams }: PublicationsPag
                 className="rounded-md border border-neutral-200 bg-white p-5 shadow-sm"
                 key={publication.id}
               >
-                <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                <div className="grid gap-4 md:grid-cols-[5.5rem_minmax(0,1fr)_auto] md:items-start">
+                  <PublicationCover
+                    coverImageUrl={publication.coverImageUrl}
+                    title={publication.title}
+                    type={publication.type}
+                  />
                   <div className="min-w-0">
                     <div className="flex flex-wrap gap-2 text-sm text-neutral-600">
                       <Link
@@ -307,6 +313,37 @@ export default async function PublicationsPage({ searchParams }: PublicationsPag
         />
       </section>
     </main>
+  );
+}
+
+function PublicationCover({
+  coverImageUrl,
+  title,
+  type,
+}: {
+  readonly coverImageUrl?: string;
+  readonly title: string;
+  readonly type: string;
+}) {
+  if (coverImageUrl !== undefined) {
+    return (
+      <div className="relative h-28 w-20 overflow-hidden rounded-md border border-slate-200 bg-slate-100 shadow-sm">
+        <Image
+          alt={`Portada de ${title}`}
+          className="h-full w-full object-cover"
+          height={112}
+          src={coverImageUrl}
+          unoptimized
+          width={80}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-28 w-20 items-center justify-center rounded-md border border-blue-100 bg-blue-50 px-2 text-center text-xs font-bold uppercase leading-tight text-blue-950">
+      {formatTypeLabel(type)}
+    </div>
   );
 }
 
@@ -644,6 +681,18 @@ function buildVisiblePages(currentPage: number, totalPages: number): readonly nu
   }
 
   return pages;
+}
+
+function formatTypeLabel(type: string): string {
+  const normalizedType = type.trim();
+
+  if (normalizedType === "book") return "Libro";
+  if (normalizedType === "manual") return "Manual";
+  if (normalizedType === "ebook") return "Libro digital";
+
+  return normalizedType.length === 0
+    ? "Publicación"
+    : normalizedType.replace(/([a-z])([A-Z])/gu, "$1 $2");
 }
 
 function buildPublicationsHref(filters: PublicationPageFilters, page: number): string {

@@ -69,6 +69,25 @@ describe("GET /v1/publications", () => {
     expect(response.headers.get("X-Correlation-Id")).toBe("request-1");
   });
 
+  it("uses the configured public base URL for response links", async () => {
+    const previousPublicBaseUrl = process.env.PNPU_PUBLIC_BASE_URL;
+    process.env.PNPU_PUBLIC_BASE_URL = "https://editorial.reduniv.edu.cu";
+
+    try {
+      const response = await GET(
+        new Request("https://localhost:3000/v1/publications?page=1&pageSize=10"),
+      );
+
+      await expect(response.json()).resolves.toMatchObject({
+        links: {
+          self: "https://editorial.reduniv.edu.cu/v1/publications?page=1&pageSize=10",
+        },
+      });
+    } finally {
+      restoreEnvironmentValue("PNPU_PUBLIC_BASE_URL", previousPublicBaseUrl);
+    }
+  });
+
   it("applies publication filters", async () => {
     const request = new Request(
       "https://pnpu.mes.gob.cu/v1/publications?q=gobierno&language=es&subject=ordenadores&publisherId=018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c03&contributorId=018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c01&collectionId=018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c08&sort=titleAsc",
@@ -104,3 +123,11 @@ describe("GET /v1/publications", () => {
     expect(response.status).toBe(422);
   });
 });
+
+function restoreEnvironmentValue(name: string, value: string | undefined): void {
+  if (value === undefined) {
+    Reflect.deleteProperty(process.env, name);
+  } else {
+    process.env[name] = value;
+  }
+}

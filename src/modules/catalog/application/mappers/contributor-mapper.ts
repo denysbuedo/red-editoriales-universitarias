@@ -17,6 +17,7 @@ export function toContributorAuthoritySummary(
     orcid: snapshot.orcid?.value(),
     affiliation: snapshot.affiliation,
     country: snapshot.country,
+    imageUrl: snapshot.imageUrl,
     publicationCount,
   };
 }

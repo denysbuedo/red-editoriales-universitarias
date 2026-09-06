@@ -9,6 +9,15 @@ import { PublicationImportDiagnosisServiceOptions } from "./publication-import-d
 
 import { ApplicationError } from "@/modules/catalog/application";
 
+const ISBN_REQUIRED_TYPES = new Set([
+  "book",
+  "ebook",
+  "manual",
+  "monograph",
+  "conferenceproceedings",
+  "bookchapter",
+]);
+
 export interface PublicationImportCommitPlanCommand {
   readonly packageJson: string;
 }
@@ -160,6 +169,7 @@ function readReadyCandidate(candidate: unknown): PublicationImportDryRunCandidat
     row: readPositiveInteger(candidate.row),
     pnpuUuid: readString(candidate.pnpuUuid),
     title: readString(candidate.title),
+    abstract: readString(candidate.abstract),
     isbn: readString(candidate.isbn),
     doi: readOptionalString(candidate.doi),
     publisher: readString(candidate.publisher),
@@ -171,6 +181,7 @@ function readReadyCandidate(candidate: unknown): PublicationImportDryRunCandidat
     digitalResourceUrl: readString(candidate.digitalResourceUrl),
     language: readString(candidate.language),
     subjects: readStringArray(candidate.subjects),
+    keywords: readStringArray(candidate.keywords),
     license: readString(candidate.license),
     decision,
     reasons: readStringArray(candidate.reasons),
@@ -217,7 +228,16 @@ function appendCandidateRisks(
     "PNPU UUID requerido.",
     candidate.pnpuUuid,
   );
-  appendMissingRisk(risks, candidate.row, "missing_isbn", "ISBN requerido.", candidate.isbn);
+  appendMissingRisk(
+    risks,
+    candidate.row,
+    "missing_abstract",
+    "Resumen requerido.",
+    candidate.abstract,
+  );
+  if (requiresIsbn(candidate.typeOrGenre)) {
+    appendMissingRisk(risks, candidate.row, "missing_isbn", "ISBN requerido.", candidate.isbn);
+  }
   appendMissingRisk(
     risks,
     candidate.row,
@@ -276,6 +296,14 @@ function appendCandidateRisks(
     });
   }
 
+  if (candidate.keywords.length === 0) {
+    risks.push({
+      row: candidate.row,
+      code: "missing_keywords",
+      message: "Palabras clave requeridas.",
+    });
+  }
+
   if (candidate.contributorAuthorityIds.length === 0) {
     risks.push({
       row: candidate.row,
@@ -295,6 +323,10 @@ function appendMissingRisk(
   if (value.trim().length === 0) {
     risks.push({ row, code, message });
   }
+}
+
+function requiresIsbn(typeOrGenre: string): boolean {
+  return ISBN_REQUIRED_TYPES.has(typeOrGenre.trim().toLowerCase());
 }
 
 function buildOperations(
@@ -335,12 +367,14 @@ function buildCandidateOperations(
       target,
       payload: {
         title: candidate.title,
+        abstract: candidate.abstract,
         pnpuUuid: candidate.pnpuUuid,
         isbn: candidate.isbn,
         doi: candidate.doi ?? "",
         publicationDate: candidate.publicationDate,
         language: candidate.language,
         license: candidate.license,
+        keywords: candidate.keywords.join("|"),
         typeOrGenre: candidate.typeOrGenre,
       },
     },

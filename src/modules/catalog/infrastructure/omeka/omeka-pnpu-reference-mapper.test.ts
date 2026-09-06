@@ -41,6 +41,7 @@ describe("omeka-pnpu-reference-mapper", () => {
         "schema:sameAs": uris("https://orcid.org/0000-0000-0000-0000"),
         "schema:nationality": literals("CU"),
       }),
+      {},
       quality,
     );
 
@@ -50,6 +51,62 @@ describe("omeka-pnpu-reference-mapper", () => {
       country: "CU",
     });
     expect(quality.snapshot()).toMatchObject({ rejectedCount: 0, warningCount: 2 });
+  });
+
+  it("keeps contributors with invalid optional nationality and reports a warning", () => {
+    const quality = new OmekaQualityReport();
+    const contributor = mapOmekaContributor(
+      resource(21, {
+        "pnpu:uuid": literals("01990f5a-0000-7000-8000-000000000011"),
+        "foaf:name": literals("Raul Torricella"),
+        "schema:roleName": literals("author"),
+        "schema:nationality": literals("cubana"),
+      }),
+      {},
+      quality,
+    );
+
+    expect(contributor?.snapshot()).toMatchObject({
+      name: "Raul Torricella",
+      country: undefined,
+    });
+    expect(quality.snapshot()).toMatchObject({ rejectedCount: 0, warningCount: 1 });
+    expect(quality.snapshot().issues[0]).toMatchObject({
+      code: "OMEKA_INVALID_VALUE",
+      field: "schema:nationality",
+      severity: "warning",
+    });
+  });
+
+  it("maps contributor representative images from linked Omeka media", () => {
+    const quality = new OmekaQualityReport();
+    const contributor = mapOmekaContributor(
+      resource(22, {
+        "pnpu:uuid": literals("01990f5a-0000-7000-8000-000000000022"),
+        "foaf:name": literals("Raul Torricella"),
+        "schema:roleName": literals("author"),
+      }),
+      {
+        mediaByItemOmekaId: new Map([
+          [
+            22,
+            [
+              resource(80, {
+                "o:media_type": "image/jpeg",
+                "o:original_url": "http://127.0.0.1/files/original/autor.jpg",
+              }),
+            ],
+          ],
+        ]),
+        resourcePublicBaseUrl: "https://catalogo.reduniv.edu.cu",
+      },
+      quality,
+    );
+
+    expect(contributor?.snapshot().imageUrl).toBe(
+      "https://catalogo.reduniv.edu.cu/files/original/autor.jpg",
+    );
+    expect(quality.snapshot()).toMatchObject({ rejectedCount: 0, warningCount: 0 });
   });
 
   it("maps University, Publisher and Collection with linked Omeka references", () => {

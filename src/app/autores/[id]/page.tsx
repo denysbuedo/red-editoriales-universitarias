@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -39,6 +40,7 @@ export async function generateMetadata({ params }: ContributorPageProps): Promis
     openGraph: {
       title: contributor.name,
       description: contributor.biography ?? `Ficha pública de ${contributor.name}.`,
+      images: contributor.imageUrl === undefined ? undefined : [contributor.imageUrl],
       type: "profile",
       url: canonicalUrl,
     },
@@ -84,6 +86,8 @@ export default async function ContributorDetailPage({ params }: ContributorPageP
       </PageHero>
 
       <article className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+        <ContributorPortrait contributor={contributor} />
+
         <dl className="mt-8 grid gap-4 rounded-md border border-neutral-200 bg-white p-5 shadow-sm md:grid-cols-2">
           <div>
             <dt className="text-sm font-semibold text-neutral-600">Roles</dt>
@@ -194,6 +198,35 @@ export default async function ContributorDetailPage({ params }: ContributorPageP
   );
 }
 
+function ContributorPortrait({ contributor }: { readonly contributor: ContributorDetail }) {
+  if (contributor.imageUrl === undefined) {
+    return null;
+  }
+
+  return (
+    <section className="rounded-md border border-neutral-200 bg-white p-4 shadow-sm">
+      <div className="grid gap-4 sm:grid-cols-[8rem_minmax(0,1fr)] sm:items-center">
+        <div className="relative h-32 w-32 overflow-hidden rounded-md border border-slate-200 bg-slate-100">
+          <Image
+            alt={`Foto de ${contributor.name}`}
+            className="h-full w-full object-cover"
+            height={128}
+            src={contributor.imageUrl}
+            unoptimized
+            width={128}
+          />
+        </div>
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-normal text-blue-800">Autor</p>
+          <h2 className="mt-2 break-words text-lg font-semibold text-neutral-950">
+            {contributor.name}
+          </h2>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function buildContributorJsonLd(contributor: ContributorDetail, url: string): JsonLdObject {
   return {
     "@context": "https://schema.org",
@@ -206,6 +239,7 @@ function buildContributorJsonLd(contributor: ContributorDetail, url: string): Js
     familyName: contributor.familyName,
     affiliation: contributor.affiliation,
     nationality: contributor.country,
+    image: contributor.imageUrl,
     description: contributor.biography,
     sameAs: contributor.orcid,
     workExample: contributor.publications.map((publication) => ({

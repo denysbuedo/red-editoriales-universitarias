@@ -126,6 +126,8 @@ function buildReadyPackage(): {
         doi: "",
         formats: ["pdf"],
         isbn: "9789590000997",
+        abstract: "Resumen descriptivo para el catalogo publico.",
+        keywords: ["edicion universitaria", "catalogo nacional"],
         language: "es",
         license: "CC BY",
         pnpuUuid: "01990f5a-0000-7000-8000-000000000901",

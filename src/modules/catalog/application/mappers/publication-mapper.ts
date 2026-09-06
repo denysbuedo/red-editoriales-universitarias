@@ -16,6 +16,7 @@ export function toPublicationSummary(publication: Publication): PublicationSumma
     id: snapshot.id.value(),
     title: snapshot.title,
     subtitle: snapshot.subtitle,
+    coverImageUrl: snapshot.coverImageUrl,
     publicationDate: snapshot.publicationDate,
     language: snapshot.language.value(),
     type: snapshot.type,

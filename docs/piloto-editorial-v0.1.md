@@ -107,8 +107,8 @@ Desde la pantalla administrativa se pueden descargar:
 
 - `Plantilla base`: CSV con columnas `isbn`, `title`, `primaryContributor`, `publisher`,
   `genreOrPublicationType`, `format`, `publicationDate`.
-- `Plantilla PNPU`: CSV de enriquecimiento con autoridades, materias, licencia, idioma y recurso
-  digital.
+- `Plantilla PNPU`: CSV de enriquecimiento con resumen, autoridades, materias, palabras clave,
+  licencia, idioma y recurso digital.
 
 Para el piloto, la editorial puede abrir el CSV base en LibreOffice/Excel, completar los datos y
 guardar como XLSX antes de subirlo. El nombre de la hoja esperado por defecto es `EDUNIV`.

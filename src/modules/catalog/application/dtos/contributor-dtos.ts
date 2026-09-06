@@ -9,6 +9,7 @@ export interface ContributorAuthoritySummary {
   readonly orcid?: string;
   readonly affiliation?: string;
   readonly country?: string;
+  readonly imageUrl?: string;
   readonly publicationCount: number;
 }
 

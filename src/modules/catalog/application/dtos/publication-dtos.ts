@@ -32,6 +32,7 @@ export interface PublicationSummary {
   readonly id: string;
   readonly title: string;
   readonly subtitle?: string;
+  readonly coverImageUrl?: string;
   readonly publicationDate: string;
   readonly language: string;
   readonly type: string;

@@ -25,7 +25,7 @@ describe("GET /api/admin/publication-imports/templates/enrichment.csv", () => {
         'attachment; filename="pnpu-plantilla-enriquecimiento.csv"',
       );
       await expect(response.text()).resolves.toContain(
-        "row,pnpuUuid,title,isbn,doi,publicationDate,publisher,primaryContributor,contributorAuthorityIds,publisherAuthorityId,genreOrPublicationType,controlledTypeOrGenre,formats,digitalResourceUrl,language,subjects,license,notes",
+        "row,pnpuUuid,title,abstract,isbn,doi,publicationDate,publisher,primaryContributor,contributorAuthorityIds,publisherAuthorityId,genreOrPublicationType,controlledTypeOrGenre,formats,digitalResourceUrl,language,subjects,keywords,license,notes",
       );
     } finally {
       restoreEnvironmentValue("PNPU_PUBLICATION_IMPORT_TOKEN", previousToken);

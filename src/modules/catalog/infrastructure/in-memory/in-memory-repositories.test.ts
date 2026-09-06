@@ -124,7 +124,10 @@ describe("in-memory catalog repositories", () => {
       id: PnpuUuid.create("018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c09"),
       title: "Zoología editorial universitaria",
       publicationDate: "2026-07-15",
-      identifiers: [Identifier.create("doi", "10.1234/pnpu.sort.01")],
+      identifiers: [
+        Identifier.create("isbn", "9789590000010"),
+        Identifier.create("doi", "10.1234/pnpu.sort.01"),
+      ],
     });
     const repository = new InMemoryPublicationRepository([firstPublication, secondPublication]);
 

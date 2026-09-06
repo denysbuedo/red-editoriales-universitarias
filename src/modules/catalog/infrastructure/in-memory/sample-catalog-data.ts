@@ -145,25 +145,25 @@ function createPublicationTypeShowcase({
   const entries: readonly PublicationShowcaseEntry[] = [
     {
       id: "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c10",
-      identifier: "10.1234/pnpu.ebook.01",
+      identifier: "9789590000010",
       title: "Guía digital de aprendizaje universitario",
       type: "ebook",
     },
     {
       id: "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c11",
-      identifier: "10.1234/pnpu.manual.01",
+      identifier: "9789590000027",
       title: "Manual práctico de edición académica",
       type: "manual",
     },
     {
       id: "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c12",
-      identifier: "10.1234/pnpu.monograph.01",
+      identifier: "9789590000034",
       title: "Monografía sobre gestión del conocimiento",
       type: "monograph",
     },
     {
       id: "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c13",
-      identifier: "10.1234/pnpu.proceedings.01",
+      identifier: "9789590000041",
       title: "Memorias del seminario de innovación universitaria",
       type: "conferenceProceedings",
     },
@@ -211,7 +211,7 @@ function createPublicationTypeShowcase({
     },
     {
       id: "018f6e2d-7b58-7d61-9b7d-1f4c2f9a1c1b",
-      identifier: "10.1234/pnpu.chapter.01",
+      identifier: "9789590000058",
       title: "Capítulo sobre preservación digital editorial",
       type: "bookChapter",
     },

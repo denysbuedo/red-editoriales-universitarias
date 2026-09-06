@@ -3,7 +3,12 @@ import { LanguageCode, PnpuUuid } from "../value-objects";
 import { Collection } from "./collection";
 import { Contributor } from "./contributor";
 import { Identifier } from "./identifier";
-import { normalizeOptionalText, requireDefined, requireNonEmptyText } from "./domain-guards";
+import {
+  normalizeOptionalText,
+  normalizeOptionalUrl,
+  requireDefined,
+  requireNonEmptyText,
+} from "./domain-guards";
 import { Publisher } from "./publisher";
 import { Resource } from "./resource";
 import { Subject } from "./subject";
@@ -26,6 +31,15 @@ export const PUBLICATION_TYPES = [
 
 export type PublicationType = (typeof PUBLICATION_TYPES)[number];
 
+const ISBN_REQUIRED_PUBLICATION_TYPES = [
+  "book",
+  "ebook",
+  "manual",
+  "monograph",
+  "conferenceProceedings",
+  "bookChapter",
+] as const satisfies readonly PublicationType[];
+
 export interface PublicationProps {
   readonly id: PnpuUuid;
   readonly title: string;
@@ -43,6 +57,7 @@ export interface PublicationProps {
   readonly keywords?: readonly string[];
   readonly license?: string;
   readonly collection?: Collection;
+  readonly coverImageUrl?: string;
 }
 
 export class Publication {
@@ -56,16 +71,17 @@ export class Publication {
       language: requireDefined(props.language, "Publication language"),
       publisher: requireDefined(props.publisher, "Publication publisher"),
       contributors: requireNonEmptyArray(props.contributors, "Publication contributors"),
-      identifiers: requireNonEmptyArray(props.identifiers, "Publication identifiers"),
+      identifiers: requirePublicationIdentifiers(props.identifiers, props.type),
       subjects: requireNonEmptyArray(props.subjects, "Publication subjects"),
       resources: requireNonEmptyArray(props.resources, "Publication resources"),
       type: props.type,
       format: requireNonEmptyText(props.format, "Publication format"),
       subtitle: normalizeOptionalText(props.subtitle),
-      abstract: normalizeOptionalText(props.abstract),
-      keywords: normalizeKeywords(props.keywords),
-      license: normalizeOptionalText(props.license),
+      abstract: requireNonEmptyText(props.abstract ?? "", "Publication abstract"),
+      keywords: requireKeywords(props.keywords),
+      license: requireNonEmptyText(props.license ?? "", "Publication license"),
       collection: props.collection,
+      coverImageUrl: normalizeOptionalUrl(props.coverImageUrl, "Publication cover image URL"),
     });
   }
 
@@ -117,6 +133,27 @@ function requireNonEmptyArray<T>(values: readonly T[], fieldName: string): reado
   return [...values];
 }
 
+function requirePublicationIdentifiers(
+  identifiers: readonly Identifier[],
+  type: PublicationType,
+): readonly Identifier[] {
+  const normalizedIdentifiers = requireNonEmptyArray(identifiers, "Publication identifiers");
+  const requiresIsbn = ISBN_REQUIRED_PUBLICATION_TYPES.includes(
+    type as (typeof ISBN_REQUIRED_PUBLICATION_TYPES)[number],
+  );
+
+  if (
+    requiresIsbn &&
+    normalizedIdentifiers.every(
+      (identifier) => identifier.type() !== "isbn" && identifier.type() !== "eisbn",
+    )
+  ) {
+    throw new DomainValidationError(`Publication type ${type} requires an ISBN identifier.`);
+  }
+
+  return normalizedIdentifiers;
+}
+
 function requireIsoDate(value: string): string {
   const normalizedValue = requireNonEmptyText(value, "Publication date");
 
@@ -133,14 +170,18 @@ function requireIsoDate(value: string): string {
   return normalizedValue;
 }
 
-function normalizeKeywords(keywords: readonly string[] | undefined): readonly string[] | undefined {
+function requireKeywords(keywords: readonly string[] | undefined): readonly string[] {
   if (keywords === undefined) {
-    return undefined;
+    throw new DomainValidationError("Publication keywords are required.");
   }
 
   const normalizedKeywords = [
     ...new Set(keywords.map((keyword) => normalizeOptionalText(keyword))),
   ].filter((keyword): keyword is string => keyword !== undefined);
+
+  if (normalizedKeywords.length === 0) {
+    throw new DomainValidationError("Publication keywords are required.");
+  }
 
   if (normalizedKeywords.length > 10) {
     throw new DomainValidationError("Publication keywords must not exceed 10 items.");

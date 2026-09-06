@@ -32,15 +32,19 @@ export function createCompleteOmekaCatalogSnapshot(): OmekaCatalogSnapshot {
   const publication = omekaResource(60, OMEKA_PNPU_RESOURCE_TEMPLATES.publication, {
     "pnpu:uuid": literals("01990f5a-0000-7000-8000-000000000205"),
     "dcterms:title": literals("Gestion editorial universitaria"),
+    "dcterms:abstract": literals("Resumen de gestion editorial universitaria."),
     "dcterms:issued": literals("2026-07-16"),
     "dcterms:language": literals("es"),
     "dcterms:type": literals("book"),
     "dcterms:format": literals("application/pdf"),
+    "dcterms:license": literals("CC BY"),
     "dcterms:identifier": literals("https://pnpu.mes.gob.cu/publicaciones/gestion-editorial"),
+    "bibo:isbn": literals("9789590000003"),
     "dcterms:publisher": linkedResource(40),
     "dcterms:creator": linkedResource(20),
     "dcterms:subject": linkedResource(10),
     "dcterms:isPartOf": linkedResource(50),
+    "schema:keywords": literals("gestion editorial", "universidad"),
   });
   const media = omekaResource(70, OMEKA_PNPU_RESOURCE_TEMPLATES.digitalResource, {
     "o:item": {

@@ -35,14 +35,11 @@ export function mapOmekaSnapshotToPnpuCatalog(
     selectOmekaResourcesByKind(snapshot.items, "subject"),
     (resource) => mapOmekaSubject(resource, quality),
   );
-  const contributorsByOmekaId = mapByOmekaId(
-    selectOmekaResourcesByKind(snapshot.items, "contributor"),
-    (resource) => mapOmekaContributor(resource, quality),
-  );
   const universitiesByOmekaId = mapByOmekaId(
     selectOmekaResourcesByKind(snapshot.items, "university"),
     (resource) => mapOmekaUniversity(resource, quality),
   );
+  const mediaByItemOmekaId = groupMediaByItemOmekaId(snapshot.media);
   const publishersByOmekaId = mapByOmekaId(
     selectOmekaResourcesByKind(snapshot.items, "publisher"),
     (resource) =>
@@ -50,6 +47,18 @@ export function mapOmekaSnapshotToPnpuCatalog(
         resource,
         {
           universitiesByOmekaId,
+        },
+        quality,
+      ),
+  );
+  const contributorsByOmekaIdWithMedia = mapByOmekaId(
+    selectOmekaResourcesByKind(snapshot.items, "contributor"),
+    (resource) =>
+      mapOmekaContributor(
+        resource,
+        {
+          mediaByItemOmekaId,
+          resourcePublicBaseUrl: options.resourcePublicBaseUrl,
         },
         quality,
       ),
@@ -66,7 +75,6 @@ export function mapOmekaSnapshotToPnpuCatalog(
         quality,
       ),
   );
-  const mediaByItemOmekaId = groupMediaByItemOmekaId(snapshot.media);
   const publicationsByOmekaId = mapByOmekaId(
     selectOmekaResourcesByKind(snapshot.items, "publication"),
     (resource) =>
@@ -74,7 +82,7 @@ export function mapOmekaSnapshotToPnpuCatalog(
         resource,
         {
           publishersByOmekaId,
-          contributorsByOmekaId,
+          contributorsByOmekaId: contributorsByOmekaIdWithMedia,
           subjectsByOmekaId,
           collectionsByOmekaId,
           mediaByItemOmekaId,
@@ -94,7 +102,7 @@ export function mapOmekaSnapshotToPnpuCatalog(
 
   return {
     publications: [...publicationsByOmekaId.values()],
-    contributors: [...contributorsByOmekaId.values()],
+    contributors: [...contributorsByOmekaIdWithMedia.values()],
     publishers: [...publishersByOmekaId.values()],
     universities: [...universitiesByOmekaId.values()],
     collections: [...collectionsByOmekaId.values()],

@@ -116,6 +116,39 @@ describe("createOmekaCatalogRepositoriesFromApi", () => {
     expect(publishers.data[0]?.officialName()).toBe("Editorial UH");
   });
 
+  it("keeps valid publications available when another Omeka publication is rejected", async () => {
+    const snapshot = createCompleteOmekaCatalogSnapshot();
+    const invalidPublication = omekaResource(42, OMEKA_PNPU_RESOURCE_TEMPLATES.publication, {
+      "pnpu:uuid": literals("eduniv992"),
+      "dcterms:title": literals("Publicacion mal cargada"),
+      "dcterms:abstract": literals("Resumen."),
+      "dcterms:issued": literals("2020"),
+      "dcterms:language": literals("Español"),
+      "dcterms:type": literals("book"),
+      "dcterms:format": literals("application/pdf"),
+      "dcterms:license": literals("CC BY"),
+      "dcterms:identifier": literals("eduniv992"),
+      "bibo:isbn": literals("9789590000003"),
+      "dcterms:publisher": literals("Editorial Universitaria"),
+      "dcterms:creator": literals("Autor literal"),
+      "dcterms:subject": literals("Ciencias sociales"),
+      "schema:keywords": literals("historia"),
+    });
+    const client = new FakeOmekaApiClient(
+      [...snapshot.items, invalidPublication],
+      snapshot.itemSets,
+      snapshot.media,
+      snapshot.resourceTemplates,
+    );
+
+    const result = await createOmekaCatalogRepositoriesFromApi(client);
+    const publications = await result.repositories.publications.list({ page: 1, pageSize: 10 });
+
+    expect(result.catalog.quality.rejectedCount).toBeGreaterThan(0);
+    expect(publications.pagination.total).toBe(1);
+    expect(publications.data[0]?.title()).toBe("Gestion editorial universitaria");
+  });
+
   it("reuses a cached Omeka catalog while TTL is valid", async () => {
     const snapshot = createCompleteOmekaCatalogSnapshot();
     const client = new FakeOmekaApiClient(

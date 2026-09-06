@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 
 import { toContributorAuthoritySummary } from "@/modules/catalog/application";
@@ -38,36 +39,41 @@ export default async function ContributorsPage() {
               className="rounded-md border border-neutral-200 bg-white p-5 shadow-sm"
               key={contributor.id}
             >
-              <p className="text-sm text-neutral-600">
-                {contributor.publicationCount} publicación
-                {contributor.publicationCount === 1 ? "" : "es"}
-              </p>
-              <h2 className="mt-2 break-words text-lg font-semibold text-neutral-950 sm:text-xl">
-                <Link className="hover:text-blue-800" href={`/autores/${contributor.id}`}>
-                  {contributor.name}
-                </Link>
-              </h2>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {contributor.roles.map((role) => (
-                  <span
-                    className="rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-900"
-                    key={role}
-                  >
-                    {role}
-                  </span>
-                ))}
-                {contributor.country === undefined ? null : (
-                  <span className="rounded-md bg-neutral-100 px-2 py-1 text-xs font-medium text-neutral-700">
-                    {contributor.country}
-                  </span>
-                )}
+              <div className="flex items-start gap-4">
+                <ContributorAvatar contributor={contributor} />
+                <div className="min-w-0">
+                  <p className="text-sm text-neutral-600">
+                    {contributor.publicationCount} publicación
+                    {contributor.publicationCount === 1 ? "" : "es"}
+                  </p>
+                  <h2 className="mt-2 break-words text-lg font-semibold text-neutral-950 sm:text-xl">
+                    <Link className="hover:text-blue-800" href={`/autores/${contributor.id}`}>
+                      {contributor.name}
+                    </Link>
+                  </h2>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {contributor.roles.map((role) => (
+                      <span
+                        className="rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-900"
+                        key={role}
+                      >
+                        {role}
+                      </span>
+                    ))}
+                    {contributor.country === undefined ? null : (
+                      <span className="rounded-md bg-neutral-100 px-2 py-1 text-xs font-medium text-neutral-700">
+                        {contributor.country}
+                      </span>
+                    )}
+                  </div>
+                  {contributor.affiliation === undefined ? null : (
+                    <p className="mt-2 text-sm text-neutral-700">{contributor.affiliation}</p>
+                  )}
+                  {contributor.orcid === undefined ? null : (
+                    <p className="mt-2 break-all text-sm text-blue-800">{contributor.orcid}</p>
+                  )}
+                </div>
               </div>
-              {contributor.affiliation === undefined ? null : (
-                <p className="mt-2 text-sm text-neutral-700">{contributor.affiliation}</p>
-              )}
-              {contributor.orcid === undefined ? null : (
-                <p className="mt-2 break-all text-sm text-blue-800">{contributor.orcid}</p>
-              )}
               <Link
                 className="mt-5 inline-flex w-full justify-center rounded-md border border-blue-800 px-3 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-50 sm:w-auto"
                 href={`/autores/${contributor.id}`}
@@ -80,4 +86,40 @@ export default async function ContributorsPage() {
       </section>
     </main>
   );
+}
+
+function ContributorAvatar({
+  contributor,
+}: {
+  readonly contributor: ReturnType<typeof toContributorAuthoritySummary>;
+}) {
+  if (contributor.imageUrl !== undefined) {
+    return (
+      <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md border border-slate-200 bg-slate-100">
+        <Image
+          alt={`Foto de ${contributor.name}`}
+          className="h-full w-full object-cover"
+          height={64}
+          src={contributor.imageUrl}
+          unoptimized
+          width={64}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-md bg-blue-950 text-sm font-bold text-white">
+      {readInitials(contributor.name)}
+    </div>
+  );
+}
+
+function readInitials(value: string): string {
+  return value
+    .split(/\s+/u)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0].toUpperCase())
+    .join("");
 }

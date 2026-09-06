@@ -1569,6 +1569,9 @@ components:
         orcid:
           type: string
           format: uri
+        imageUrl:
+          type: string
+          format: uri
     ContributorAuthoritySummary:
       allOf:
         - $ref: "#/components/schemas/ContributorSummary"
@@ -1719,6 +1722,9 @@ components:
           type: string
         license:
           type: string
+        coverImageUrl:
+          type: string
+          format: uri
         primaryIdentifier:
           $ref: "#/components/schemas/Identifier"
         subjects:
@@ -2661,6 +2667,7 @@ components:
         - isbn
         - publisher
         - publicationDate
+        - abstract
         - contributorAuthorityIds
         - publisherAuthorityId
         - typeOrGenre
@@ -2668,6 +2675,7 @@ components:
         - digitalResourceUrl
         - language
         - subjects
+        - keywords
         - license
         - decision
         - reasons
@@ -2684,6 +2692,8 @@ components:
         publisher:
           type: string
         publicationDate:
+          type: string
+        abstract:
           type: string
         contributorAuthorityIds:
           type: array
@@ -2702,6 +2712,10 @@ components:
         language:
           type: string
         subjects:
+          type: array
+          items:
+            type: string
+        keywords:
           type: array
           items:
             type: string

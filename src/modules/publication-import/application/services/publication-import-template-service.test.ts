@@ -19,7 +19,7 @@ describe("PublicationImportTemplateService", () => {
 
     expect(template.fileName).toBe("pnpu-plantilla-enriquecimiento.csv");
     expect(template.content).toContain(
-      "row,pnpuUuid,title,isbn,doi,publicationDate,publisher,primaryContributor,contributorAuthorityIds,publisherAuthorityId,genreOrPublicationType,controlledTypeOrGenre,formats,digitalResourceUrl,language,subjects,license,notes",
+      "row,pnpuUuid,title,abstract,isbn,doi,publicationDate,publisher,primaryContributor,contributorAuthorityIds,publisherAuthorityId,genreOrPublicationType,controlledTypeOrGenre,formats,digitalResourceUrl,language,subjects,keywords,license,notes",
     );
     expect(template.content).toContain("01990f5a-0000-7000-8000-000000000901");
   });

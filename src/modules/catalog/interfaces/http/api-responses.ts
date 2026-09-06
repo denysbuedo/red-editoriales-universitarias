@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { ApplicationError, PaginatedResult, Pagination } from "../../application";
+import { getRuntimeConfig } from "@/shared/config/runtime-config";
 import { getCorrelationIdHeaderName, resolveCorrelationId } from "@/shared/http/correlation-id";
 
 export interface ApiLinks {
@@ -47,7 +48,7 @@ export function collectionResponse<T>(
 export function itemResponse<T>(request: Request, data: T): NextResponse<ApiItemResponse<T>> {
   return NextResponse.json({
     data,
-    links: { self: request.url },
+    links: { self: buildCanonicalApiUrl(request.url).toString() },
     meta: { apiVersion: "v1" },
   });
 }
@@ -94,7 +95,7 @@ function statusForApplicationError(error: ApplicationError): number {
 }
 
 function buildPaginationLinks(request: Request, pagination: Pagination): ApiLinks {
-  const self = new URL(request.url);
+  const self = buildCanonicalApiUrl(request.url);
   const links: { self: string; next?: string; prev?: string } = {
     self: self.toString(),
   };
@@ -114,4 +115,19 @@ function buildPaginationLinks(request: Request, pagination: Pagination): ApiLink
   }
 
   return links;
+}
+
+function buildCanonicalApiUrl(requestUrl: string): URL {
+  const url = new URL(requestUrl);
+  const configuredBaseUrl = process.env.PNPU_PUBLIC_BASE_URL?.trim();
+
+  if (!configuredBaseUrl) {
+    return url;
+  }
+
+  const publicBaseUrl = new URL(getRuntimeConfig().publicBaseUrl);
+  url.protocol = publicBaseUrl.protocol;
+  url.hostname = publicBaseUrl.hostname;
+  url.port = publicBaseUrl.port;
+  return url;
 }

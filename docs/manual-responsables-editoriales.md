@@ -160,16 +160,16 @@ Campos minimos:
 - autores o contribuidores;
 - identificador;
 - materia;
+- resumen;
+- licencia;
+- palabras clave;
 - recurso digital asociado.
 
 Campos recomendados:
 
 - subtitulo;
-- resumen;
 - ISBN;
 - DOI;
-- licencia;
-- palabras clave;
 - coleccion;
 - cubierta;
 - URL publica persistente.
@@ -213,7 +213,6 @@ Tipos posibles:
 - PDF;
 - EPUB;
 - HTML;
-- imagen de cubierta;
 - enlace externo;
 - audio;
 - video;
@@ -230,6 +229,12 @@ Datos recomendados del recurso:
 - checksum, si la politica lo exige.
 
 Si el recurso esta restringido, debe indicarse claramente segun la politica aprobada.
+
+La portada se carga como imagen asociada a la publicacion. PNPU la muestra visualmente en las
+tarjetas y fichas, pero no la considera el recurso digital principal de la publicacion.
+
+La foto de un autor, responsable o contribuidor se carga como imagen asociada al registro
+`PNPU Contributor`.
 
 ## Licencias
 
@@ -258,7 +263,8 @@ Antes de pedir al administrador PNPU que refresque el catalogo, revisar:
 - la coleccion es correcta, si aplica;
 - hay al menos un recurso digital;
 - el resumen no contiene texto provisional;
-- la licencia esta indicada cuando corresponde.
+- la licencia esta indicada;
+- las palabras clave ayudan a encontrar la publicacion.
 
 ## Como aparece en PNPU
 

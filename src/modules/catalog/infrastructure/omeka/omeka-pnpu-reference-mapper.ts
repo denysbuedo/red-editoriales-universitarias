@@ -9,6 +9,7 @@ import {
 } from "../../domain";
 import { DomainValidationError } from "../../domain/errors/domain-validation-error";
 import { Orcid, PnpuUuid } from "../../domain/value-objects";
+import { requireCountryCode } from "../../domain/entities/domain-guards";
 import { OmekaJsonObject } from "./omeka-api-client";
 import {
   readFirstLinkedResourceId,
@@ -19,6 +20,7 @@ import {
   readOmekaId,
   readUris,
 } from "./omeka-json-reader";
+import { readTopLevelString, rewriteLocalOmekaResourceUrl } from "./omeka-media-url";
 import { OmekaQualityReport } from "./omeka-quality-report";
 import { OMEKA_PNPU_RESOURCE_TEMPLATES } from "./omeka-resource-template-classifier";
 
@@ -26,6 +28,8 @@ export interface OmekaReferenceMappingContext {
   readonly universitiesByOmekaId?: ReadonlyMap<number, University>;
   readonly publishersByOmekaId?: ReadonlyMap<number, Publisher>;
   readonly subjectsByOmekaId?: ReadonlyMap<number, Subject>;
+  readonly mediaByItemOmekaId?: ReadonlyMap<number, readonly OmekaJsonObject[]>;
+  readonly resourcePublicBaseUrl?: string;
 }
 
 export function mapOmekaSubject(
@@ -59,6 +63,7 @@ export function mapOmekaSubject(
 
 export function mapOmekaContributor(
   resource: OmekaJsonObject,
+  context: OmekaReferenceMappingContext,
   quality: OmekaQualityReport,
 ): Contributor | null {
   const uuid = readPnpuUuid(resource, quality, OMEKA_PNPU_RESOURCE_TEMPLATES.contributor);
@@ -94,7 +99,8 @@ export function mapOmekaContributor(
         orcid: readOrcid(resource, quality) ?? undefined,
         affiliation: readFirstLiteral(resource, "schema:affiliation") ?? undefined,
         biography: readFirstLiteral(resource, "schema:description") ?? undefined,
-        country: readFirstLiteral(resource, "schema:nationality") ?? undefined,
+        country: readOptionalCountry(resource, quality),
+        imageUrl: readRepresentativeImageUrl(resource, context),
       }),
   );
 }
@@ -357,6 +363,78 @@ function readOrcid(resource: OmekaJsonObject, quality: OmekaQualityReport): Orci
   }
 }
 
+function readOptionalCountry(
+  resource: OmekaJsonObject,
+  quality: OmekaQualityReport,
+): string | undefined {
+  const country = readFirstLiteral(resource, "schema:nationality");
+
+  if (country === null) {
+    return undefined;
+  }
+
+  try {
+    return requireCountryCode(country, "Contributor country");
+  } catch (error) {
+    quality.warn({
+      code: "OMEKA_INVALID_VALUE",
+      omekaId: readOmekaId(resource),
+      templateLabel: OMEKA_PNPU_RESOURCE_TEMPLATES.contributor,
+      field: "schema:nationality",
+      message:
+        error instanceof Error
+          ? error.message
+          : "Contributor country must be an ISO 3166-1 alpha-2 code.",
+    });
+    return undefined;
+  }
+}
+
+function readRepresentativeImageUrl(
+  resource: OmekaJsonObject,
+  context: OmekaReferenceMappingContext,
+): string | undefined {
+  const omekaId = readOmekaId(resource);
+  const media = omekaId === null ? [] : (context.mediaByItemOmekaId?.get(omekaId) ?? []);
+  const imageMedia = media.find(isImageMedia);
+  const imageUrl =
+    imageMedia === undefined
+      ? readThumbnailUrl(resource)
+      : (readMediaUrl(imageMedia) ?? readThumbnailUrl(imageMedia));
+
+  return imageUrl === undefined
+    ? undefined
+    : rewriteLocalOmekaResourceUrl(imageUrl, context.resourcePublicBaseUrl);
+}
+
+function isImageMedia(media: OmekaJsonObject): boolean {
+  const mediaType =
+    readFirstLiteral(media, "o:media_type") ?? readTopLevelString(media, "o:media_type");
+
+  return mediaType?.startsWith("image/") ?? false;
+}
+
+function readMediaUrl(media: OmekaJsonObject): string | undefined {
+  return (
+    readFirstUri(media, "o:original_url") ??
+    readFirstLiteral(media, "o:original_url") ??
+    readTopLevelString(media, "o:original_url") ??
+    undefined
+  );
+}
+
+function readThumbnailUrl(resource: OmekaJsonObject): string | undefined {
+  const thumbnails = resource.thumbnail_display_urls;
+
+  if (!isJsonObject(thumbnails)) {
+    return undefined;
+  }
+
+  return (
+    readString(thumbnails.large) ?? readString(thumbnails.medium) ?? readString(thumbnails.square)
+  );
+}
+
 function createOrReject<T>(
   resource: OmekaJsonObject,
   quality: OmekaQualityReport,
@@ -424,4 +502,12 @@ function rejectUnresolved(
 
 function optionalArray<T>(values: readonly T[]): readonly T[] | undefined {
   return values.length === 0 ? undefined : [...values];
+}
+
+function readString(value: unknown): string | undefined {
+  return typeof value === "string" && value.trim().length > 0 ? value.trim() : undefined;
+}
+
+function isJsonObject(value: unknown): value is OmekaJsonObject {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }

@@ -53,8 +53,10 @@ Condiciones minimas:
 - `publisherAuthorityId` presente;
 - `contributorAuthorityIds` presentes para resolver `dcterms:creator`;
 - `publicationDate` presente en formato `YYYY-MM-DD`;
+- resumen bibliografico presente;
 - `language` presente;
 - `subjects` presentes;
+- palabras clave presentes;
 - `license` presente;
 - `digitalResourceUrl` presente;
 - ISBN normalizado presente;

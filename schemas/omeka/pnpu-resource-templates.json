@@ -11,12 +11,12 @@
         { "term": "pnpu:uuid", "required": true },
         { "term": "dcterms:title", "required": true },
         { "term": "dcterms:alternative", "required": false },
-        { "term": "dcterms:abstract", "required": false },
+        { "term": "dcterms:abstract", "required": true },
         { "term": "dcterms:issued", "required": true },
         { "term": "dcterms:language", "required": true },
         { "term": "dcterms:type", "required": true },
         { "term": "dcterms:format", "required": true },
-        { "term": "dcterms:license", "required": false },
+        { "term": "dcterms:license", "required": true },
         { "term": "dcterms:publisher", "required": true },
         { "term": "dcterms:creator", "required": true },
         { "term": "dcterms:contributor", "required": false },
@@ -25,7 +25,7 @@
         { "term": "bibo:doi", "required": false },
         { "term": "dcterms:subject", "required": true },
         { "term": "dcterms:isPartOf", "required": false },
-        { "term": "schema:keywords", "required": false }
+        { "term": "schema:keywords", "required": true }
       ]
     },
     {

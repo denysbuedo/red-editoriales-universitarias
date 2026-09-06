@@ -216,7 +216,7 @@ function createPublication(id: PnpuUuid = publicationId): Publication {
     identifiers: [
       id.equals(publicationId)
         ? Identifier.create("isbn", "9789590000003")
-        : Identifier.create("doi", "10.1234/pnpu.book.02"),
+        : Identifier.create("isbn", "9789590000010"),
     ],
     subjects: [
       Subject.create({
@@ -233,6 +233,9 @@ function createPublication(id: PnpuUuid = publicationId): Publication {
     ],
     type: "book",
     format: "application/pdf",
+    abstract: "Resumen para pruebas de servicio del catalogo.",
+    license: "CC BY",
+    keywords: ["catalogo", "pruebas"],
     collection: createCollection(),
   });
 }

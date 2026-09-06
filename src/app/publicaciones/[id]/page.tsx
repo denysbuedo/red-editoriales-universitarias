@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -41,6 +42,7 @@ export async function generateMetadata({ params }: PublicationPageProps): Promis
     openGraph: {
       title: publication.title,
       description: publication.abstract ?? `Ficha pública de ${publication.title}.`,
+      images: publication.coverImageUrl === undefined ? undefined : [publication.coverImageUrl],
       type: "book",
       url: canonicalUrl,
     },
@@ -88,6 +90,8 @@ export default async function PublicationDetailPage({ params }: PublicationPageP
       </PageHero>
 
       <article className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+        <PublicationCover publication={publication} />
+
         <dl className="mt-8 grid gap-4 rounded-md border border-neutral-200 bg-white p-5 shadow-sm md:grid-cols-2">
           <div>
             <dt className="text-sm font-semibold text-neutral-600">Editorial</dt>
@@ -312,6 +316,35 @@ export default async function PublicationDetailPage({ params }: PublicationPageP
   );
 }
 
+function PublicationCover({ publication }: { readonly publication: PublicationDetail }) {
+  if (publication.coverImageUrl === undefined) {
+    return null;
+  }
+
+  return (
+    <section className="rounded-md border border-neutral-200 bg-white p-4 shadow-sm">
+      <div className="grid gap-4 sm:grid-cols-[9rem_minmax(0,1fr)] sm:items-center">
+        <div className="relative h-52 w-36 overflow-hidden rounded-md border border-slate-200 bg-slate-100 shadow-sm">
+          <Image
+            alt={`Portada de ${publication.title}`}
+            className="h-full w-full object-cover"
+            height={208}
+            src={publication.coverImageUrl}
+            unoptimized
+            width={144}
+          />
+        </div>
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-normal text-blue-800">Portada</p>
+          <h2 className="mt-2 break-words text-lg font-semibold text-neutral-950">
+            {publication.title}
+          </h2>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function buildPublicationJsonLd(publication: PublicationDetail, url: string): JsonLdObject {
   const isbn = publication.identifiers.find((identifier) => identifier.type === "isbn")?.value;
 
@@ -321,6 +354,7 @@ function buildPublicationJsonLd(publication: PublicationDetail, url: string): Js
     "@id": `${url}#publication`,
     url,
     name: publication.title,
+    image: publication.coverImageUrl,
     alternateName: publication.subtitle,
     description: publication.abstract,
     datePublished: publication.publicationDate,

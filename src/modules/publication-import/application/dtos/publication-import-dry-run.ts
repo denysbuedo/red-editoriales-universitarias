@@ -6,6 +6,7 @@ export interface PublicationImportDryRunCandidateDto {
   readonly row: number;
   readonly pnpuUuid: string;
   readonly title: string;
+  readonly abstract: string;
   readonly isbn: string;
   readonly doi?: string;
   readonly publisher: string;
@@ -17,6 +18,7 @@ export interface PublicationImportDryRunCandidateDto {
   readonly digitalResourceUrl: string;
   readonly language: string;
   readonly subjects: readonly string[];
+  readonly keywords: readonly string[];
   readonly license: string;
   readonly decision: PublicationImportDryRunDecisionDto;
   readonly reasons: readonly string[];

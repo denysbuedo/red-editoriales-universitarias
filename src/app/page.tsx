@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 import {
   type CollectionSummary,
@@ -184,44 +185,60 @@ function PublicationCard({ publication }: { readonly publication: PublicationSum
   const TypeIcon = typePresentation.Icon;
 
   return (
-    <article className="grid min-h-56 grid-cols-1 overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm sm:grid-cols-[7rem_minmax(0,1fr)]">
-      <div
-        className={`flex min-h-24 flex-row items-center justify-center gap-3 border-b p-3 text-center sm:h-full sm:flex-col sm:gap-0 sm:border-b-0 sm:border-r ${typePresentation.panelClass}`}
-      >
-        <span
-          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-md border bg-white sm:h-14 sm:w-14 ${typePresentation.iconClass}`}
-        >
-          <TypeIcon />
-        </span>
-        <span className="max-w-40 text-xs font-bold uppercase tracking-normal sm:mt-3">
-          {typePresentation.label}
-        </span>
+    <article className="grid min-h-44 grid-cols-[5.5rem_minmax(0,1fr)] overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm sm:grid-cols-[6.5rem_minmax(0,1fr)]">
+      <div className={`relative min-h-full border-r ${typePresentation.panelClass}`}>
+        {publication.coverImageUrl === undefined ? (
+          <div className="flex h-full min-h-44 flex-col items-center justify-center gap-2 p-3 text-center">
+            <span
+              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-md border bg-white sm:h-12 sm:w-12 ${typePresentation.iconClass}`}
+            >
+              <TypeIcon />
+            </span>
+            <span className="max-w-24 text-[0.68rem] font-bold uppercase leading-tight tracking-normal">
+              {typePresentation.label}
+            </span>
+          </div>
+        ) : (
+          <>
+            <Image
+              alt={`Portada de ${publication.title}`}
+              className="h-full min-h-44 w-full object-cover"
+              height={176}
+              src={publication.coverImageUrl}
+              unoptimized
+              width={104}
+            />
+            <span className="absolute bottom-2 left-2 right-2 rounded bg-white/95 px-2 py-1 text-center text-[0.62rem] font-bold uppercase leading-tight text-slate-900 shadow-sm">
+              {typePresentation.label}
+            </span>
+          </>
+        )}
       </div>
-      <div className="min-w-0 p-4">
-        <p className="text-xs font-semibold uppercase tracking-normal text-slate-500">
+      <div className="min-w-0 p-3 sm:p-4">
+        <p className="text-[0.68rem] font-semibold uppercase tracking-normal text-slate-500">
           {publication.publicationDate} ·{" "}
           {publication.publisher.acronym ?? publication.publisher.officialName}
         </p>
-        <h3 className="mt-2 break-words text-base font-bold leading-snug text-slate-950 sm:text-lg">
+        <h3 className="mt-1.5 line-clamp-3 break-words text-sm font-bold leading-snug text-slate-950 sm:text-base">
           <Link className="hover:text-blue-800" href={`/publicaciones/${publication.id}`}>
             {publication.title}
           </Link>
         </h3>
         {publication.subtitle === undefined ? null : (
-          <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">
+          <p className="mt-1.5 line-clamp-2 text-xs leading-5 text-slate-600">
             {publication.subtitle}
           </p>
         )}
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="mt-3 flex flex-wrap gap-1.5">
           {publication.primaryIdentifier === undefined ? null : (
-            <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">
+            <span className="rounded-md bg-slate-100 px-2 py-1 text-[0.68rem] font-semibold text-slate-700">
               {publication.primaryIdentifier.type.toUpperCase()}:{" "}
               {publication.primaryIdentifier.value}
             </span>
           )}
           {publication.subjects.slice(0, 2).map((subject) => (
             <span
-              className="rounded-md bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-950"
+              className="rounded-md bg-blue-50 px-2 py-1 text-[0.68rem] font-semibold text-blue-950"
               key={subject.identifier}
             >
               {subject.preferredLabel}

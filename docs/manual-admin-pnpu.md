@@ -42,10 +42,11 @@ PNPU ni secretos almacenados fuera de los mecanismos operativos definidos.
 3. PNPU refresca el snapshot del catalogo Omeka.
 4. PNPU valida y normaliza los datos contra el modelo de dominio.
 5. Los registros validos aparecen en el portal publico.
-6. Los registros rechazados se corrigen en Omeka S.
+6. Los registros rechazados quedan visibles en `/admin/catalogo` para correccion en Omeka S.
 
 PNPU no publica automaticamente datos invalidos. Si un registro no cumple las reglas minimas del
-dominio, debe corregirse en Omeka.
+dominio, debe corregirse en Omeka. Un registro rechazado no debe impedir la publicacion del resto
+del catalogo valido.
 
 ## Configuracion local de referencia
 
@@ -212,9 +213,14 @@ Una publicacion debe tener:
 - al menos un contribuidor;
 - al menos un identificador;
 - al menos una materia;
+- resumen;
+- licencia;
+- palabras clave;
 - al menos un recurso digital.
 
 Si falta alguno de estos elementos, PNPU puede excluir el registro del catalogo publico.
+Las imagenes asociadas a una publicacion se tratan como portada y no sustituyen al recurso digital
+bibliografico.
 
 ## Errores frecuentes
 
@@ -225,6 +231,8 @@ Si falta alguno de estos elementos, PNPU puede excluir el registro del catalogo 
 | Una coleccion no aparece | Verificar que sea Item Set con template `PNPU Collection` |
 | Autor sin ORCID visible | Revisar formato ORCID; si es invalido, PNPU puede omitirlo |
 | Recurso digital no aparece | Revisar Media asociado a la publicacion y URL/formato |
+| Portada no aparece | Asociar una imagen como Media del item `PNPU Publication`; PNPU la mostrara como portada |
+| Foto de autor no aparece | Asociar una imagen como Media del item `PNPU Contributor` |
 | Cambios en Omeka no se ven | Ejecutar refresh o esperar expiracion del cache |
 
 ## Operacion segura
