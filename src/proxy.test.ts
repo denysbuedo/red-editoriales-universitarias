@@ -7,6 +7,7 @@ describe("proxy", () => {
   afterEach(() => {
     delete process.env.PNPU_ADMIN_AUTH_MODE;
     delete process.env.PNPU_ENABLE_REQUEST_LOGS;
+    delete process.env.PNPU_OMEKA_PUBLIC_BASE_URL;
     delete process.env.PNPU_PUBLICATION_IMPORT_TOKEN;
   });
 
@@ -86,5 +87,16 @@ describe("proxy", () => {
     );
 
     expect(response.status).toBe(200);
+  });
+
+  it("sets a runtime CSP that allows the configured Omeka image origin", async () => {
+    process.env.PNPU_ENABLE_REQUEST_LOGS = "false";
+    process.env.PNPU_OMEKA_PUBLIC_BASE_URL = "https://catalogo.reduniv.edu.cu";
+
+    const response = await proxy(new NextRequest("https://editorial.reduniv.edu.cu/"));
+
+    expect(response.headers.get("Content-Security-Policy")).toContain(
+      "img-src 'self' data: blob: https://catalogo.reduniv.edu.cu",
+    );
   });
 });

@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { authorizePublicationImportAdminRequest } from "@/modules/publication-import/interfaces/http/publication-import-admin-http";
 import { getCorrelationIdHeaderName, resolveCorrelationId } from "@/shared/http/correlation-id";
 import { areRequestLogsEnabled, writeStructuredLog } from "@/shared/observability/logger";
+import { applyHttpSecurityHeaders } from "@/shared/security/http-security-headers";
 
 const ADMIN_PAGE_PATH_PREFIX = "/admin";
 const ADMIN_PAGE_TOKEN_COOKIE = "pnpu_admin_token";
@@ -33,6 +34,7 @@ export async function proxy(request: NextRequest) {
 
     if (pageAuthResponse !== null) {
       pageAuthResponse.headers.set(correlationIdHeaderName, correlationId);
+      applyHttpSecurityHeaders(pageAuthResponse.headers);
       return pageAuthResponse;
     }
   }
@@ -44,6 +46,7 @@ export async function proxy(request: NextRequest) {
   });
 
   response.headers.set(correlationIdHeaderName, correlationId);
+  applyHttpSecurityHeaders(response.headers);
 
   return response;
 }
@@ -86,6 +89,7 @@ async function authorizeAdminPageRequest(
       secure: request.nextUrl.protocol === "https:",
     });
 
+    applyHttpSecurityHeaders(response.headers);
     return response;
   }
 
@@ -97,10 +101,12 @@ function adminPageUnauthorizedResponse(requestUrl: URL, status: number): NextRes
     const loginUrl = new URL("/api/admin/auth/login", requestUrl);
     loginUrl.searchParams.set("returnTo", requestUrl.pathname);
 
-    return NextResponse.redirect(loginUrl);
+    const response = NextResponse.redirect(loginUrl);
+    applyHttpSecurityHeaders(response.headers);
+    return response;
   }
 
-  return new NextResponse(
+  const response = new NextResponse(
     `<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Acceso administrativo requerido</title></head><body><main><h1>Acceso administrativo requerido</h1><p>Use una sesion OIDC valida o un token administrativo local autorizado.</p></main></body></html>`,
     {
       headers: {
@@ -109,6 +115,8 @@ function adminPageUnauthorizedResponse(requestUrl: URL, status: number): NextRes
       status,
     },
   );
+  applyHttpSecurityHeaders(response.headers);
+  return response;
 }
 
 function isAdminPagePath(path: string): boolean {

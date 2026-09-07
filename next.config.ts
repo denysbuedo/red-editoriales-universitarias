@@ -2,6 +2,10 @@ import type { NextConfig } from "next";
 
 import { httpSecurityHeaders } from "./src/shared/security/http-security-headers";
 
+const staticHttpSecurityHeaders = httpSecurityHeaders.filter(
+  (header) => header.key !== "Content-Security-Policy",
+);
+
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
@@ -9,7 +13,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/:path*",
-        headers: httpSecurityHeaders,
+        headers: staticHttpSecurityHeaders,
       },
     ];
   },
