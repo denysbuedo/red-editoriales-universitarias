@@ -185,34 +185,35 @@ function PublicationCard({ publication }: { readonly publication: PublicationSum
   const TypeIcon = typePresentation.Icon;
 
   return (
-    <article className="grid min-h-44 grid-cols-[5.5rem_minmax(0,1fr)] overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm sm:grid-cols-[6.5rem_minmax(0,1fr)]">
-      <div className={`relative min-h-full border-r ${typePresentation.panelClass}`}>
+    <article className="grid min-h-44 grid-cols-[5.75rem_minmax(0,1fr)] overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm sm:grid-cols-[6.75rem_minmax(0,1fr)]">
+      <div
+        className={`flex min-h-full flex-col items-center justify-between gap-2 border-r p-2 ${typePresentation.panelClass}`}
+      >
         {publication.coverImageUrl === undefined ? (
-          <div className="flex h-full min-h-44 flex-col items-center justify-center gap-2 p-3 text-center">
+          <div className="flex min-h-28 flex-1 flex-col items-center justify-center gap-2 text-center">
             <span
               className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-md border bg-white sm:h-12 sm:w-12 ${typePresentation.iconClass}`}
             >
               <TypeIcon />
             </span>
-            <span className="max-w-24 text-[0.68rem] font-bold uppercase leading-tight tracking-normal">
-              {typePresentation.label}
-            </span>
           </div>
         ) : (
-          <>
-            <Image
-              alt={`Portada de ${publication.title}`}
-              className="h-full min-h-44 w-full object-cover"
-              height={176}
-              src={publication.coverImageUrl}
-              unoptimized
-              width={104}
-            />
-            <span className="absolute bottom-2 left-2 right-2 rounded bg-white/95 px-2 py-1 text-center text-[0.62rem] font-bold uppercase leading-tight text-slate-900 shadow-sm">
-              {typePresentation.label}
-            </span>
-          </>
+          <div className="flex min-h-28 flex-1 items-center justify-center">
+            <div className="relative aspect-[5/7] w-full max-w-[4.25rem] overflow-hidden rounded-sm bg-white shadow-sm ring-1 ring-black/10 sm:max-w-[5rem]">
+              <Image
+                alt={`Portada de ${publication.title}`}
+                className="h-full w-full object-contain"
+                height={140}
+                src={publication.coverImageUrl}
+                unoptimized
+                width={100}
+              />
+            </div>
+          </div>
         )}
+        <span className="w-full rounded bg-white/95 px-1.5 py-1 text-center text-[0.62rem] font-bold uppercase leading-tight text-slate-900 shadow-sm">
+          {typePresentation.label}
+        </span>
       </div>
       <div className="min-w-0 p-3 sm:p-4">
         <p className="text-[0.68rem] font-semibold uppercase tracking-normal text-slate-500">
@@ -238,7 +239,7 @@ function PublicationCard({ publication }: { readonly publication: PublicationSum
           )}
           {publication.subjects.slice(0, 2).map((subject) => (
             <span
-              className="rounded-md bg-blue-50 px-2 py-1 text-[0.68rem] font-semibold text-blue-950"
+              className="rounded-md bg-blue-50 px-2 py-1 text-[0.68rem] font-semibold text-blue-900"
               key={subject.identifier}
             >
               {subject.preferredLabel}
