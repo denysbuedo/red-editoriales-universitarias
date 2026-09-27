@@ -5,6 +5,10 @@ import { NextResponse } from "next/server";
 
 import { ApplicationError } from "@/modules/catalog/application";
 import {
+  PUBLICATION_IMPORT_UPLOAD_MAX_BYTES,
+  PUBLICATION_IMPORT_UPLOAD_MAX_LABEL,
+} from "@/modules/publication-import/domain/publication-import-upload-policy";
+import {
   authorizePublicationImportAdminRequest,
   authorizePublicationImportPublisherScopeRequest,
   publicationImportAdminErrorResponse,
@@ -16,8 +20,6 @@ import {
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-
-const MAX_UPLOAD_BYTES = 20 * 1024 * 1024;
 
 interface PublicationImportUploadResponse {
   readonly batchLabel: string;
@@ -57,9 +59,9 @@ export async function POST(request: Request): Promise<NextResponse> {
       throw ApplicationError.validation("Publication import upload must be an .xlsx file.");
     }
 
-    if (file.size <= 0 || file.size > MAX_UPLOAD_BYTES) {
+    if (file.size <= 0 || file.size > PUBLICATION_IMPORT_UPLOAD_MAX_BYTES) {
       throw ApplicationError.validation(
-        "Publication import upload size must be between 1 byte and 20 MB.",
+        `Publication import upload size must be between 1 byte and ${PUBLICATION_IMPORT_UPLOAD_MAX_LABEL}.`,
       );
     }
 

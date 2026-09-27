@@ -2,7 +2,7 @@
 
 import { SyntheticEvent, useState } from "react";
 
-import {
+import type {
   PublicationImportBatchSnapshot,
   PublicationImportAuthoritiesDto,
   PublicationImportAuditLogDto,
@@ -16,6 +16,10 @@ import {
   PublicationImportWorkflowBatchDetailDto,
   PublicationImportWorkflowListDto,
 } from "@/modules/publication-import";
+import {
+  PUBLICATION_IMPORT_UPLOAD_MAX_BYTES,
+  PUBLICATION_IMPORT_UPLOAD_MAX_LABEL,
+} from "@/modules/publication-import/domain/publication-import-upload-policy";
 
 interface PublicationImportDiagnosisApiResponse {
   readonly data: PublicationImportBatchSnapshot;
@@ -177,6 +181,16 @@ export function PublicationImportDiagnosisForm() {
     setIsSubmitting(true);
     setUploadStatus(null);
     setError(null);
+
+    if (file.size <= 0 || file.size > PUBLICATION_IMPORT_UPLOAD_MAX_BYTES) {
+      setIsSubmitting(false);
+      setError({
+        code: "PNPU-422",
+        message: `El archivo XLSX debe tener entre 1 byte y ${PUBLICATION_IMPORT_UPLOAD_MAX_LABEL}.`,
+      });
+      event.currentTarget.value = "";
+      return;
+    }
 
     try {
       const formData = new FormData();
@@ -626,6 +640,9 @@ export function PublicationImportDiagnosisForm() {
                 }}
                 type="file"
               />
+              <span className="text-xs font-normal leading-5 text-neutral-600">
+                Tamaño máximo operativo: {PUBLICATION_IMPORT_UPLOAD_MAX_LABEL}.
+              </span>
             </label>
             {uploadStatus === null ? null : (
               <p className="mt-3 break-words rounded-md bg-white px-3 py-2 text-xs font-semibold leading-5 text-blue-950">

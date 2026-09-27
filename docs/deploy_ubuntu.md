@@ -249,6 +249,15 @@ sudo mkdir -p /opt/pnpu/portal/shared/import-workflow
 sudo chown -R pnpu:pnpu /opt/pnpu/portal/shared/imports /opt/pnpu/portal/shared/import-workflow
 ```
 
+Politica inicial de carga:
+
+- PNPU Portal acepta planillas `.xlsx` de importacion hasta 50 MB.
+- Ese limite debe mantenerse alineado con HAProxy si se agrega una regla de tamano maximo de cuerpo.
+- Los archivos quedan bajo `PNPU_PUBLICATION_IMPORT_ROOT`; revisar retencion y espacio libre despues
+  de importaciones grandes.
+- Si la carga ocurre directamente en Omeka S, tambien se deben ajustar `upload_max_filesize` y
+  `post_max_size` en PHP/Apache, porque PNPU no controla ese limite.
+
 Notas:
 
 - Los valores `CAMBIAR_*` son secretos operativos y no deben ir al repositorio.
@@ -345,6 +354,9 @@ Backend esperado para PNPU Portal:
 backend pnpu_portal_backend
    server pnpu_portal 10.46.6.85:3000 check
 ```
+
+Si HAProxy valida tamano de cuerpo o tiempos de subida, permitir al menos 50 MB para las rutas
+administrativas de importacion de PNPU y revisar los timeouts para enlaces lentos.
 
 Backend ya usado para Omeka:
 

@@ -443,7 +443,7 @@ paths:
                 file:
                   type: string
                   format: binary
-                  description: Archivo XLSX de publicaciones, hasta 20 MB.
+                  description: Archivo XLSX de publicaciones, hasta 50 MB.
       responses:
         "200":
           description: Archivo XLSX cargado.

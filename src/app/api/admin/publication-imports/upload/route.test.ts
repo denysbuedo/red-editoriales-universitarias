@@ -4,6 +4,8 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+import { PUBLICATION_IMPORT_UPLOAD_MAX_BYTES } from "@/modules/publication-import/domain/publication-import-upload-policy";
+
 import { POST } from "./route";
 
 describe("POST /api/admin/publication-imports/upload", () => {
@@ -107,6 +109,51 @@ describe("POST /api/admin/publication-imports/upload", () => {
       expect(response.status).toBe(422);
     } finally {
       restoreEnvironmentValue("PNPU_PUBLICATION_IMPORT_TOKEN", previousToken);
+    }
+  });
+
+  it("rejects XLSX uploads larger than the operational limit", async () => {
+    const importRoot = await mkdtemp(path.join(os.tmpdir(), "pnpu-import-upload-large-"));
+    const previousToken = process.env.PNPU_PUBLICATION_IMPORT_TOKEN;
+    const previousRoot = process.env.PNPU_PUBLICATION_IMPORT_ROOT;
+    process.env.PNPU_PUBLICATION_IMPORT_TOKEN = "expected-token";
+    process.env.PNPU_PUBLICATION_IMPORT_ROOT = importRoot;
+    const formData = new FormData();
+    formData.set("publisherId", "editorial-piloto");
+    formData.set(
+      "file",
+      new File([new Uint8Array(PUBLICATION_IMPORT_UPLOAD_MAX_BYTES + 1)], "datos.xlsx", {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      }),
+    );
+
+    try {
+      const response = await POST(
+        new Request("https://pnpu.mes.gob.cu/api/admin/publication-imports/upload", {
+          method: "POST",
+          headers: {
+            "X-PNPU-Admin-Token": "expected-token",
+          },
+          body: formData,
+        }),
+      );
+
+      const payload = (await response.json()) as {
+        readonly code: string;
+        readonly correlationId: string;
+        readonly message: string;
+      };
+
+      expect(payload).toMatchObject({
+        code: "PNPU-422",
+        message: "Publication import upload size must be between 1 byte and 50 MB.",
+      });
+      expect(payload.correlationId).toHaveLength(36);
+      expect(response.status).toBe(422);
+    } finally {
+      restoreEnvironmentValue("PNPU_PUBLICATION_IMPORT_TOKEN", previousToken);
+      restoreEnvironmentValue("PNPU_PUBLICATION_IMPORT_ROOT", previousRoot);
+      await rm(importRoot, { force: true, recursive: true });
     }
   });
 });

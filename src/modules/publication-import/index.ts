@@ -19,3 +19,4 @@ export * from "./application/services/publication-import-retention-service";
 export * from "./application/services/publication-import-template-service";
 export * from "./application/services/publication-import-workflow-service";
 export * from "./domain/entities/publication-import-batch";
+export * from "./domain/publication-import-upload-policy";
