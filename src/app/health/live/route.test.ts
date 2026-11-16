@@ -9,7 +9,7 @@ describe("GET /health/live", () => {
     await expect(response.json()).resolves.toEqual({
       status: "ok",
       service: "pnpu-portal",
-      version: "0.1.1",
+      version: "0.1.2",
       commitSha: null,
     });
     expect(response.status).toBe(200);
