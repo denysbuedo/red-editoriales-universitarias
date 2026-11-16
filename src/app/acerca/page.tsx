@@ -5,17 +5,17 @@ import type { ReactNode } from "react";
 import { PageHero } from "../page-hero";
 
 export const metadata: Metadata = {
-  title: "Acerca de PNPU",
+  title: "Acerca de",
   description: "Alcance institucional de la Plataforma Nacional de Publicaciones Universitarias.",
 };
 
 export default function AboutPage() {
   return (
-    <main className="min-h-screen bg-[#eef3f8]">
+    <main className="min-h-screen bg-slate-50">
       <PageHero
         description="La Plataforma Nacional de Publicaciones Universitarias integra información editorial de universidades cubanas para facilitar descubrimiento, consulta pública y operación coordinada de la Red Nacional de Editoriales Universitarias."
         eyebrow="Plataforma nacional"
-        title="Acerca de PNPU"
+        title="Acerca de CATALOGA"
       />
 
       <section className="mx-auto grid max-w-6xl gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[minmax(0,1fr)_20rem]">

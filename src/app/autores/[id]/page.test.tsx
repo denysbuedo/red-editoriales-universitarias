@@ -28,7 +28,7 @@ describe("ContributorDetailPage", () => {
     await expect(
       generateMetadata({ params: Promise.resolve({ id: contributorId }) }),
     ).resolves.toMatchObject({
-      title: "Juana Perez Rodriguez | PNPU",
+      title: "Juana Perez Rodriguez",
       alternates: {
         canonical: `http://127.0.0.1:4307/autores/${contributorId}`,
       },

@@ -7,7 +7,7 @@ describe("AboutPage", () => {
   it("renders the institutional scope page", () => {
     const html = renderToStaticMarkup(<AboutPage />);
 
-    expect(html).toContain("Acerca de PNPU");
+    expect(html).toContain("Acerca de CATALOGA");
     expect(html).toContain("Qué integra");
     expect(html).toContain("Qué no es");
     expect(html).toContain("Omeka S");

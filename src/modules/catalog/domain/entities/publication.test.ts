@@ -113,8 +113,17 @@ describe("Publication", () => {
     ).not.toThrow();
   });
 
-  it("rejects publications without resources", () => {
-    expect(() => createPublication({ resources: [] })).toThrow(DomainValidationError);
+  it("allows a cover-only publication while requiring either a cover or a digital resource", () => {
+    const publication = createPublication({
+      resources: [],
+      coverImageUrl: "https://example.org/cover.jpg",
+    });
+
+    expect(publication.resources()).toEqual([]);
+    expect(publication.snapshot().coverImageUrl).toBe("https://example.org/cover.jpg");
+    expect(() => createPublication({ resources: [], coverImageUrl: undefined })).toThrow(
+      "Publication needs a digital resource or a cover image.",
+    );
   });
 
   it("rejects publications without subjects", () => {

@@ -23,12 +23,12 @@ export async function generateMetadata({ params }: SubjectPageProps): Promise<Me
 
   if (subject === null) {
     return {
-      title: "Materia no encontrada | PNPU",
+      title: "Materia no encontrada",
     };
   }
 
   return {
-    title: `${subject.preferredLabel} | PNPU`,
+    title: subject.preferredLabel,
     description: `Publicaciones universitarias clasificadas bajo ${subject.preferredLabel}.`,
     alternates: {
       canonical: canonicalUrl,
@@ -52,7 +52,7 @@ export default async function SubjectDetailPage({ params }: SubjectPageProps) {
   }
 
   return (
-    <main className="min-h-screen bg-[#eef3f8]">
+    <main className="min-h-screen bg-slate-50">
       <JsonLdScript
         data={buildSubjectJsonLd(subject, buildSubjectUrl(subject.identifier))}
         id="subject-jsonld"

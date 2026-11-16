@@ -15,6 +15,8 @@ describe("SiteShell", () => {
     expect(html).toContain("/publicaciones");
     expect(html).toContain("/editoriales");
     expect(html).toContain("/admin");
+    expect(html).toContain("/brand/logo-principal-claro.svg");
+    expect(html).toContain("CATALOGA");
     expect(html).not.toContain("/colecciones");
     expect(html).not.toContain("/autores");
     expect(html).not.toContain("/materias");

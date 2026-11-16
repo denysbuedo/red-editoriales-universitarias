@@ -39,7 +39,7 @@ describe("PublicationDetailPage", () => {
     await expect(
       generateMetadata({ params: Promise.resolve({ id: publicationId }) }),
     ).resolves.toMatchObject({
-      title: "Arquitectura empresarial para universidades | PNPU",
+      title: "Arquitectura empresarial para universidades",
       alternates: {
         canonical: `http://127.0.0.1:4307/publicaciones/${publicationId}`,
       },

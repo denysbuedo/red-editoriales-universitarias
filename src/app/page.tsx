@@ -29,11 +29,12 @@ export default async function HomePage() {
   const recentSummaries = recentPublications.map(toPublicationSummary);
 
   return (
-    <main className="min-h-screen bg-[#eef3f8]">
+    <main className="min-h-screen bg-slate-50">
       <PageHero
-        description="Acceso nacional a libros, folletos, memorias, manuales y otras publicaciones producidas por las editoriales universitarias cubanas."
-        eyebrow="EDUNIV"
-        title="Catálogo de la Red de Editoriales Universitarias Cubanas"
+        description="Conectamos editoriales. Acercamos conocimiento. Descubre publicaciones, autores, colecciones y editoriales universitarias cubanas en un catálogo nacional integrado."
+        eyebrow="Plataforma Nacional de Publicaciones Universitarias · RedUniv"
+        home
+        title="CATALOGA"
       >
         <CatalogSearch />
       </PageHero>
@@ -43,26 +44,31 @@ export default async function HomePage() {
           <StructureLink
             description="Libros, folletos, memorias y otras obras editoriales universitarias."
             href="/publicaciones"
+            iconSrc="/brand/icons/publicaciones.svg"
             label="Publicaciones"
           />
           <StructureLink
-            description="Sellos universitarios integrados a la red nacional EDUNIV."
+            description="Editoriales universitarias integradas a la red RedUniv."
             href="/editoriales"
+            iconSrc="/brand/icons/editoriales.svg"
             label="Editoriales"
           />
           <StructureLink
             description="Series y agrupaciones que organizan la producción editorial."
             href="/colecciones"
+            iconSrc="/brand/icons/colecciones.svg"
             label="Colecciones"
           />
           <StructureLink
             description="Autorías, editorías y contribuciones asociadas a las obras."
             href="/autores"
+            iconSrc="/brand/icons/autores.svg"
             label="Autores"
           />
           <StructureLink
             description="Temas y áreas de conocimiento para explorar el catálogo."
             href="/materias"
+            iconSrc="/brand/icons/materias.svg"
             label="Materias"
           />
         </div>
@@ -113,7 +119,7 @@ function CatalogSearch() {
       className="grid max-w-3xl gap-3 rounded-md border border-white/20 bg-white p-3 shadow-lg sm:grid-cols-[minmax(0,1fr)_auto]"
     >
       <label className="sr-only" htmlFor="home-catalog-search">
-        Buscar en el catálogo EDUNIV
+        Buscar en el catálogo CATALOGA
       </label>
       <input
         className="min-h-12 w-full rounded-md border border-slate-300 px-4 text-base text-slate-950 placeholder:text-slate-500"
@@ -135,19 +141,33 @@ function CatalogSearch() {
 function StructureLink({
   description,
   href,
+  iconSrc,
   label,
 }: {
   readonly description: string;
   readonly href: string;
+  readonly iconSrc: string;
   readonly label: string;
 }) {
   return (
     <Link
-      className="group rounded-md border border-slate-200 bg-white p-4 transition hover:border-blue-200 hover:bg-blue-50"
+      className="group flex min-h-24 items-start gap-3 rounded-md border border-slate-200 bg-white p-4 transition hover:border-blue-200 hover:bg-blue-50"
       href={href}
     >
-      <span className="text-sm font-bold text-blue-950 group-hover:text-blue-800">{label}</span>
-      <span className="mt-2 block text-sm leading-6 text-slate-600">{description}</span>
+      <Image
+        alt=""
+        aria-hidden="true"
+        className="mt-0.5 h-6 w-6 shrink-0"
+        height={24}
+        src={iconSrc}
+        width={24}
+      />
+      <span className="min-w-0">
+        <span className="block text-sm font-bold text-blue-950 group-hover:text-blue-800">
+          {label}
+        </span>
+        <span className="mt-1 block text-sm leading-5 text-slate-600">{description}</span>
+      </span>
     </Link>
   );
 }
@@ -661,7 +681,7 @@ function PublisherCard({ publisher }: { readonly publisher: PublisherSummary }) 
           Registro editorial
         </p>
         <p className="mt-1 text-sm leading-6 text-slate-600">
-          Editorial universitaria integrada a la red nacional EDUNIV.
+          Editorial universitaria integrada a la red RedUniv.
         </p>
         <Link
           className="mt-4 inline-flex text-sm font-bold text-blue-800 hover:text-blue-950"

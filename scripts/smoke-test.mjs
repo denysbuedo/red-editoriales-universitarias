@@ -65,7 +65,7 @@ async function assertHealth(path, expectedStatus) {
 
   assert(payload.status === expectedStatus, `${path} returned unexpected status.`);
   assert(payload.service === "pnpu-portal", `${path} returned unexpected service.`);
-  assert(payload.version === "0.1.0", `${path} returned unexpected version.`);
+  assert(payload.version === "0.1.1", `${path} returned unexpected version.`);
   assert("commitSha" in payload, `${path} did not return commitSha.`);
   assert(
     response.headers.get("x-correlation-id") === correlationId,
@@ -257,7 +257,7 @@ async function assertCatalogApi() {
 async function main() {
   await assertHealth("/health/live", "ok");
   await assertHealth("/health/ready", "ready");
-  await assertText("/version", '"version":"0.1.0"');
+  await assertText("/version", '"version":"0.1.1"');
   await assertMetrics();
   await assertText("/openapi.yaml", "openapi: 3.1.0");
   await assertText("/robots.txt", "Sitemap:");

@@ -30,12 +30,12 @@ export async function generateMetadata({ params }: PublisherPageProps): Promise<
 
   if (publisher === null) {
     return {
-      title: "Editorial no encontrada | PNPU",
+      title: "Editorial no encontrada",
     };
   }
 
   return {
-    title: `${publisher.officialName} | PNPU`,
+    title: publisher.officialName,
     description: publisher.description ?? `Ficha pública de ${publisher.officialName}.`,
     alternates: {
       canonical: canonicalUrl,
@@ -60,7 +60,7 @@ export default async function PublisherDetailPage({ params }: PublisherPageProps
   const { collections, publicationCount, publications, publisher } = profile;
 
   return (
-    <main className="min-h-screen bg-[#eef3f8]">
+    <main className="min-h-screen bg-slate-50">
       <JsonLdScript
         data={buildPublisherJsonLd(publisher, buildPublisherUrl(publisher.id))}
         id="publisher-jsonld"

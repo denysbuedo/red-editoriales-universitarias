@@ -37,7 +37,7 @@ describe("PublisherDetailPage", () => {
     await expect(
       generateMetadata({ params: Promise.resolve({ id: publisherId }) }),
     ).resolves.toMatchObject({
-      title: "Editorial Universidad de La Habana | PNPU",
+      title: "Editorial Universidad de La Habana",
       alternates: {
         canonical: `http://127.0.0.1:4307/editoriales/${publisherId}`,
       },

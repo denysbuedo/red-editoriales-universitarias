@@ -26,7 +26,7 @@ describe("CollectionDetailPage", () => {
     await expect(
       generateMetadata({ params: Promise.resolve({ id: collectionId }) }),
     ).resolves.toMatchObject({
-      title: "Arquitectura y gobierno universitario | PNPU",
+      title: "Arquitectura y gobierno universitario",
       alternates: {
         canonical: `http://127.0.0.1:4307/colecciones/${collectionId}`,
       },

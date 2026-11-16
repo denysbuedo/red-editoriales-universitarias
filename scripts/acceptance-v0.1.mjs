@@ -64,7 +64,7 @@ await runCheck("health/live", async () => {
 
   assert(payload.status === "ok", "/health/live did not return ok.");
   assert(payload.service === "pnpu-portal", "/health/live returned unexpected service.");
-  assert(payload.version === "0.1.0", "/health/live returned unexpected version.");
+  assert(payload.version === "0.1.1", "/health/live returned unexpected version.");
 
   return "Portal process is alive.";
 });
@@ -82,7 +82,7 @@ await runCheck("version", async () => {
   const payload = await readJson("/version");
 
   assert(payload.service === "pnpu-portal", "/version returned unexpected service.");
-  assert(payload.version === "0.1.0", "/version returned unexpected version.");
+  assert(payload.version === "0.1.1", "/version returned unexpected version.");
 
   return "Version metadata is exposed.";
 });

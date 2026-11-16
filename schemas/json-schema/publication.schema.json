@@ -15,17 +15,12 @@
     "subject",
     "license",
     "type",
-    "format",
-    "resources"
+    "format"
   ],
   "properties": {
     "@context": {
       "description": "Contexto JSON-LD que define los namespaces y el mapeo semantico de las propiedades.",
-      "type": [
-        "string",
-        "object",
-        "array"
-      ],
+      "type": ["string", "object", "array"],
       "default": "https://pnpu.mes.gob.cu/schemas/jsonld-context/context.jsonld"
     },
     "@id": {
@@ -131,13 +126,7 @@
       "anyOf": [
         {
           "type": "string",
-          "enum": [
-            "Copyright",
-            "CC BY",
-            "CC BY-SA",
-            "CC BY-NC",
-            "Public Domain"
-          ]
+          "enum": ["Copyright", "CC BY", "CC BY-SA", "CC BY-NC", "Public Domain"]
         },
         {
           "type": "string",
@@ -169,11 +158,7 @@
       "type": "string",
       "minLength": 1,
       "maxLength": 120,
-      "examples": [
-        "application/pdf",
-        "application/epub+zip",
-        "text/html"
-      ]
+      "examples": ["application/pdf", "application/epub+zip", "text/html"]
     },
     "rights": {
       "description": "Declaracion textual complementaria sobre derechos.",
@@ -236,22 +221,12 @@
     "accessLevel": {
       "description": "Nivel de acceso definido por PNPU.",
       "type": "string",
-      "enum": [
-        "openAccess",
-        "restrictedAccess",
-        "metadataOnly",
-        "externalLink"
-      ]
+      "enum": ["openAccess", "restrictedAccess", "metadataOnly", "externalLink"]
     },
     "digitalAvailability": {
       "description": "Estado de disponibilidad digital de la publicacion. Extension PNPU.",
       "type": "string",
-      "enum": [
-        "available",
-        "pendingDigitization",
-        "notAvailable",
-        "external"
-      ]
+      "enum": ["available", "pendingDigitization", "notAvailable", "external"]
     },
     "qualityScore": {
       "description": "Indicador derivado de calidad de metadatos o disponibilidad calculado por PNPU.",
@@ -260,12 +235,16 @@
       "maximum": 1
     },
     "resources": {
-      "description": "Manifestaciones digitales de la publicacion. Toda publicacion debe tener al menos un recurso.",
+      "description": "Manifestaciones digitales de la publicacion. Puede estar vacio mientras la ficha tenga portada y se complete posteriormente el recurso digital.",
       "type": "array",
-      "minItems": 1,
       "items": {
         "$ref": "#/$defs/digitalResource"
       }
+    },
+    "coverImageUrl": {
+      "description": "URL de la portada que permite publicar una ficha mientras se completa el recurso digital.",
+      "type": "string",
+      "format": "uri"
     },
     "sameAs": {
       "description": "URIs equivalentes en sistemas externos como Crossref, OpenAlex, Wikidata, repositorios u OAI-PMH.",
@@ -277,6 +256,21 @@
       }
     }
   },
+  "allOf": [
+    {
+      "anyOf": [
+        {
+          "required": ["coverImageUrl"]
+        },
+        {
+          "required": ["resources"],
+          "properties": {
+            "resources": { "minItems": 1 }
+          }
+        }
+      ]
+    }
+  ],
   "$defs": {
     "uuidV7": {
       "type": "string",
@@ -293,10 +287,7 @@
     "entityReference": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "identifier",
-        "name"
-      ],
+      "required": ["identifier", "name"],
       "properties": {
         "identifier": {
           "description": "UUID v7 de la entidad referenciada.",
@@ -317,10 +308,7 @@
     "conceptReference": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "identifier",
-        "preferredLabel"
-      ],
+      "required": ["identifier", "preferredLabel"],
       "properties": {
         "identifier": {
           "description": "URI, codigo UNESCO o UUID v7 del concepto.",
@@ -356,18 +344,12 @@
     "digitalResource": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "url",
-        "format"
-      ],
+      "required": ["url", "format"],
       "properties": {
         "@type": {
           "description": "Tipo Schema.org del recurso digital.",
           "type": "string",
-          "enum": [
-            "MediaObject",
-            "schema:MediaObject"
-          ],
+          "enum": ["MediaObject", "schema:MediaObject"],
           "default": "MediaObject"
         },
         "url": {
@@ -433,11 +415,7 @@
           "preferredLabel": "Ciencia de los ordenadores"
         }
       ],
-      "keywords": [
-        "arquitectura empresarial",
-        "universidades",
-        "gobierno de datos"
-      ],
+      "keywords": ["arquitectura empresarial", "universidades", "gobierno de datos"],
       "license": "CC BY",
       "type": "book",
       "format": "application/pdf",

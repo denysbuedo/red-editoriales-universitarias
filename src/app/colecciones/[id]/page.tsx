@@ -25,11 +25,11 @@ export async function generateMetadata({ params }: CollectionPageProps): Promise
   const canonicalUrl = buildCollectionUrl(id);
 
   if (collection === null) {
-    return { title: "Colección no encontrada | PNPU" };
+    return { title: "Colección no encontrada" };
   }
 
   return {
-    title: `${collection.title} | PNPU`,
+    title: collection.title,
     description: collection.description ?? `Ficha pública de ${collection.title}.`,
     alternates: { canonical: canonicalUrl },
     openGraph: {
@@ -50,7 +50,7 @@ export default async function CollectionDetailPage({ params }: CollectionPagePro
   }
 
   return (
-    <main className="min-h-screen bg-[#eef3f8]">
+    <main className="min-h-screen bg-slate-50">
       <JsonLdScript
         data={buildCollectionJsonLd(collection, buildCollectionUrl(collection.id))}
         id="collection-jsonld"

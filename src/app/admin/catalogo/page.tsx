@@ -16,7 +16,7 @@ import { AdminSectionNav } from "../admin-section-nav";
 import { PageHero } from "../../page-hero";
 
 export const metadata: Metadata = {
-  title: "Diagnóstico del catálogo | PNPU",
+  title: "Diagnóstico del catálogo",
   description: "Diagnóstico administrativo del catálogo PNPU integrado con Omeka S.",
 };
 
@@ -50,7 +50,7 @@ export default async function AdminCatalogPage() {
     (activeMapping?.catalog.quality.rejectedCount ?? 0) === 0;
 
   return (
-    <main className="min-h-screen bg-[#eef3f8]">
+    <main className="min-h-screen bg-slate-50">
       <PageHero
         description="Vista administrativa para revisar la fuente Omeka, la calidad del mapeo activo y las exportaciones operativas del catálogo."
         eyebrow="Administración"

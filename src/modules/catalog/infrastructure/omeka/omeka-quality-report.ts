@@ -3,6 +3,7 @@ export type OmekaQualitySeverity = "warning" | "rejected";
 export type OmekaQualityCode =
   | "OMEKA_UNKNOWN_TEMPLATE"
   | "OMEKA_MISSING_REQUIRED_FIELD"
+  | "OMEKA_MISSING_DIGITAL_RESOURCE"
   | "OMEKA_INVALID_VALUE"
   | "OMEKA_UNRESOLVED_REFERENCE";
 

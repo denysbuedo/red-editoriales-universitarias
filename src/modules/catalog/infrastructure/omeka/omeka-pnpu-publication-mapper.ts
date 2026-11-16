@@ -75,7 +75,19 @@ export function mapOmekaPublication(
   if (contributors.length === 0) return rejectUnresolved(resource, quality, "dcterms:creator");
   if (subjects.length === 0) return rejectUnresolved(resource, quality, "dcterms:subject");
   if (identifiers.length === 0) return rejectMissing(resource, quality, "dcterms:identifier");
-  if (resources.length === 0) return rejectUnresolved(resource, quality, "media");
+  if (resources.length === 0 && coverImageUrl === undefined) {
+    return rejectUnresolved(resource, quality, "media");
+  }
+  if (resources.length === 0) {
+    quality.warn({
+      code: "OMEKA_MISSING_DIGITAL_RESOURCE",
+      omekaId: readOmekaId(resource),
+      templateLabel: OMEKA_PNPU_RESOURCE_TEMPLATES.publication,
+      field: "media",
+      message:
+        "Solo hay portada; el administrador debe actualizar la ficha con el recurso digital de la publicación.",
+    });
+  }
 
   return createOrReject(resource, quality, "publication", () =>
     Publication.create({

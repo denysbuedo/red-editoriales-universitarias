@@ -29,12 +29,12 @@ export async function generateMetadata({ params }: PublicationPageProps): Promis
 
   if (publication === null) {
     return {
-      title: "Publicación no encontrada | PNPU",
+      title: "Publicación no encontrada",
     };
   }
 
   return {
-    title: `${publication.title} | PNPU`,
+    title: publication.title,
     description: publication.abstract ?? `Ficha pública de ${publication.title}.`,
     alternates: {
       canonical: canonicalUrl,
@@ -58,7 +58,7 @@ export default async function PublicationDetailPage({ params }: PublicationPageP
   }
 
   return (
-    <main className="min-h-screen bg-[#eef3f8]">
+    <main className="min-h-screen bg-slate-50">
       <JsonLdScript
         data={buildPublicationJsonLd(publication, buildPublicationUrl(publication.id))}
         id="publication-jsonld"
@@ -261,39 +261,46 @@ export default async function PublicationDetailPage({ params }: PublicationPageP
 
         <section className="mt-8">
           <h2 className="text-xl font-semibold text-neutral-950">Recursos digitales</h2>
-          <ul className="mt-3 grid gap-3">
-            {publication.resources.map((resource) => (
-              <li
-                className="rounded-md border border-neutral-200 bg-white px-4 py-3"
-                key={resource.url}
-              >
-                <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-                  <div>
-                    <p className="font-medium text-neutral-950">{resource.format}</p>
-                    <p className="mt-1 text-sm text-neutral-600">
-                      Tipo: {resource.type}
-                      {resource.language === undefined ? "" : ` · Idioma: ${resource.language}`}
-                      {resource.license === undefined ? "" : ` · Licencia: ${resource.license}`}
-                      {resource.fileSize === undefined
-                        ? ""
-                        : ` · Tamaño: ${resource.fileSize.toLocaleString("es-CU")} bytes`}
-                    </p>
-                    {resource.checksum === undefined ? null : (
-                      <p className="mt-1 break-all text-sm text-neutral-600">
-                        Checksum: {resource.checksum}
+          {publication.resources.length === 0 ? (
+            <p className="mt-3 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950">
+              Recurso digital pendiente. La portada está disponible; la editorial debe completar el
+              archivo digital de esta publicación.
+            </p>
+          ) : (
+            <ul className="mt-3 grid gap-3">
+              {publication.resources.map((resource) => (
+                <li
+                  className="rounded-md border border-neutral-200 bg-white px-4 py-3"
+                  key={resource.url}
+                >
+                  <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                    <div>
+                      <p className="font-medium text-neutral-950">{resource.format}</p>
+                      <p className="mt-1 text-sm text-neutral-600">
+                        Tipo: {resource.type}
+                        {resource.language === undefined ? "" : ` · Idioma: ${resource.language}`}
+                        {resource.license === undefined ? "" : ` · Licencia: ${resource.license}`}
+                        {resource.fileSize === undefined
+                          ? ""
+                          : ` · Tamaño: ${resource.fileSize.toLocaleString("es-CU")} bytes`}
                       </p>
-                    )}
+                      {resource.checksum === undefined ? null : (
+                        <p className="mt-1 break-all text-sm text-neutral-600">
+                          Checksum: {resource.checksum}
+                        </p>
+                      )}
+                    </div>
+                    <a
+                      className="inline-flex w-full justify-center rounded-md border border-blue-800 px-3 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-50 md:w-auto"
+                      href={resource.url}
+                    >
+                      Abrir recurso
+                    </a>
                   </div>
-                  <a
-                    className="inline-flex w-full justify-center rounded-md border border-blue-800 px-3 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-50 md:w-auto"
-                    href={resource.url}
-                  >
-                    Abrir recurso
-                  </a>
-                </div>
-              </li>
-            ))}
-          </ul>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
 
         {publication.keywords === undefined || publication.keywords.length === 0 ? null : (

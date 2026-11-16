@@ -88,6 +88,10 @@
       "@id": "schema:associatedMedia",
       "@type": "@id"
     },
+    "coverImageUrl": {
+      "@id": "schema:image",
+      "@type": "@id"
+    },
     "url": {
       "@id": "schema:url",
       "@type": "@id"

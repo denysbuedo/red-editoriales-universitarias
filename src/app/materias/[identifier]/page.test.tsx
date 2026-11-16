@@ -28,7 +28,7 @@ describe("SubjectDetailPage", () => {
     await expect(
       generateMetadata({ params: Promise.resolve({ identifier: encodedSubjectIdentifier }) }),
     ).resolves.toMatchObject({
-      title: "Ciencia de los ordenadores | PNPU",
+      title: "Ciencia de los ordenadores",
       alternates: {
         canonical: `http://127.0.0.1:4307/materias/${encodedSubjectIdentifier}`,
       },

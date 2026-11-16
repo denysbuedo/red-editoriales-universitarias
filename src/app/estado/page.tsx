@@ -12,7 +12,7 @@ import {
 import { PageHero } from "../page-hero";
 
 export const metadata: Metadata = {
-  title: "Estado del catálogo | PNPU",
+  title: "Estado del catálogo",
   description: "Diagnóstico operativo del catálogo PNPU y su integración con Omeka S.",
 };
 
@@ -33,7 +33,7 @@ export default async function CatalogStatusPage() {
         );
 
   return (
-    <main className="min-h-screen bg-[#eef3f8]">
+    <main className="min-h-screen bg-slate-50">
       <PageHero
         description="Estado operativo de la fuente de catálogo, plantillas PNPU y recursos reconocidos."
         eyebrow="Diagnóstico"

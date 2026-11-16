@@ -4,9 +4,22 @@
 
 :root {
   color-scheme: light;
-  --pnpu-background: #f8fafc;
-  --pnpu-foreground: #171717;
-  --pnpu-accent: #172554;
+  --ru-navy: #102b46;
+  --ru-night: #0c1d30;
+  --ru-mint: #49dccb;
+  --ru-action: #2776c9;
+  --ru-mist: #f5f9fc;
+  --ru-border: #e6edf4;
+  --ru-secondary-text: #4b6278;
+  --ru-white: #ffffff;
+  --pnpu-background: var(--ru-mist);
+  --pnpu-foreground: var(--ru-navy);
+  --pnpu-accent: var(--ru-action);
+  --ru-content-max: 1280px;
+  --ru-header-desktop: 72px;
+  --ru-header-mobile: 64px;
+  --ru-font-ui: Inter, system-ui, sans-serif;
+  --ru-font-mono: "IBM Plex Mono", ui-monospace, monospace;
 }
 
 html {
@@ -19,6 +32,7 @@ body {
   margin: 0;
   background: var(--pnpu-background);
   color: var(--pnpu-foreground);
+  font-family: var(--ru-font-ui);
   overflow-x: hidden;
 }
 
@@ -48,4 +62,33 @@ input,
 select,
 textarea {
   max-width: 100%;
+}
+
+.cataloga-home-hero {
+  background-color: var(--ru-night);
+  background-image:
+    linear-gradient(
+      90deg,
+      rgb(12 29 48 / 98%) 0%,
+      rgb(12 29 48 / 94%) 36%,
+      rgb(12 29 48 / 48%) 72%,
+      rgb(12 29 48 / 15%) 100%
+    ),
+    url("/brand/banner-desktop.png");
+  background-position: center;
+  background-size: cover;
+}
+
+@media (max-width: 767px) {
+  .cataloga-home-hero {
+    background-image:
+      linear-gradient(
+        180deg,
+        rgb(12 29 48 / 98%) 0%,
+        rgb(12 29 48 / 88%) 58%,
+        rgb(12 29 48 / 48%) 100%
+      ),
+      url("/brand/banner-mobile.png");
+    background-position: center bottom;
+  }
 }

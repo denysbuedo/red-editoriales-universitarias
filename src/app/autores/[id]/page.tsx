@@ -27,12 +27,12 @@ export async function generateMetadata({ params }: ContributorPageProps): Promis
 
   if (contributor === null) {
     return {
-      title: "Autor no encontrado | PNPU",
+      title: "Autor no encontrado",
     };
   }
 
   return {
-    title: `${contributor.name} | PNPU`,
+    title: contributor.name,
     description: contributor.biography ?? `Ficha pública de ${contributor.name}.`,
     alternates: {
       canonical: canonicalUrl,
@@ -56,7 +56,7 @@ export default async function ContributorDetailPage({ params }: ContributorPageP
   }
 
   return (
-    <main className="min-h-screen bg-[#eef3f8]">
+    <main className="min-h-screen bg-slate-50">
       <JsonLdScript
         data={buildContributorJsonLd(contributor, buildContributorUrl(contributor.id))}
         id="contributor-jsonld"

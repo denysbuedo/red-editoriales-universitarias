@@ -11,10 +11,8 @@ describe("HomePage", () => {
   it("renders the institutional home with catalog data", async () => {
     const html = renderToStaticMarkup(await HomePage());
 
-    expect(html).toContain("Catálogo de la Red de Editoriales Universitarias Cubanas");
-    expect(html).toContain(
-      "Acceso nacional a libros, folletos, memorias, manuales y otras publicaciones",
-    );
+    expect(html).toContain("CATALOGA");
+    expect(html).toContain("Conectamos editoriales. Acercamos conocimiento.");
     expect(html).toContain("Buscar por título, autor, editorial, ISBN o materia");
     expect(html).toContain("Publicaciones");
     expect(html).toContain("Editoriales");

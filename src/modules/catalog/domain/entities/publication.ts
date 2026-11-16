@@ -64,6 +64,8 @@ export class Publication {
   private constructor(private readonly props: PublicationProps) {}
 
   public static create(props: PublicationProps): Publication {
+    const coverImageUrl = normalizeOptionalUrl(props.coverImageUrl, "Publication cover image URL");
+
     return new Publication({
       id: props.id,
       title: requireNonEmptyText(props.title, "Publication title"),
@@ -73,7 +75,7 @@ export class Publication {
       contributors: requireNonEmptyArray(props.contributors, "Publication contributors"),
       identifiers: requirePublicationIdentifiers(props.identifiers, props.type),
       subjects: requireNonEmptyArray(props.subjects, "Publication subjects"),
-      resources: requireNonEmptyArray(props.resources, "Publication resources"),
+      resources: requireResourcesOrCover(props.resources, coverImageUrl),
       type: props.type,
       format: requireNonEmptyText(props.format, "Publication format"),
       subtitle: normalizeOptionalText(props.subtitle),
@@ -81,7 +83,7 @@ export class Publication {
       keywords: requireKeywords(props.keywords),
       license: requireNonEmptyText(props.license ?? "", "Publication license"),
       collection: props.collection,
-      coverImageUrl: normalizeOptionalUrl(props.coverImageUrl, "Publication cover image URL"),
+      coverImageUrl,
     });
   }
 
@@ -131,6 +133,17 @@ function requireNonEmptyArray<T>(values: readonly T[], fieldName: string): reado
   }
 
   return [...values];
+}
+
+function requireResourcesOrCover(
+  resources: readonly Resource[],
+  coverImageUrl: string | undefined,
+): readonly Resource[] {
+  if (resources.length === 0 && coverImageUrl === undefined) {
+    throw new DomainValidationError("Publication needs a digital resource or a cover image.");
+  }
+
+  return [...resources];
 }
 
 function requirePublicationIdentifiers(

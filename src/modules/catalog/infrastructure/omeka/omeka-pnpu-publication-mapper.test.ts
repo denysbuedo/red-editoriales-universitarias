@@ -155,6 +155,73 @@ describe("omeka-pnpu-publication-mapper", () => {
     expect(quality.snapshot()).toMatchObject({ rejectedCount: 0, warningCount: 0 });
   });
 
+  it("maps a cover-only publication and warns the administrator to add its digital resource", () => {
+    const quality = new OmekaQualityReport();
+    const university = University.create({
+      id: PnpuUuid.create("01990f5a-0000-7000-8000-000000000121"),
+      officialName: "Ministerio de Educación Superior",
+      country: "CU",
+    });
+    const publisher = Publisher.create({
+      id: PnpuUuid.create("01990f5a-0000-7000-8000-000000000122"),
+      officialName: "Editorial Universitaria",
+      university,
+      country: "CU",
+    });
+    const contributor = Contributor.create({
+      id: PnpuUuid.create("01990f5a-0000-7000-8000-000000000123"),
+      name: "Raul Torricella",
+      roles: ["author"],
+    });
+    const subject = Subject.create({ identifier: "30", preferredLabel: "Ciencias sociales" });
+    const publication = mapOmekaPublication(
+      resource(120, {
+        "pnpu:uuid": literals("01990f5a-0000-7000-8000-000000000124"),
+        "dcterms:title": literals("Libro con portada y sin archivo digital"),
+        "dcterms:abstract": literals("Resumen de la publicación."),
+        "dcterms:issued": literals("2026-07-16"),
+        "dcterms:language": literals("es"),
+        "dcterms:type": literals("book"),
+        "dcterms:format": literals("print"),
+        "dcterms:license": literals("CC BY"),
+        "dcterms:identifier": literals("https://pnpu.mes.gob.cu/publicaciones/libro-portada"),
+        "bibo:isbn": literals("9789590000003"),
+        "dcterms:publisher": linkedResource(220),
+        "dcterms:creator": linkedResource(320),
+        "dcterms:subject": linkedResource(420),
+        "schema:keywords": literals("portada"),
+      }),
+      {
+        publishersByOmekaId: new Map([[220, publisher]]),
+        contributorsByOmekaId: new Map([[320, contributor]]),
+        subjectsByOmekaId: new Map([[420, subject]]),
+        mediaByItemOmekaId: new Map([
+          [
+            120,
+            [
+              resource(520, {
+                "o:media_type": "image/jpeg",
+                "o:original_url": "https://example.org/cover.jpg",
+              }),
+            ],
+          ],
+        ]),
+      },
+      quality,
+    );
+
+    expect(publication?.resources()).toEqual([]);
+    expect(publication?.snapshot().coverImageUrl).toBe("https://example.org/cover.jpg");
+    expect(quality.snapshot().issues).toContainEqual(
+      expect.objectContaining({
+        code: "OMEKA_MISSING_DIGITAL_RESOURCE",
+        severity: "warning",
+        omekaId: 120,
+      }),
+    );
+    expect(quality.snapshot().rejectedCount).toBe(0);
+  });
+
   it("rejects publications without required references or media", () => {
     const quality = new OmekaQualityReport();
     const publication = mapOmekaPublication(

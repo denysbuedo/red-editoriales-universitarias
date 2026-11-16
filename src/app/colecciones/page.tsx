@@ -7,7 +7,7 @@ import { createCatalogServices } from "@/modules/catalog/interfaces/http/catalog
 import { PageHero } from "../page-hero";
 
 export const metadata: Metadata = {
-  title: "Colecciones | PNPU",
+  title: "Colecciones",
   description: "Colecciones editoriales universitarias integradas en la PNPU.",
 };
 
@@ -21,7 +21,7 @@ export default async function CollectionsPage() {
   );
 
   return (
-    <main className="min-h-screen bg-[#eef3f8]">
+    <main className="min-h-screen bg-slate-50">
       <PageHero
         description="Series y colecciones editoriales universitarias organizadas dentro del catálogo nacional."
         eyebrow="Colecciones"

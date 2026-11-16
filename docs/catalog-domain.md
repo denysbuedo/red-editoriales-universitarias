@@ -43,7 +43,9 @@ Reglas aplicadas:
 - DR-001: toda publicacion pertenece a un `Publisher`.
 - DR-003: toda publicacion posee al menos un `Contributor`.
 - DR-004: toda publicacion posee al menos un `Identifier`.
-- DR-005: toda publicacion posee al menos un `Resource`.
+- DR-005: toda publicacion posee al menos un `Resource` o una portada valida. Las fichas que solo
+  tienen portada se publican con `resources: []` y generan una advertencia para que el administrador
+  solicite a la editorial completar el archivo digital; la portada no se ofrece como descarga.
 - El idioma, la fecha de publicacion, el tipo documental, el formato y al menos un `Subject` son
   obligatorios.
 

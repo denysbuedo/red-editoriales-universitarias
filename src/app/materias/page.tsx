@@ -7,7 +7,7 @@ import { createCatalogServices } from "@/modules/catalog/interfaces/http/catalog
 import { PageHero } from "../page-hero";
 
 export const metadata: Metadata = {
-  title: "Materias | PNPU",
+  title: "Materias",
   description: "Taxonomía pública de materias utilizadas por el catálogo PNPU.",
 };
 
@@ -21,7 +21,7 @@ export default async function SubjectsPage() {
   );
 
   return (
-    <main className="min-h-screen bg-[#eef3f8]">
+    <main className="min-h-screen bg-slate-50">
       <PageHero
         description="Vocabulario público de materias utilizado para clasificar publicaciones universitarias."
         eyebrow="Taxonomía"

@@ -119,8 +119,11 @@ pnpu:PublicationShape
         sh:name "resources" ;
         sh:description "Manifestaciones digitales asociadas a la publicacion." ;
         sh:class schema:MediaObject ;
-        sh:minCount 1 ;
     ] ;
+    sh:or (
+        [ sh:property [ sh:path schema:associatedMedia ; sh:minCount 1 ] ]
+        [ sh:property [ sh:path schema:image ; sh:nodeKind sh:IRI ; sh:minCount 1 ] ]
+    ) ;
     sh:property [
         sh:path pnpu:accessLevel ;
         sh:name "accessLevel" ;

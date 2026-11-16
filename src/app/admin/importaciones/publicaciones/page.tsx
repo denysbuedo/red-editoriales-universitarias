@@ -6,13 +6,13 @@ import { PageHero } from "../../../page-hero";
 import { PublicationImportDiagnosisForm } from "./publication-import-diagnosis-form";
 
 export const metadata: Metadata = {
-  title: "Diagnóstico de importación | PNPU",
+  title: "Diagnóstico de importación",
   description: "Vista operativa para diagnosticar tablas XLSX de publicaciones universitarias.",
 };
 
 export default function PublicationImportDiagnosisPage() {
   return (
-    <main className="min-h-screen bg-[#eef3f8]">
+    <main className="min-h-screen bg-slate-50">
       <PageHero
         description="Control operativo de lotes XLSX antes de escribir en Omeka S."
         eyebrow="Importación"

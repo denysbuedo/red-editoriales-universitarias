@@ -5,13 +5,13 @@ import { AdminSectionNav } from "./admin-section-nav";
 import { PageHero } from "../page-hero";
 
 export const metadata: Metadata = {
-  title: "Administración | PNPU",
+  title: "Administración",
   description: "Panel administrativo de la Plataforma Nacional de Publicaciones Universitarias.",
 };
 
 export default function AdminPage() {
   return (
-    <main className="min-h-screen bg-[#eef3f8]">
+    <main className="min-h-screen bg-slate-50">
       <PageHero
         description="Acceso a herramientas administrativas protegidas por Keycloak, roles institucionales y doble factor de autenticación."
         eyebrow="Administración"

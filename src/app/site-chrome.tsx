@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -21,7 +22,7 @@ export function SiteShell({
   readonly session: PublicationImportAdminSessionSummary | null;
 }) {
   return (
-    <body className="min-h-screen bg-slate-50 text-neutral-950">
+    <body className="min-h-screen bg-slate-50 font-sans text-neutral-950">
       <SiteHeader session={session} />
       {children}
       <SiteFooter />
@@ -36,13 +37,17 @@ function SiteHeader({
 }) {
   return (
     <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
-      <div className="mx-auto max-w-6xl px-4 py-3 sm:px-6">
-        <div className="flex min-w-0 items-center justify-between gap-3">
-          <Link className="group inline-flex min-w-0 flex-col" href="/">
-            <span className="text-lg font-bold text-slate-950 group-hover:text-blue-900">PNPU</span>
-            <span className="hidden text-xs font-semibold uppercase tracking-normal text-slate-500 sm:block">
-              Plataforma nacional
-            </span>
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="flex h-16 min-w-0 items-center justify-between gap-3 lg:h-[72px]">
+          <Link aria-label="CATALOGA, inicio" className="group inline-flex shrink-0" href="/">
+            <Image
+              alt="CATALOGA · Plataforma Nacional de Publicaciones Universitarias"
+              className="h-9 w-auto transition-opacity group-hover:opacity-80 sm:h-10"
+              height={50}
+              priority
+              src="/brand/logo-principal-claro.svg"
+              width={228}
+            />
           </Link>
 
           <div className="hidden min-w-0 items-center gap-3 lg:flex">
@@ -102,7 +107,9 @@ function SiteFooter() {
     <footer className="border-t border-slate-200 bg-slate-950 text-white">
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-normal text-blue-200">PNPU</p>
+          <p className="text-sm font-semibold text-blue-200">
+            CATALOGA · Plataforma Nacional de Publicaciones Universitarias
+          </p>
           <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-200">
             Esta plataforma está soportada por la Red Nacional de Investigación y Educación de
             Avanzada (Reduniv) del Ministerio de Educación Superior de la República de Cuba.

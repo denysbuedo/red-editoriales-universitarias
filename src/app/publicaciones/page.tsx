@@ -19,7 +19,7 @@ interface PublicationsPageProps {
 }
 
 export const metadata: Metadata = {
-  title: "Publicaciones | PNPU",
+  title: "Publicaciones",
   description: "Catálogo público de publicaciones universitarias integradas en la PNPU.",
 };
 
@@ -58,7 +58,7 @@ export default async function PublicationsPage({ searchParams }: PublicationsPag
   );
 
   return (
-    <main className="min-h-screen bg-[#eef3f8]">
+    <main className="min-h-screen bg-slate-50">
       <PageHero
         description="Obras editoriales universitarias integradas por la Plataforma Nacional de Publicaciones Universitarias."
         eyebrow="Catálogo"

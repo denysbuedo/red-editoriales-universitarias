@@ -8,7 +8,7 @@ describe("GET /version", () => {
 
     await expect(response.json()).resolves.toEqual({
       service: "pnpu-portal",
-      version: "0.1.0",
+      version: "0.1.1",
       commitSha: null,
     });
     expect(response.status).toBe(200);
