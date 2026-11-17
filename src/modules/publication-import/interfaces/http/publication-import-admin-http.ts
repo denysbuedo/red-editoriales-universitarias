@@ -96,6 +96,7 @@ const OIDC_CODE_VERIFIER_COOKIE = "pnpu_oidc_code_verifier";
 const OIDC_NONCE_COOKIE = "pnpu_oidc_nonce";
 const OIDC_RETURN_TO_COOKIE = "pnpu_oidc_return_to";
 const OIDC_STATE_COOKIE = "pnpu_oidc_state";
+const OIDC_AUTH_TRANSACTION_TTL_SECONDS = 30 * 60;
 
 export async function authorizePublicationImportAdminRequest(
   request: Request,
@@ -224,7 +225,7 @@ export async function buildPublicationImportAdminLoginResponse(
   const response = NextResponse.redirect(authorizationUrl);
   const cookieOptions = {
     httpOnly: true,
-    maxAge: 600,
+    maxAge: OIDC_AUTH_TRANSACTION_TTL_SECONDS,
     path: "/api/admin/auth",
     sameSite: "lax" as const,
     secure: requestUrl.protocol === "https:",

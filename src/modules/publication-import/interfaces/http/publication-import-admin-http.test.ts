@@ -560,6 +560,7 @@ describe("publication import admin HTTP helpers", () => {
       expect(cookies).toContain("pnpu_oidc_nonce=");
       expect(cookies).toContain("pnpu_oidc_return_to=%2Fadmin%2Fimportaciones%2Fpublicaciones");
       expect(cookies).toContain("pnpu_oidc_state=");
+      expect(cookies).toContain("Max-Age=1800");
     } finally {
       restoreEnvironmentSnapshot(previousValues);
     }
