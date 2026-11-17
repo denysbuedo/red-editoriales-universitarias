@@ -31,9 +31,11 @@ export default async function HomePage() {
   return (
     <main className="min-h-screen bg-slate-50">
       <PageHero
-        description="Conectamos editoriales. Acercamos conocimiento. Descubre publicaciones, autores, colecciones y editoriales universitarias cubanas en un catálogo nacional integrado."
-        eyebrow="Plataforma Nacional de Publicaciones Universitarias · RedUniv"
+        description="Descubre las publicaciones de las universidades cubanas. Un catálogo nacional que integra editoriales, autores y colecciones para ampliar la visibilidad y facilitar el acceso a la producción editorial universitaria."
         home
+        eyebrow="PLATAFORMA NACIONAL DE PUBLICACIONES UNIVERSITARIAS"
+        homeTagline="Conectamos editoriales. Hacemos circular el conocimiento."
+        hideTitle
         title="CATALOGA"
       >
         <CatalogSearch />
@@ -48,7 +50,7 @@ export default async function HomePage() {
             label="Publicaciones"
           />
           <StructureLink
-            description="Editoriales universitarias integradas a la red RedUniv."
+            description="Editoriales universitarias que forman parte del catálogo nacional."
             href="/editoriales"
             iconSrc="/brand/icons/editoriales.svg"
             label="Editoriales"
@@ -681,7 +683,7 @@ function PublisherCard({ publisher }: { readonly publisher: PublisherSummary }) 
           Registro editorial
         </p>
         <p className="mt-1 text-sm leading-6 text-slate-600">
-          Editorial universitaria integrada a la red RedUniv.
+          Editorial universitaria del catálogo nacional.
         </p>
         <Link
           className="mt-4 inline-flex text-sm font-bold text-blue-800 hover:text-blue-950"

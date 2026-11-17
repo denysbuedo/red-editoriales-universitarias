@@ -13,11 +13,11 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "CATALOGA | Publicaciones universitarias de Cuba",
+    default: "CATALOGA | Plataforma Nacional de Publicaciones Universitarias",
     template: "%s | CATALOGA",
   },
   description:
-    "Descubre publicaciones, colecciones, autores y editoriales universitarias cubanas en el catálogo nacional de RedUniv.",
+    "Descubre las publicaciones de las universidades cubanas. Un catálogo nacional que integra editoriales, autores y colecciones para ampliar la visibilidad y facilitar el acceso a la producción editorial universitaria.",
   icons: {
     icon: [
       { url: "/brand/favicon-16.png", sizes: "16x16", type: "image/png" },
@@ -29,10 +29,17 @@ export const metadata: Metadata = {
     apple: "/brand/apple-touch-icon.png",
   },
   openGraph: {
-    title: "CATALOGA: Conectamos editoriales. Acercamos conocimiento.",
-    description: "Catálogo nacional de publicaciones universitarias de Cuba.",
+    title: "CATALOGA | Conectamos editoriales. Hacemos circular el conocimiento.",
+    description:
+      "Descubre las publicaciones de las universidades cubanas. Un catálogo nacional que integra editoriales, autores y colecciones para ampliar la visibilidad y facilitar el acceso a la producción editorial universitaria.",
     locale: "es_CU",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CATALOGA | Conectamos editoriales. Hacemos circular el conocimiento.",
+    description:
+      "Descubre las publicaciones de las universidades cubanas. Un catálogo nacional que integra editoriales, autores y colecciones para ampliar la visibilidad y facilitar el acceso a la producción editorial universitaria.",
   },
 };
 
